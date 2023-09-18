@@ -1,15 +1,35 @@
-# Road Runner Quickstart
+# CyberRaptors - CenterStage
 
-An example FTC project using [Road Runner](https://github.com/acmerobotics/road-runner).
+Code for the 2023-2024 FTC season robot (Team 8812 - CyberRaptors).
 
-## Installation
+## Team Coding Conventions
 
-1. Download or clone this repo with `git clone --single-branch -b quickstart1 https://github.com/acmerobotics/road-runner-quickstart.git`.
+### Naming
+- Use Java-style naming conventions (PascalCase for classes, variables/methods use camelCase, etc.)
+- For naming opmodes, use the following filesystem-like syntax:
+  - Is driver controlled without odom? -- TeleOp/
+    - Is tests? -- TeleOp/Tests
+    - Else -- TeleOp/Main
+  - Is driver controlled with odom? -- Odometry/
+    - Is tests? -- Odometry/Tests
+    - Else -- Odometry/Main
+  - Is autonomous -- Autonomous/
+    - Is blue alliance -- Autonomous/Blue
+      - Side of field -- Autonomous/Blue/Left|Right
+        - Other details -- e.g. SinglePixel, PixelCycle, DoublePixel, etc.
+    - Is red alliance -- Autonomous/Red
+      - Side of field -- Autonomous/Red/Left|Right
+        - Other details -- e.g. SinglePixel, PixelCycle, DoublePixel, etc.
+  - Ex. an autonomous program that places only one pixel for the blue alliance on the left side would be named like so - Autonomous/Blue/Left/SinglePixel
 
-1. Open the project in Android Studio and build `TeamCode` like any other `ftc_app` project.
+### Syntactic
+- No rules are enforced for using inline vs newline braces, but inline braces are recommended (according to Java conventions)
+- No rules enforced for tabs/spaces, but keep the indentation method uniform throughout the file/package
 
-1. If you have trouble with multidex, enable proguard by changing `useProguard` to `true` in `build.common.gradle`.
-
-## Documentation
-
-Check out the [online quickstart documentation](https://rr.brott.dev/docs/v0-5/quickstart/introduction/).
+### Organization
+- All team-edited code is located in [TeamCode/src/main/java/org/firstinspires/ftc/teamcode/raptor/](https://github.com/User0332/CenterStage8812/tree/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/raptor)
+- Robot configuration code should go in the robot/ directory of the parent dir
+- Driver controlled code should go in teleop/
+- Autonomous code should go in auton/
+  - Object detectors should go in auton/detectors/ and should implement the ObjectDetector<TLabelEnum> interface
+  - Autonomous LinearOpModes should go straight in the auton/ directory
