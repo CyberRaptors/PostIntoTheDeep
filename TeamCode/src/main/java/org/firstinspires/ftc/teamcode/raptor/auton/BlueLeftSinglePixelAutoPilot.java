@@ -5,35 +5,21 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.raptor.auton.autopilot.PositionalConstants;
-import org.firstinspires.ftc.teamcode.raptor.auton.autopilot.TrajectoryDelegator;
-import org.firstinspires.ftc.teamcode.raptor.auton.autopilot.TrajectoryLists;
+import org.firstinspires.ftc.teamcode.raptor.autopilot.TrajectoryDelegator;
+import org.firstinspires.ftc.teamcode.raptor.autopilot.TrajectoryLists;
 
 @Autonomous(name="Autonomous/Blue/Left/SinglePixel/AutoPilot")
 public class BlueLeftSinglePixelAutoPilot extends LinearOpMode {
     public void runOpMode()
     {
+        /* drop purple pixel here before going to backdrop */
+
         Trajectory[] backdropTrajectories = TrajectoryLists.toBlueBackdrop;
-        Trajectory current = backdropTrajectories[0];
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         TrajectoryDelegator delegator = new TrajectoryDelegator(drive, backdropTrajectories);
 
-        drive.followTrajectoryAsync(current);
-
-        while (true) {
-            if (delegator.isAtTarget(PositionalConstants.blueBackdrop)) {
-                break;
-            }
-
-            if (!delegator.shouldChangeTrajectory()) continue;
-
-            drive.breakFollowing();
-
-            current = delegator.getNewTrajectoryPath();
-
-            drive.followTrajectory(current);
-        }
+        delegator.pathFindToTarget();
     }
 }

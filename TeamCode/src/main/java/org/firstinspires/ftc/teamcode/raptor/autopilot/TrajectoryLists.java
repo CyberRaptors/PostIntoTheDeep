@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.raptor.auton.autopilot;
+package org.firstinspires.ftc.teamcode.raptor.autopilot;
 
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
@@ -10,6 +10,8 @@ public class TrajectoryLists {
 
     public static void initializeTrajectoryLists(SampleMecanumDrive drive)
     {
-        // initialize trajectory arrays
+        // TODO: initialize trajectory arrays w/ actual trajectories
+        toBlueBackdrop = new Trajectory[] { /* ... */ };
+        toRedBackdrop = new Trajectory[] { /* ... */ };
     }
 }
