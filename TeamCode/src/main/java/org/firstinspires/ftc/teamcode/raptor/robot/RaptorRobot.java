@@ -1,19 +1,18 @@
 package org.firstinspires.ftc.teamcode.raptor.robot;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class RaptorRobot {
-
-
     public DcMotor leftBack;
     public DcMotor rightBack;
     public DcMotor leftFront;
     public DcMotor rightFront;
-    private BNO055IMU classedIMU;
-    public IMU imu;
+    public DcMotor planeLauncher;
+    public DcMotor testLift1;
+    public Servo hangServo;
 
     public void init(HardwareMap hardwareMap) {
 		//DcMotors
@@ -21,10 +20,8 @@ public class RaptorRobot {
 		leftFront = hardwareMap.get(DcMotor.class, "leftFront");
 		rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 		leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        classedIMU = hardwareMap.get(BNO055IMU.class, "imu");
-
-        classedIMU.initialize(new BNO055IMU.Parameters()); // TODO: change params later?
-
-        imu = (IMU) classedIMU;
+        planeLauncher = hardwareMap.get(DcMotor.class, "lePlaneLauncher");
+        testLift1 = hardwareMap.get(DcMotor.class, "testLift");
+        hangServo = hardwareMap.get(Servo.class, "hangServo");
 	}
 }
