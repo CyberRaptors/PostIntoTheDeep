@@ -29,6 +29,8 @@ public abstract class ITeleopRunner {
         telemetry = opMode.telemetry;
         hardwareMap = opMode.hardwareMap;
 
+        bot = getBot();
+
         bot.init(opMode.hardwareMap);
         opMode.waitForStart();
         runtime.reset();
@@ -40,4 +42,5 @@ public abstract class ITeleopRunner {
     }
 
     protected abstract void internalRun();
+    protected abstract IDriveableRobot getBot();
 }

@@ -5,10 +5,14 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.raptor.robot.RaptorRobot;
+
+import lib8812.common.teleop.IDriveableRobot;
 import lib8812.common.teleop.ITeleopRunner;
 
 public class OdomTestRunner extends ITeleopRunner {
     RaptorRobot bot = new RaptorRobot();
+
+    protected IDriveableRobot getBot() { return bot; };
 
     public void debugLogOverTelemetry(String message)
     {

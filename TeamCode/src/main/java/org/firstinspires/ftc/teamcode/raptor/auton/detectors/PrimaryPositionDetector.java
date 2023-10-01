@@ -48,15 +48,12 @@ import java.util.List;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
 public class PrimaryPositionDetector implements IObjectDetector<PixelDetectionConstants.PixelPosition> {
-    private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
     TfodProcessor tfod;
     VisionPortal visionPortal;
     LinearOpMode opMode;
     public PrimaryPositionDetector(LinearOpMode opMode) {
         this.opMode = opMode;
     }
-
-    public PrimaryPositionDetector create(LinearOpMode opMode) { return new PrimaryPositionDetector(opMode); }
 
     public void init() {
         initTfod();
@@ -70,24 +67,26 @@ public class PrimaryPositionDetector implements IObjectDetector<PixelDetectionCo
 
         // Create the TensorFlow processor by using a builder.
         tfod = new TfodProcessor.Builder()
-
-
-            .setModelFileName(PixelDetectionConstants.PRIMARY_TFOD_MODEL_FILE)
-            .setModelLabels(
+                .setModelLabels(
                     PixelDetectionConstants.LABELS
-            )
-            //.setIsModelTensorFlow2(true)
-            //.setIsModelQuantized(true)
-            //.setModelInputSize(300)
-            //.setModelAspectRatio(16.0 / 9.0)
-
-            .build();
+                )
+                .setModelAssetName("CenterStage.tflite")
+//                .setIsModelQuantized(true)
+//                .setModelFileName("TestModelQuantized.tflite")
+//            //.setIsModelTensorFlow2(true)
+//            //.setIsModelQuantized(true)
+//            //.setModelInputSize(300)
+//            //.setModelAspectRatio(16.0 / 9.0)
+//
+                .build();
 
         VisionPortal.Builder builder = new VisionPortal.Builder();
 
         builder.setCamera(opMode.hardwareMap.get(WebcamName.class, "Webcam 1"));
 
         builder.addProcessor(tfod);
+
+        builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
 
         visionPortal = builder.build();
 
@@ -125,6 +124,8 @@ public class PrimaryPositionDetector implements IObjectDetector<PixelDetectionCo
     }
 
     public void destroy() {
+        try { visionPortal.stopStreaming(); }
+        catch (RuntimeException e) { }
         visionPortal.close();
     };
 

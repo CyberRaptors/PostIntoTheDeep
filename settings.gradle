@@ -1,2 +1,4 @@
 include ':FtcRobotController'
 include ':TeamCode'
+include ':FtcRobotController:lib8812-common'
+include ':lib8812-common'

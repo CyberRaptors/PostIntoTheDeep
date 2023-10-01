@@ -15,12 +15,13 @@ public class AutonCameraTester extends LinearOpMode {
     ElapsedTime runtime = new ElapsedTime();
     public void runOpMode() {
         bot.init(hardwareMap);
-        waitForStart();
-        runtime.reset();
 
         IObjectDetector<PixelDetectionConstants.PixelPosition> objectDetector = new PrimaryPositionDetector(this);
 
         objectDetector.init();
+
+        waitForStart();
+        runtime.reset();
 
         while (opModeIsActive())
             objectDetector.logInputToTelemetry();
