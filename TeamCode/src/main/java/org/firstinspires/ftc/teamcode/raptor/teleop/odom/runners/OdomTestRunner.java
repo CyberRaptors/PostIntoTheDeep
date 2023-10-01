@@ -1,17 +1,13 @@
-package org.firstinspires.ftc.teamcode.raptor.teleop;
+package org.firstinspires.ftc.teamcode.raptor.teleop.odom.runners;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.raptor.robot.RaptorRobot;
+import lib8812.common.teleop.ITeleopRunner;
 
-@TeleOp(name="Odometry/Tests", group="Linear Opmode")
-public class OdomTests extends LinearOpMode {
-    private final ElapsedTime runtime = new ElapsedTime();
+public class OdomTestRunner extends ITeleopRunner {
     RaptorRobot bot = new RaptorRobot();
 
     public void debugLogOverTelemetry(String message)
@@ -20,14 +16,11 @@ public class OdomTests extends LinearOpMode {
         telemetry.update();
     }
 
-    public void initOpMode() {
-        this.bot.init(hardwareMap);
-
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
-
-        waitForStart();
-        runtime.reset();
+    public void driveRobot() {
+        bot.rightFront.setPower(-gamepad1.right_stick_y-gamepad1.right_stick_x);
+        bot.leftFront.setPower(gamepad1.left_stick_y-gamepad1.left_stick_x);
+        bot.rightBack.setPower(-gamepad1.right_stick_y+gamepad1.right_stick_x);
+        bot.leftBack.setPower(gamepad1.left_stick_y+gamepad1.left_stick_x);
     }
 
     public void postPoseData(Pose2d pose)
@@ -37,10 +30,7 @@ public class OdomTests extends LinearOpMode {
         telemetry.addData("heading", pose.getHeading());
     }
 
-    @Override
-    public void runOpMode() {
-        initOpMode();
-
+    protected void internalRun() {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         final Pose2d startPose = new Pose2d(0, 0, 0);
 
@@ -50,9 +40,13 @@ public class OdomTests extends LinearOpMode {
             .forward(10)
             .build();
 
+        drive.followTrajectory(trajectory);
+
         while (opModeIsActive()) {
+            drive.updatePoseEstimate();
             postPoseData(drive.getPoseEstimate());
-            
+            driveRobot();
+
             telemetry.update();
         }
     }

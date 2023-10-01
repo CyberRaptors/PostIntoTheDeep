@@ -1,7 +1,15 @@
 package org.firstinspires.ftc.teamcode.raptor.auton.detectors;
 
-public class PrimaryRobotDetector implements ObjectDetector<RobotThreat> {
-    public RobotThreat getCurrentFeed() {
-        return RobotThreat.NONE;
+import lib8812.common.auton.IObjectDetector;
+
+public class PrimaryRobotDetector implements IObjectDetector<RobotDetectionConstants.RobotThreat> {
+    public RobotDetectionConstants.RobotThreat getCurrentFeed() {
+        return RobotDetectionConstants.RobotThreat.NONE;
     }
+
+    public void logInputToTelemetry() { }
+
+    public void destroy() { }
+
+    public void init() { }
 }

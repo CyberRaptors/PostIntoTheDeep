@@ -7,7 +7,7 @@ import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.raptor.auton.detectors.PrimaryRobotDetector;
-import org.firstinspires.ftc.teamcode.raptor.auton.detectors.RobotThreat;
+import org.firstinspires.ftc.teamcode.raptor.auton.detectors.RobotDetectionConstants;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 public class TrajectoryDelegator {
@@ -23,7 +23,7 @@ public class TrajectoryDelegator {
     // TODO: fix function so that it doesnt fire more than once for the same robot
     //  [e.g. it shouldn't fire again if a backup trajectory has already been calculated to avoid collision with the robot that it detects]
     public boolean shouldChangeTrajectory() {
-        return detector.getCurrentFeed() == RobotThreat.URGENT;
+        return detector.getCurrentFeed() == RobotDetectionConstants.RobotThreat.URGENT;
     }
     public TrajectorySequence getNewTrajectoryPath() {
         Trajectory backup = calculateClosestBackupTrajectory();
