@@ -2,6 +2,8 @@ plugins {
     id 'com.android.library'
 }
 
+apply from: '../build.dependencies.gradle'
+
 android {
     namespace 'lib8812.common'
     compileSdk 33
@@ -28,7 +30,6 @@ android {
 dependencies {
     implementation project(':FtcRobotController')
 
-
     // todo: include this from a common dependencies file
     implementation 'org.firstinspires.ftc:Inspection:9.0.0'
     implementation 'org.firstinspires.ftc:Blocks:9.0.0'
@@ -44,5 +45,11 @@ dependencies {
     runtimeOnly 'org.tensorflow:tensorflow-lite:2.12.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
 
+    implementation 'org.apache.commons:commons-math3:3.6.1'
+
+    implementation 'com.acmerobotics.roadrunner:core:0.5.6'
+
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.10'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.7'
 }

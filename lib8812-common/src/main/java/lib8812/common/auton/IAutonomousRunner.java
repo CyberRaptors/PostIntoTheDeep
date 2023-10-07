@@ -1,11 +1,19 @@
 package lib8812.common.auton;
 
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
+import org.firstinspires.ftc.robotcontroller.internal.FtcOpModeRegister;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import lib8812.common.rr.drive.SampleMecanumDrive;
 import lib8812.common.teleop.IDriveableRobot;
 
 import java.lang.reflect.InvocationTargetException;
@@ -13,7 +21,8 @@ import java.lang.reflect.InvocationTargetException;
 public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
     IDriveableRobot bot;
     ElapsedTime runtime = new ElapsedTime();
-    LinearOpMode opMode;
+    protected SampleMecanumDrive drive;
+    protected LinearOpMode opMode;
     protected IObjectDetector<TLabelEnum> objectDetector;
 
     // synonyms
@@ -34,6 +43,7 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
         bot = getBot();
 
         bot.init(opMode.hardwareMap);
+        drive = new SampleMecanumDrive(opMode.hardwareMap);
     }
 
     void initializeOpMode(LinearOpMode opMode) {
@@ -50,6 +60,8 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
 
         initializeOpModeSynonymsAndBot(opMode);
 
+        FtcDashboard.start(null);
+
         try {
             result = this.<ObjectDetector> getDetectionResult(objectDetectorClass, defaultLabel);
         } catch (Exception e) {
@@ -58,6 +70,8 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
 
         initializeOpMode(opMode);
         internalRun(result);
+
+        FtcDashboard.stop(null);
     }
 
     protected <ObjectDetector extends IObjectDetector<TLabelEnum>> TLabelEnum getDetectionResult(Class<ObjectDetector> objectDetectorClass, TLabelEnum defaultLabel) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
@@ -65,11 +79,12 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
 
         objectDetector.init();
 
-        while (objectDetector.getCurrentFeed() == defaultLabel);
+        TLabelEnum res = defaultLabel;
 
-        TLabelEnum res = objectDetector.getCurrentFeed();
+        while (res == defaultLabel)
+            res = objectDetector.getCurrentFeed();
 
-        return defaultLabel;
+        return res;
     }
 
     protected abstract void internalRun(TLabelEnum result);
