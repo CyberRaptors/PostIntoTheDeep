@@ -17,6 +17,8 @@ import lib8812.common.rr.drive.SampleMecanumDrive;
 import lib8812.common.teleop.IDriveableRobot;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
     IDriveableRobot bot;
@@ -60,8 +62,6 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
 
         initializeOpModeSynonymsAndBot(opMode);
 
-        FtcDashboard.start(null);
-
         try {
             result = this.<ObjectDetector> getDetectionResult(objectDetectorClass, defaultLabel);
         } catch (Exception e) {
@@ -70,8 +70,28 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
 
         initializeOpMode(opMode);
         internalRun(result);
+        objectDetector.destroy();
+    }
 
-        FtcDashboard.stop(null);
+    protected static CompletableFuture setTimeout(Runnable runnable, int delay) {
+        CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
+            runnable.run();
+
+            try { TimeUnit.MILLISECONDS.sleep(delay); }
+            catch (InterruptedException e) {
+                throw new IllegalStateException(e);
+            }
+
+            return 0;
+        });
+
+        return future;
+    }
+
+    protected void debugLogOverTelemetry(String message)
+    {
+        telemetry.addData("dbg", message);
+        telemetry.update();
     }
 
     protected <ObjectDetector extends IObjectDetector<TLabelEnum>> TLabelEnum getDetectionResult(Class<ObjectDetector> objectDetectorClass, TLabelEnum defaultLabel) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {

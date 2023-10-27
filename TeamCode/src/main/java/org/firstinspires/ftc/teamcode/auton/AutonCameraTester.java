@@ -25,7 +25,7 @@ public class AutonCameraTester extends LinearOpMode {
 
         while (opModeIsActive()) {
             objectDetector.logInputToTelemetry();
-            telemetry.addData("here", "here");
+            telemetry.update();
         }
 
         objectDetector.destroy();

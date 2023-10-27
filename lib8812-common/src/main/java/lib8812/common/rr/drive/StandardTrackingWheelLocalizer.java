@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.Arrays;
 import java.util.List;
 
+import lib8812.common.rr.drive.opmode.TrackingWheelLateralDistanceTuner;
 import lib8812.common.rr.util.Encoder;
 
 /*
@@ -32,11 +33,11 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
     public static double WHEEL_RADIUS = 0.6889764; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double LATERAL_DISTANCE = 3.8125; // in; distance between the left and right wheels
+    public static double LATERAL_DISTANCE = 3.5452339950312988; // in; distance between the left and right wheels
     public static double FORWARD_OFFSET = -1.375; // in; offset of the lateral wheel
 
-    public static double X_MULTIPLIER = 1;
-    public static double Y_MULTIPLIER = 1;
+    public static double X_MULTIPLIER = (1.03274569 + 1.0276111 + 1.03484904)/3;
+    public static double Y_MULTIPLIER = (1.06167918 + 1.0491012997 + 1.04874437087)/3;
 
     private Encoder leftEncoder, rightEncoder, frontEncoder;
 
@@ -55,6 +56,8 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightFront"));
         leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftFront"));
         frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightBack"));
+
+//        frontEncoder.setDirection(Encoder.Direction.REVERSE);
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
     }

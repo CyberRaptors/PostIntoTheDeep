@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop.normal.runners;
 
+import com.qualcomm.robotcore.hardware.CRServo;
+
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.teleop.IDriveableRobot;
@@ -11,13 +13,6 @@ public class RaptorTestRunner extends ITeleopRunner {
     protected IDriveableRobot getBot() { return bot; };
 
     private double planeLauncherPower = 0;
-    private double hangServoPosition = 0.6;
-
-    public void debugLogOverTelemetry(String message)
-    {
-        telemetry.addData("dbg", message);
-        telemetry.update();
-    }
 
     public void testPlaneLauncher() {
         if (gamepad2.dpad_up) {
@@ -43,16 +38,28 @@ public class RaptorTestRunner extends ITeleopRunner {
         bot.leftBack.setPower(gamepad1.left_stick_y+gamepad1.left_stick_x);
     }
 
-    public void testHangServo() {
-        if (gamepad2.dpad_right) {
-            hangServoPosition+=0.001;
-        }
+    public void testHangServos() {
+        if (gamepad1.dpad_down) {
+            bot.hangServoLeft.setPower(-0.1);
+            bot.hangServoRight.setPower(0.1);
 
-        if (gamepad2.dpad_left) {
-            hangServoPosition-=0.001;
-        }
+            setTimeout(
+                () -> {
+                   bot.hangServoLeft.setPower(0);
+                   bot.hangServoRight.setPower(0);
+                }, 1500
+            );
+        } else if (gamepad1.dpad_up) {
+            bot.hangServoLeft.setPower(0.1);
+            bot.hangServoRight.setPower(-0.1);
 
-        bot.hangServo.setPosition(hangServoPosition);
+            setTimeout(
+                () -> {
+                    bot.hangServoLeft.setPower(0);
+                    bot.hangServoRight.setPower(0);
+                }, 1500
+            );
+        }
     }
 
     protected void internalRun() {
@@ -61,13 +68,21 @@ public class RaptorTestRunner extends ITeleopRunner {
         while (opModeIsActive()) {
             testPlaneLauncher();
             testWheels();
-            testHangServo();
+            testHangServos();
             testLifts();
 
+            telemetry.addData(
+                    "Wheels",
+                    "leftFront (%.2f) leftBack (%.2f) rightFront (%.2f) rightBack (%.2f)",
+                    bot.leftFront.getPower(),
+                    bot.leftBack.getPower(),
+                    bot.rightFront.getPower(),
+                    bot.rightBack.getPower()
+            );
             telemetry.addData("Plane Launcher Power", planeLauncherPower);
             telemetry.addData("Lift 1", bot.testLift1.getPower());
             telemetry.addData("Lift2", -bot.testLift2.getPower());
-            telemetry.addData("Hang Servo Position", -bot.hangServo.getPosition());
+            telemetry.addData("Hang Servo Power [real]", "left (%.2f), right (%.2f)", bot.hangServoLeft.getPower(), bot.hangServoRight.getPower());
             telemetry.update();
 
             counter++;

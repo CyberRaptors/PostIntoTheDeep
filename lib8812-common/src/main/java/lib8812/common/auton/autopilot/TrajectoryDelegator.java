@@ -6,6 +6,8 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.apache.commons.math3.analysis.function.Abs;
+
 import lib8812.common.auton.IObjectDetector;
 import lib8812.common.builtindetectors.PrimaryRobotDetector;
 import lib8812.common.builtindetectors.RobotDetectionConstants;
@@ -83,7 +85,22 @@ public class TrajectoryDelegator {
     }
 
     Trajectory calculateClosestBackupTrajectory() {
-        return trajectories[0]; // TODO: write actual code to calculate closest backup trajectory to robot
+        double leastDist = 10000000000000d;
+        Trajectory closest = null;
+
+        for (Trajectory trajectory : trajectories) {
+            Pose2d start = trajectory.start();
+            Pose2d curr = drive.getPoseEstimate();
+
+            double dist = Math.abs(start.getY()-curr.getY())+Math.abs(start.getX()-curr.getX());
+
+            if (dist < leastDist) {
+                leastDist = dist;
+                closest = trajectory;
+            }
+        }
+
+        return closest;
     }
 
     public void pathFindToTarget() {

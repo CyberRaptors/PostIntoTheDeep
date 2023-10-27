@@ -55,6 +55,9 @@ public class PrimaryPositionDetector implements IObjectDetector<PixelDetectionCo
     LinearOpMode opMode;
     CameraStreamProcessor dashboardProcessor = new CameraStreamProcessor();
 
+    public static final float LEFT_SIDE_X_BARRIER = 100;
+    public static final float RIGHT_SIDE_X_BARRIER = 500;
+
     public PrimaryPositionDetector(LinearOpMode opMode) {
         this.opMode = opMode;
     }
@@ -118,9 +121,9 @@ public class PrimaryPositionDetector implements IObjectDetector<PixelDetectionCo
 
                 float x = recognition.getRight();
 
-                if (x < 100) {
+                if (x < LEFT_SIDE_X_BARRIER) {
                     bestRecognition = PixelDetectionConstants.PixelPosition.LEFT;
-                } else if (x > 400) {
+                } else if (x > RIGHT_SIDE_X_BARRIER) {
                     bestRecognition = PixelDetectionConstants.PixelPosition.RIGHT;
                 } else {
                     bestRecognition = PixelDetectionConstants.PixelPosition.CENTER;

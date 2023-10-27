@@ -10,11 +10,5 @@ public class RaptorMainRunner extends ITeleopRunner {
 
     protected IDriveableRobot getBot() { return bot; };
 
-    public void debugLogOverTelemetry(String message)
-    {
-        telemetry.addData("dbg", message);
-        telemetry.update();
-    }
-
     protected void internalRun() { };
 }

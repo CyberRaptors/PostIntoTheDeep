@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.robot;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -14,7 +16,8 @@ public class RaptorRobot implements IDriveableRobot {
     public DcMotor planeLauncher;
     public DcMotor testLift1;
     public DcMotor testLift2;
-    public Servo hangServo;
+    public CRServo hangServoLeft;
+    public CRServo hangServoRight;
 
     public void init(HardwareMap hardwareMap) {
 		//DcMotors
@@ -25,6 +28,7 @@ public class RaptorRobot implements IDriveableRobot {
         planeLauncher = hardwareMap.get(DcMotor.class, "lePlaneLauncher");
         testLift1 = hardwareMap.get(DcMotor.class, "testLift");
         testLift2 = hardwareMap.get(DcMotor.class, "testLiftDeux");
-        hangServo = hardwareMap.get(Servo.class, "hangServo");
+        hangServoLeft = hardwareMap.get(CRServo.class, "hangServoLeft");
+        hangServoRight = hardwareMap.get(CRServo.class, "hangServoRight");
 	}
 }

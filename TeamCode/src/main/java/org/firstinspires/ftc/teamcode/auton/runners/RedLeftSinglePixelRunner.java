@@ -13,6 +13,10 @@ public class RedLeftSinglePixelRunner extends IAutonomousRunner<PixelDetectionCo
     }
 
     protected void internalRun(PixelDetectionConstants.PixelPosition pos) {
+        drive.followTrajectory(
+                drive.trajectoryBuilder(drive.getPoseEstimate()).forward(10).build()
+        );
+
         while (opModeIsActive()) {
             telemetry.addData("Pixel Position", objectDetector.getCurrentFeed());
             telemetry.update();

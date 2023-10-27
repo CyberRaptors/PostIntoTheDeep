@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
 public abstract class ITeleopRunner {
     public IDriveableRobot bot;
     public LinearOpMode opMode;
@@ -21,6 +24,27 @@ public abstract class ITeleopRunner {
         opMode.sleep(ms);
     }
     public boolean opModeIsActive() { return opMode.opModeIsActive(); }
+
+    public void debugLogOverTelemetry(String message)
+    {
+        telemetry.addData("dbg", message);
+        telemetry.update();
+    }
+
+    protected static CompletableFuture setTimeout(Runnable runnable, int delay) {
+        CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
+            runnable.run();
+
+            try { TimeUnit.MILLISECONDS.sleep(delay); }
+            catch (InterruptedException e) {
+                throw new IllegalStateException(e);
+            }
+
+            return 0;
+        });
+
+        return future;
+    }
 
     public void initializeOpMode(LinearOpMode opMode) {
         this.opMode = opMode;
