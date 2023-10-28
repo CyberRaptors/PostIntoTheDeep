@@ -49,7 +49,7 @@ import java.util.List;
  * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list.
  */
-public class PrimaryPositionDetector implements IObjectDetector<PixelDetectionConstants.PixelPosition> {
+public class RedElementPositionDetector implements IObjectDetector<PixelDetectionConstants.PixelPosition> {
     TfodProcessor tfod;
     VisionPortal visionPortal;
     LinearOpMode opMode;
@@ -58,7 +58,7 @@ public class PrimaryPositionDetector implements IObjectDetector<PixelDetectionCo
     public static final float LEFT_SIDE_X_BARRIER = 100;
     public static final float RIGHT_SIDE_X_BARRIER = 500;
 
-    public PrimaryPositionDetector(LinearOpMode opMode) {
+    public RedElementPositionDetector(LinearOpMode opMode) {
         this.opMode = opMode;
     }
 
@@ -79,7 +79,7 @@ public class PrimaryPositionDetector implements IObjectDetector<PixelDetectionCo
                 )
 //                .setModelAssetName("CenterStage.tflite")
 //                .setIsModelQuantized(true)
-                .setModelFileName(PixelDetectionConstants.PRIMARY_TFOD_MODEL_FILE)
+                .setModelFileName(PixelDetectionConstants.RED_TFOD_MODEL_FILE)
 //            //.setIsModelTensorFlow2(true)
 //            //.setIsModelQuantized(true)
 //            //.setModelInputSize(300)
@@ -128,7 +128,6 @@ public class PrimaryPositionDetector implements IObjectDetector<PixelDetectionCo
                 } else {
                     bestRecognition = PixelDetectionConstants.PixelPosition.CENTER;
                 }
-
             }
         }
 

@@ -12,5 +12,6 @@ public class PixelDetectionConstants implements IObjectDetectionConstants {
             "element"
     };
 
-    public static final String PRIMARY_TFOD_MODEL_FILE = "RedElementDetection.tflite";
+    public static final String RED_TFOD_MODEL_FILE = "RedElementDetection.tflite";
+    public static final String BLUE_TFOD_MODEL_FILE = "BlueElementDetection.tflite";
 }

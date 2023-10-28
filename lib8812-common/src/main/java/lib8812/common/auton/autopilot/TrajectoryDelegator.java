@@ -17,12 +17,14 @@ import lib8812.common.rr.trajectorysequence.TrajectorySequence;
 public class TrajectoryDelegator {
     IObjectDetector<RobotDetectionConstants.RobotThreat> detector;
     SampleMecanumDrive drive;
-    Trajectory[] trajectories;
+    TrajectorySequence[] trajectories;
+    Pose2d target;
 
-    public TrajectoryDelegator(LinearOpMode opMode, SampleMecanumDrive inputDrive, Trajectory[] trajectoryList) {
+    public TrajectoryDelegator(LinearOpMode opMode, SampleMecanumDrive inputDrive, TrajectorySequence[] trajectoryList, Pose2d target) {
         drive = inputDrive;
         trajectories = trajectoryList;
         detector = new PrimaryRobotDetector(opMode);
+        this.target = target;
     }
 
     // TODO: fix function so that it doesnt fire more than once for the same robot
@@ -31,7 +33,7 @@ public class TrajectoryDelegator {
         return detector.getCurrentFeed() == RobotDetectionConstants.RobotThreat.URGENT;
     }
     public TrajectorySequence getNewTrajectoryPath() {
-        Trajectory backup = calculateClosestBackupTrajectory();
+        TrajectorySequence backup = calculateClosestBackupTrajectory();
 
         Pose2d dest = backup.start();
 
@@ -63,11 +65,14 @@ public class TrajectoryDelegator {
         return drive.trajectorySequenceBuilder(curr)
                 .addTrajectory(toBackup)
                 .turn(headdiff)
-                .addTrajectory(backup)
+                .addTemporalMarker(() -> {
+                    drive.breakFollowing();
+                    drive.followTrajectorySequence(backup);
+                })
                 .build();
     }
 
-    public boolean isAtTarget(Pose2d target) {
+    public boolean isAtTarget() {
         Pose2d curr = drive.getPoseEstimate();
 
         double currX = curr.getX();
@@ -84,11 +89,11 @@ public class TrajectoryDelegator {
             ((currHead > targetHead - 0.01) && (currHead < targetHead + 0.01));
     }
 
-    Trajectory calculateClosestBackupTrajectory() {
-        double leastDist = 10000000000000d;
-        Trajectory closest = null;
+    TrajectorySequence calculateClosestBackupTrajectory() {
+        double leastDist = Double.MAX_VALUE;
+        TrajectorySequence closest = null;
 
-        for (Trajectory trajectory : trajectories) {
+        for (TrajectorySequence trajectory : trajectories) {
             Pose2d start = trajectory.start();
             Pose2d curr = drive.getPoseEstimate();
 
@@ -104,19 +109,14 @@ public class TrajectoryDelegator {
     }
 
     public void pathFindToTarget() {
-        TrajectorySequence current = drive
-                .trajectorySequenceBuilder(
-                        drive.getPoseEstimate()
-                ).addTrajectory(
-                        trajectories[0]
-                ).build();
+        TrajectorySequence current = trajectories[0];
 
         drive.followTrajectorySequenceAsync(current);
 
         while (true) {
             drive.update();
 
-            if (isAtTarget(PositionalConstants.blueBackdrop)) {
+            if (isAtTarget()) {
                 break;
             }
 

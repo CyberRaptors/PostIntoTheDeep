@@ -69,8 +69,13 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
         }
 
         initializeOpMode(opMode);
-        internalRun(result);
-        objectDetector.destroy();
+
+        if (opModeIsActive()) {
+            internalRun(result);
+//            objectDetector.destroy();
+        }
+
+//        while (opModeIsActive()); // see if this fixes the restarting issue
     }
 
     protected static CompletableFuture setTimeout(Runnable runnable, int delay) {

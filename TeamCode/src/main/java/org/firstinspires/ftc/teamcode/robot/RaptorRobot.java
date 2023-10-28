@@ -18,6 +18,8 @@ public class RaptorRobot implements IDriveableRobot {
     public DcMotor testLift2;
     public CRServo hangServoLeft;
     public CRServo hangServoRight;
+    public Servo planePush;
+    public Servo tempFlip;
 
     public void init(HardwareMap hardwareMap) {
 		//DcMotors
@@ -30,5 +32,7 @@ public class RaptorRobot implements IDriveableRobot {
         testLift2 = hardwareMap.get(DcMotor.class, "testLiftDeux");
         hangServoLeft = hardwareMap.get(CRServo.class, "hangServoLeft");
         hangServoRight = hardwareMap.get(CRServo.class, "hangServoRight");
+        planePush = hardwareMap.get(Servo.class, "planePush");
+        tempFlip = hardwareMap.get(Servo.class, "tempFlip");
 	}
 }

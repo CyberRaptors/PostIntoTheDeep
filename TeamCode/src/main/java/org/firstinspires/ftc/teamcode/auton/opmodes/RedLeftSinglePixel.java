@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.auton.opmodes;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.auton.detectors.PrimaryPositionDetector;
+import org.firstinspires.ftc.teamcode.auton.detectors.RedElementPositionDetector;
 import org.firstinspires.ftc.teamcode.auton.runners.RedLeftSinglePixelRunner;
 import org.firstinspires.ftc.teamcode.auton.detectors.PixelDetectionConstants;
 
@@ -11,6 +11,6 @@ import org.firstinspires.ftc.teamcode.auton.detectors.PixelDetectionConstants;
 public class RedLeftSinglePixel extends LinearOpMode {
     public void runOpMode() {
         new RedLeftSinglePixelRunner()
-                .run(this, PrimaryPositionDetector.class, PixelDetectionConstants.PixelPosition.NONE);
+                .run(this, RedElementPositionDetector.class, PixelDetectionConstants.PixelPosition.NONE);
     }
 }

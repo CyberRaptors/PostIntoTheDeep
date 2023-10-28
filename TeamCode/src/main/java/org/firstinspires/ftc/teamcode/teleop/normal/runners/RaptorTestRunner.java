@@ -16,7 +16,7 @@ public class RaptorTestRunner extends ITeleopRunner {
 
     public void testPlaneLauncher() {
         if (gamepad2.dpad_up) {
-            planeLauncherPower = 0.7;
+            planeLauncherPower = 0.5;
         }
 
         if (gamepad2.dpad_down) {
@@ -62,6 +62,34 @@ public class RaptorTestRunner extends ITeleopRunner {
         }
     }
 
+    public void testPlanePush() {
+        if (gamepad2.dpad_right) {
+            bot.planePush.setPosition(
+                    bot.planePush.getPosition()+0.005
+            );
+        }
+
+        if (gamepad2.dpad_left) {
+            bot.planePush.setPosition(
+                    bot.planePush.getPosition()-0.005
+            );
+        }
+    }
+
+    public void testTempFlip() {
+        if (gamepad2.right_bumper) {
+            bot.tempFlip.setPosition(
+                    bot.tempFlip.getPosition()+0.005
+            );
+        }
+
+        if (gamepad2.left_bumper) {
+            bot.tempFlip.setPosition(
+                    bot.tempFlip.getPosition()-0.005
+            );
+        }
+    }
+
     protected void internalRun() {
         int counter = 0;
 
@@ -70,6 +98,8 @@ public class RaptorTestRunner extends ITeleopRunner {
             testWheels();
             testHangServos();
             testLifts();
+            testPlanePush();
+            testTempFlip();
 
             telemetry.addData(
                     "Wheels",
@@ -80,6 +110,8 @@ public class RaptorTestRunner extends ITeleopRunner {
                     bot.rightBack.getPower()
             );
             telemetry.addData("Plane Launcher Power", planeLauncherPower);
+            telemetry.addData("Plane Pusher", bot.planePush.getPosition());
+            telemetry.addData("Temporary Pixel Flipper", bot.tempFlip.getPosition());
             telemetry.addData("Lift 1", bot.testLift1.getPower());
             telemetry.addData("Lift2", -bot.testLift2.getPower());
             telemetry.addData("Hang Servo Power [real]", "left (%.2f), right (%.2f)", bot.hangServoLeft.getPower(), bot.hangServoRight.getPower());
