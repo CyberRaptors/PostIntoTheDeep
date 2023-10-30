@@ -1,16 +1,16 @@
-package org.firstinspires.ftc.teamcode.auton.opmodes;
+package org.firstinspires.ftc.teamcode.auton.opmodes.doublepixel.red;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.auton.detectors.RedElementPositionDetector;
+import org.firstinspires.ftc.teamcode.auton.runners.doublepixel.red.RedLeftDoublePixelAutoPilotRunner;
 import org.firstinspires.ftc.teamcode.auton.detectors.PixelDetectionConstants;
-import org.firstinspires.ftc.teamcode.auton.runners.RedParkRunner;
 
-@Autonomous(name="Autonomous/Red/Right/Park")
-public class RedPark extends LinearOpMode {
+@Autonomous(name="Autonomous/Red/Left/DoublePixel/AutoPilot")
+public class RedLeftDoublePixelAutoPilot extends LinearOpMode {
     public void runOpMode() {
-        new RedParkRunner()
+        new RedLeftDoublePixelAutoPilotRunner()
                 .run(this, RedElementPositionDetector.class, PixelDetectionConstants.PixelPosition.NONE);
     }
 }
