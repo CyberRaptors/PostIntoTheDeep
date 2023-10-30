@@ -35,12 +35,6 @@ public class OdomTestRunner extends ITeleopRunner {
     RaptorRobot bot = new RaptorRobot();
     protected IDriveableRobot getBot() { return bot; };
 
-    public void debugLogOverTelemetry(String message)
-    {
-        telemetry.addData("dbg", message);
-        telemetry.update();
-    }
-
     public void driveRobot() {
         bot.rightFront.setPower(-gamepad1.right_stick_y-gamepad1.right_stick_x);
         bot.leftFront.setPower(-gamepad1.left_stick_y+gamepad1.left_stick_x);

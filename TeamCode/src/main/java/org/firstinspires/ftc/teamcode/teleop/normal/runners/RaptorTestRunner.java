@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.teleop.normal.runners;
 
-import com.qualcomm.robotcore.hardware.CRServo;
-
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.teleop.IDriveableRobot;
