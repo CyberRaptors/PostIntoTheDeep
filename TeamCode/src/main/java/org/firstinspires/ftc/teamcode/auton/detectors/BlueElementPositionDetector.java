@@ -98,7 +98,7 @@ public class BlueElementPositionDetector implements IObjectDetector<PixelDetecti
 
         visionPortal = builder.build();
 
-        tfod.setMinResultConfidence(0.75f);
+        tfod.setMinResultConfidence(0.95f);
 
         visionPortal.setProcessorEnabled(tfod, true);
 
