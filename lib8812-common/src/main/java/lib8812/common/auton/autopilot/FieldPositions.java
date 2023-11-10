@@ -21,6 +21,14 @@ public class FieldPositions {
         public static final Pose2d RED_LEFT_START = new Pose2d(HALF_BLOCK_LENGTH_IN, -(HALF_FIELD_LENGTH_IN-HALF_BLOCK_LENGTH_IN), Math.toRadians(270));
         public static final Pose2d BLUE_RIGHT_START = new Pose2d(-(HALF_BLOCK_LENGTH_IN+BLOCK_LENGTH_IN), HALF_FIELD_LENGTH_IN-HALF_BLOCK_LENGTH_IN, Math.toRadians(90));
         public static final Pose2d RED_RIGHT_START = new Pose2d(-(HALF_BLOCK_LENGTH_IN+BLOCK_LENGTH_IN), -(HALF_FIELD_LENGTH_IN-HALF_BLOCK_LENGTH_IN), Math.toRadians(270));
+
+        public static class CollisionPoints {
+            public static final Pose2d RED_LEFT_ONE = new Pose2d(HALF_BLOCK_LENGTH_IN, -(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN), 0);
+            public static final Pose2d RED_LEFT_TWO = new Pose2d(-HALF_BLOCK_LENGTH_IN, -(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN), 0);
+
+            public static final Pose2d BLUE_RIGHT_ONE = new Pose2d(HALF_BLOCK_LENGTH_IN, BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN, 0);
+            public static final Pose2d BLUE_RIGHT_TWO = new Pose2d(-HALF_BLOCK_LENGTH_IN, BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN, 0);
+        }
     }
 
     public static class InFrontOf {

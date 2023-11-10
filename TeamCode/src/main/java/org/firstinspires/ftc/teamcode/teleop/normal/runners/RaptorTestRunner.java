@@ -36,6 +36,21 @@ public class RaptorTestRunner extends ITeleopRunner {
         bot.leftBack.setPower(gamepad1.left_stick_y+gamepad1.left_stick_x);
     }
 
+    public void dpadStrafeTest() {
+        if (gamepad1.dpad_right) {
+            bot.rightFront.setPower(-1);
+            bot.leftFront.setPower(-1);
+            bot.rightBack.setPower(1);
+            bot.leftBack.setPower(1);
+        }
+        if (gamepad1.dpad_left) {
+            bot.rightFront.setPower(1);
+            bot.leftFront.setPower(1);
+            bot.rightBack.setPower(-1);
+            bot.leftBack.setPower(-1);
+        }
+    }
+
     public void testHangServos() {
         if (gamepad1.dpad_down) {
             bot.hangServoLeft.setPower(-0.1);
@@ -74,17 +89,13 @@ public class RaptorTestRunner extends ITeleopRunner {
         }
     }
 
-    public void testTempFlip() {
+    public void testClaw() {
         if (gamepad2.right_bumper) {
-            bot.tempFlip.setPosition(
-                    bot.tempFlip.getPosition()+0.005
-            );
+            bot.claw.setPosition(bot.CLAW_OPEN);
         }
 
         if (gamepad2.left_bumper) {
-            bot.tempFlip.setPosition(
-                    bot.tempFlip.getPosition()-0.005
-            );
+            bot.claw.setPosition(bot.CLAW_CLOSED);
         }
     }
 
@@ -97,7 +108,8 @@ public class RaptorTestRunner extends ITeleopRunner {
             testHangServos();
             testLifts();
             testPlanePush();
-            testTempFlip();
+            testClaw();
+            dpadStrafeTest();
 
             telemetry.addData(
                     "Wheels",
@@ -109,7 +121,7 @@ public class RaptorTestRunner extends ITeleopRunner {
             );
             telemetry.addData("Plane Launcher Power", planeLauncherPower);
             telemetry.addData("Plane Pusher", bot.planePush.getPosition());
-            telemetry.addData("Temporary Pixel Flipper", bot.tempFlip.getPosition());
+            telemetry.addData("Claw", bot.claw.getPosition());
             telemetry.addData("Lift 1", bot.testLift1.getPower());
             telemetry.addData("Lift2", -bot.testLift2.getPower());
             telemetry.addData("Hang Servo Power [real]", "left (%.2f), right (%.2f)", bot.hangServoLeft.getPower(), bot.hangServoRight.getPower());

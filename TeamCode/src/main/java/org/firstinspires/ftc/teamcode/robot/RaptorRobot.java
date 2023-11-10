@@ -10,6 +10,9 @@ import lib8812.common.robot.VirtualServo;
 import lib8812.common.teleop.IDriveableRobot;
 
 public class RaptorRobot extends IDriveableRobot {
+    public final double CLAW_OPEN = 0.3  ;
+    public final double CLAW_CLOSED = 0.2;
+
     public DcMotor leftBack;
     public DcMotor rightBack;
     public DcMotor leftFront;
@@ -20,11 +23,10 @@ public class RaptorRobot extends IDriveableRobot {
     public CRServo hangServoLeft;
     public CRServo hangServoRight;
     public Servo planePush;
-    public Servo tempFlip;
+    public Servo claw;
 
     // mechanical devices not added yet
     public VirtualServo arm;
-    public VirtualServo claw;
     public VirtualMotor spinningIntake;
 
     public void init(HardwareMap hardwareMap) {
@@ -34,7 +36,6 @@ public class RaptorRobot extends IDriveableRobot {
 		leftBack = loadDevice(hardwareMap, DcMotor.class, "leftBack");
 
         planeLauncher = loadDevice(hardwareMap, DcMotor.class, "lePlaneLauncher");
-        tempFlip = loadDevice(hardwareMap, Servo.class, "tempFlip");
 
         testLift1 = loadDevice(hardwareMap, DcMotor.class, "testLift");
         testLift2 = loadDevice(hardwareMap, DcMotor.class, "testLiftDeux");
@@ -43,9 +44,10 @@ public class RaptorRobot extends IDriveableRobot {
         hangServoRight = loadDevice(hardwareMap, CRServo.class, "hangServoRight");
 
         planePush = loadDevice(hardwareMap, Servo.class, "planePush");
+        claw = loadDevice(hardwareMap, Servo.class, "claw");
+
 
         arm = loadDevice(hardwareMap, VirtualServo.class, "arm");
-        claw = loadDevice(hardwareMap, VirtualServo.class, "claw");
         spinningIntake = loadDevice(hardwareMap, VirtualMotor.class, "spinningIntake");
 	}
 }

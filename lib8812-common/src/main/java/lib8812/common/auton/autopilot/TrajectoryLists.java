@@ -39,6 +39,11 @@ public class TrajectoryLists {
                         .forward(BLOCK_LENGTH_IN)
                         .strafeLeft(BLOCK_LENGTH_IN)
                         .forward((BLOCK_LENGTH_IN*2) + HALF_BLOCK_LENGTH_IN)
+                        .build(),
+                drive.trajectorySequenceBuilder(Autonomous.CollisionPoints.RED_LEFT_ONE)
+                        .strafeLeft(BLOCK_LENGTH_IN)
+                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN)
+                        .strafeRight(BLOCK_LENGTH_IN)
                         .build()
         };
 
@@ -56,6 +61,11 @@ public class TrajectoryLists {
                         .forward(BLOCK_LENGTH_IN)
                         .strafeRight(BLOCK_LENGTH_IN)
                         .forward((BLOCK_LENGTH_IN*2) + HALF_BLOCK_LENGTH_IN)
+                        .build(),
+                drive.trajectorySequenceBuilder(Autonomous.CollisionPoints.RED_LEFT_ONE)
+                        .strafeRight(BLOCK_LENGTH_IN)
+                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN)
+                        .strafeLeft(BLOCK_LENGTH_IN)
                         .build()
         };
     }

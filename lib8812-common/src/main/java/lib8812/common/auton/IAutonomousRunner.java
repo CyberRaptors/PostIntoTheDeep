@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcontroller.internal.FtcOpModeRegister;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import lib8812.common.auton.autopilot.TrajectoryLists;
 import lib8812.common.rr.drive.SampleMecanumDrive;
 import lib8812.common.teleop.IDriveableRobot;
 
@@ -46,6 +47,8 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
 
         bot.init(opMode.hardwareMap);
         drive = new SampleMecanumDrive(opMode.hardwareMap);
+
+        TrajectoryLists.initializeTrajectoryLists(drive);
     }
 
     void initializeOpMode(LinearOpMode opMode) {
