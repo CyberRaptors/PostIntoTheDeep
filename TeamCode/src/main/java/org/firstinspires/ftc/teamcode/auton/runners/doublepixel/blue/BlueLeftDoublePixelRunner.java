@@ -23,9 +23,9 @@ public class BlueLeftDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
     {
         bot.testLift1.setPower(0.2); // raise lifts a little
         bot.testLift2.setPower(0.2);
-        bot.arm.setPosition(0.75); // out facing tape on floor
+        bot.arm.setPower(0.75); // out facing tape on floor
         bot.claw.setPosition(0); // open
-        bot.arm.setPosition(0.25); // by spinning intake, waiting for yellow to be fed in
+        bot.arm.setPower(0); // by spinning intake, waiting for yellow to be fed in
         bot.spinningIntake.setPower(1); // take in yellow pixel;
         sleep(100);
         bot.spinningIntake.setPower(0);
@@ -38,9 +38,9 @@ public class BlueLeftDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
     {
         bot.testLift1.setPower(0.2); // raise lifts a little
         bot.testLift2.setPower(0.2);
-        bot.arm.setPosition(1); // out facing backboard
+        bot.arm.setPower(1); // out facing backboard
         bot.claw.setPosition(0); // open
-        bot.arm.setPosition(0.75); // downwards but not interfering with lift
+        bot.arm.setPower(0); // downwards but not interfering with lift
         bot.testLift1.setPower(0);
         bot.testLift2.setPower(0);
     }
