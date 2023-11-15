@@ -16,7 +16,7 @@ public class RaptorTestRunner extends ITeleopRunner {
         bot.testLift2.setPower(gamepad2.right_stick_y);
     }
 
-    public double[] testWheelsAndReturnCorrectedPowers() {
+    public double[] testWheelsAndReturnRealInputPower() {
         double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.right_stick_y, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
         double correctedRightX = TeleOpUtils.fineTuneInput(gamepad1.right_stick_x, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
         double correctedLeftY = TeleOpUtils.fineTuneInput(gamepad1.left_stick_y, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
@@ -27,12 +27,17 @@ public class RaptorTestRunner extends ITeleopRunner {
         double correctedRightBack = -correctedRightY+correctedRightX;
         double correctedLeftBack = correctedLeftY+correctedLeftX;
 
+        double realRightFront = -gamepad1.right_stick_y-gamepad1.right_stick_x;
+        double realLeftFront = gamepad1.left_stick_y-gamepad1.left_stick_x;
+        double realRightBack = -gamepad1.right_stick_y+gamepad1.right_stick_x;
+        double realLeftBack = gamepad1.left_stick_y+gamepad1.left_stick_x;
+
         bot.rightFront.setPower(correctedRightFront);
         bot.leftFront.setPower(correctedLeftFront);
         bot.rightBack.setPower(correctedRightBack);
         bot.leftBack.setPower(correctedLeftBack);
 
-        return new double[] { correctedLeftFront, correctedLeftBack, correctedRightFront, correctedRightBack };
+        return new double[] { realLeftFront, realLeftBack, realRightFront, realRightBack };
     }
 
     public void testClaw() {
@@ -78,11 +83,11 @@ public class RaptorTestRunner extends ITeleopRunner {
             telemetry.update();
 
             sleep(4000);
-            bot.testLift1.setPower(-1);
-            bot.testLift2.setPower(1);
+            bot.testLift1.setPower(1);
+            bot.testLift2.setPower(-1);
             sleep(1000);
-            bot.testLift1.setPower(-0.3);
-            bot.testLift2.setPower(0.3);
+            bot.testLift1.setPower(0.3);
+            bot.testLift2.setPower(-0.3);
             sleep(300);
             bot.testLift1.setPower(0);
             bot.testLift2.setPower(0);
@@ -93,7 +98,7 @@ public class RaptorTestRunner extends ITeleopRunner {
         int counter = 0;
 
         while (opModeIsActive()) {
-            double[] correctedWheelPowers = testWheelsAndReturnCorrectedPowers();
+            double[] realWheelInputPower = testWheelsAndReturnRealInputPower();
 
             testLifts();
             testClaw();
@@ -104,20 +109,20 @@ public class RaptorTestRunner extends ITeleopRunner {
             DEVFEATURE_initiateHangSequence();
 
             telemetry.addData(
-                    "Wheels (real)",
+                    "Wheels (input)",
                     "leftFront (%.2f) leftBack (%.2f) rightFront (%.2f) rightBack (%.2f)",
-                    bot.leftFront.getPower(),
-                    bot.leftBack.getPower(),
-                    bot.rightFront.getPower(),
-                    bot.rightBack.getPower()
+                    realWheelInputPower[0],
+                    realWheelInputPower[1],
+                    realWheelInputPower[2],
+                   realWheelInputPower[3]
             );
             telemetry.addData(
                     "Wheels (corrected)",
                     "leftFront (%.2f) [tuned by %.2f] leftBack (%.2f) [tuned by %.2f] rightFront (%.2f) [tuned by %.2f] rightBack (%.2f) [tuned by %.2f]",
-                    correctedWheelPowers[0], correctedWheelPowers[0]-bot.leftFront.getPower(),
-                    correctedWheelPowers[1], correctedWheelPowers[1]-bot.leftBack.getPower(),
-                    correctedWheelPowers[2], correctedWheelPowers[2]-bot.rightFront.getPower(),
-                    correctedWheelPowers[3], correctedWheelPowers[3]-bot.rightBack.getPower()
+                    bot.leftFront.getPower(), realWheelInputPower[0]-bot.leftFront.getPower(),
+                    bot.leftBack.getPower(), realWheelInputPower[1]-bot.leftBack.getPower(),
+                    bot.rightFront.getPower(), realWheelInputPower[2]-bot.rightFront.getPower(),
+                    bot.rightBack.getPower(), realWheelInputPower[3]-bot.rightBack.getPower()
             );
             telemetry.addData("Plane Launcher", bot.planeShooter.getPosition() < bot.PLANE_READY ? "SHOT" : "READY");
             telemetry.addData("Claw", bot.claw.getPosition() == bot.CLAW_OPEN ? "OPEN" : "CLOSED");
