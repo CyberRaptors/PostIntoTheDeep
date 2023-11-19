@@ -6,15 +6,39 @@ import lib8812.common.teleop.IDriveableRobot;
 import lib8812.common.teleop.ITeleopRunner;
 import lib8812.common.teleop.TeleOpUtils;
 
+/* RAPTOR TEST RUNNER
+
+-- CONTROLS IMPLEMENTED IN THIS OPMODE --
+
+Gamepad 1
+
+    Right stick - right wheels (with fine tuning, strafe enabled)
+    Left stick - left wheels (with fine tuning, strafe enabled)
+
+    Right Trigger - linear actuator up
+    Left Trigger - linear actuator down
+
+    Dpad Down - Prep/Ready Plane
+    Dpad Up - Shoot Plane
+
+Gamepad 2
+
+    Right Bumper - Open right claw
+    Right Trigger - Close right claw
+    Left Bumper - Open left claw
+    Left Trigger - Close left claw
+
+    Dpad Up - Rotate claw up
+    Dpad Down - Rotate claw down
+
+    Dpad Right - Rotate arm forwards
+    Dpad Left - Rotate arm backwards
+ */
+
 public class RaptorTestRunner extends ITeleopRunner {
     RaptorRobot bot = new RaptorRobot();
 
     protected IDriveableRobot getBot() { return bot; };
-
-    public void testLifts() {
-        bot.testLift1.setPower(-gamepad2.right_stick_y);
-        bot.testLift2.setPower(gamepad2.right_stick_y);
-    }
 
     public double[] testWheelsAndReturnRealInputPower() {
         double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.right_stick_y, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
@@ -40,73 +64,57 @@ public class RaptorTestRunner extends ITeleopRunner {
         return new double[] { realLeftFront, realLeftBack, realRightFront, realRightBack };
     }
 
+    public void testActuator() {
+        bot.actuator.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
+    }
+
     public void testClaw() {
         if (gamepad2.right_bumper) {
-            bot.claw.setPosition(bot.CLAW_OPEN);
+            bot.clawOne.setPosition(bot.CLAW_ONE_OPEN);
         }
 
         if (gamepad2.left_bumper) {
-            bot.claw.setPosition(bot.CLAW_CLOSED);
+            bot.clawTwo.setPosition(bot.CLAW_TWO_OPEN);
+        }
+
+        if (gamepad2.right_trigger > 0) {
+            bot.clawOne.setPosition(bot.CLAW_CLOSED);
+        }
+
+        if (gamepad2.left_trigger > 0) {
+            bot.clawTwo.setPosition(bot.CLAW_CLOSED);
+        }
+    }
+
+    public void testClawRotate() {
+        if (gamepad2.dpad_up) {
+            bot.clawRotate.setPosition(
+                    Math.min(bot.clawRotate.getPosition()+0.001, 1)
+            );
+        }
+        if (gamepad2.dpad_down) {
+            bot.clawRotate.setPosition(
+                    Math.max(bot.clawRotate.getPosition()-0.001, 0)
+            );
         }
     }
 
     public void testPlaneShooter() {
-        if (gamepad2.dpad_up) {
+        if (gamepad1.dpad_up) {
             bot.planeShooter.setPosition(bot.PLANE_SHOT);
         }
-        if (gamepad2.dpad_down) {
+        if (gamepad1.dpad_down) {
             bot.planeShooter.setPosition(bot.PLANE_READY);
         }
     }
 
-    public void testArmServos(int counter) {
-        if (gamepad2.dpad_right) {
-            bot.clawRotate1.setPower(0.2);
-            bot.clawRotate2.setPower(-0.2);
-        }
-        if (gamepad2.dpad_left) {
-            bot.clawRotate1.setPower(-0.2);
-            bot.clawRotate2.setPower(0.2);
-        }
-        else if (counter % 50 == 0)
-        {
-            bot.clawRotate1.setPower(0);
-            bot.clawRotate2.setPower(0);
-        }
-    }
-
     public void testArm() {
-        bot.arm.setPower(gamepad2.left_stick_y);
-    }
-
-    public void runIntakeSequences() {
-        if (gamepad2.y) {
-            bot.arm.setPower(-1);
-            bot.testLift1.setPower(1);
-            bot.testLift2.setPower(-1);
-            sleep(1000);
-            bot.testLift1.setPower(0);
-            bot.testLift2.setPower(-0);
-
-            bot.arm.setPower(0.2);
-            bot.clawRotate1.setPower(0.5);
-            bot.clawRotate2.setPower(-0.5);
-            sleep(1000);
+        if (gamepad1.dpad_right) {
+            bot.arm.setPosition(bot.arm.getPosition()+1);
         }
 
-        if (gamepad2.b)
-        {
-            bot.arm.setPower(1);
-            bot.testLift1.setPower(1);
-            bot.testLift2.setPower(-1);
-            bot.clawRotate1.setPower(0.1);
-            bot.clawRotate2.setPower(-0.1);
-            sleep(750);
-            bot.testLift1.setPower(0);
-            bot.testLift2.setPower(-0);
-
-            bot.clawRotate1.setPower(-0);
-            bot.clawRotate2.setPower(0);
+        if (gamepad1.dpad_left) {
+            bot.arm.setPosition(bot.arm.getPosition()-1);
         }
     }
 
@@ -116,13 +124,11 @@ public class RaptorTestRunner extends ITeleopRunner {
         while (opModeIsActive()) {
             double[] realWheelInputPower = testWheelsAndReturnRealInputPower();
 
-            testLifts();
+            testActuator();
             testClaw();
             testPlaneShooter();
-            testArmServos(counter);
             testArm();
-            runIntakeSequences();
-
+            testClawRotate();
 
             telemetry.addData(
                     "Wheels (input)",
@@ -141,11 +147,10 @@ public class RaptorTestRunner extends ITeleopRunner {
                     bot.rightBack.getPower(), realWheelInputPower[3]-bot.rightBack.getPower()
             );
             telemetry.addData("Plane Launcher", bot.planeShooter.getPosition() < bot.PLANE_READY ? "SHOT" : "READY");
-            telemetry.addData("Claw", bot.claw.getPosition() == bot.CLAW_OPEN ? "OPEN" : "CLOSED");
-            telemetry.addData("Lift 1", "power (%.2f)", bot.testLift1.getPower());
-            telemetry.addData("Lift2", "power (%.2f)",-bot.testLift2.getPower());
-            telemetry.addData("Claw Rotate Servo Powers", "one (%.2f) two (%.2f)", bot.clawRotate1.getPower(), bot.clawRotate2.getPower());
-            telemetry.addData("Arm", "power (%.2f)", bot.arm.getPower());
+            telemetry.addData("Claw", "one[%s] two[%s]", (bot.clawOne.getPosition() == bot.CLAW_ONE_OPEN ? "OPEN" : "CLOSED"), (bot.clawTwo.getPosition() == bot.CLAW_ONE_OPEN ? "OPEN" : "CLOSED"));
+            telemetry.addData("Actuator", "power (%.2f)", bot.actuator.getPower());
+            telemetry.addData("Claw Rotate Servo", "pos (%.2f)", bot.clawRotate.getPosition());
+            telemetry.addData("Arm", "pos (%.2f)", bot.arm.getPosition());
             telemetry.update();
 
             counter++;

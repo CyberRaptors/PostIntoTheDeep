@@ -5,13 +5,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import lib8812.common.robot.ServoLikeMotor;
 import lib8812.common.robot.VirtualMotor;
-import lib8812.common.robot.VirtualServo;
 import lib8812.common.teleop.IDriveableRobot;
 
 public class RaptorRobot extends IDriveableRobot {
-    public final double CLAW_OPEN = 0.4;
-    public final double CLAW_CLOSED = 0;
+    public final double CLAW_ONE_OPEN = 1;
+    public final double CLAW_CLOSED = 0.5;
+    public final double CLAW_TWO_OPEN = 0;
+
     public final double PLANE_SHOT = 0.5;
     public final double PLANE_READY = 0.7;
 
@@ -19,14 +21,13 @@ public class RaptorRobot extends IDriveableRobot {
     public DcMotor rightBack;
     public DcMotor leftFront;
     public DcMotor rightFront;
-    public DcMotor testLift1;
-    public DcMotor testLift2;
-    public Servo claw;
-    public CRServo clawRotate1;
-    public CRServo clawRotate2;
+    public DcMotor actuator;
 
+    public Servo clawOne;
+    public Servo clawTwo;
+    public Servo clawRotate;
     // mechanical devices not added yet
-    public DcMotor arm;
+    public ServoLikeMotor arm;
     public Servo planeShooter;
     public VirtualMotor spinningIntake;
 
@@ -36,16 +37,16 @@ public class RaptorRobot extends IDriveableRobot {
 		rightBack = loadDevice(hardwareMap, DcMotor.class, "rightBack");
 		leftBack = loadDevice(hardwareMap, DcMotor.class, "leftBack");
 
-        testLift1 = loadDevice(hardwareMap, DcMotor.class, "testLift");
-        testLift2 = loadDevice(hardwareMap, DcMotor.class, "testLiftDeux");
+        actuator = loadDevice(hardwareMap, DcMotor.class, "actuator");
 
-        claw = loadDevice(hardwareMap, Servo.class, "claw");
-        clawRotate1 = loadDevice(hardwareMap, CRServo.class, "clawRotate1");
-        clawRotate2 = loadDevice(hardwareMap, CRServo.class, "clawRotate2");
+        clawOne = loadDevice(hardwareMap, Servo.class, "clawOne");
+        clawTwo = loadDevice(hardwareMap, Servo.class, "clawTwo");
+        clawRotate = loadDevice(hardwareMap, Servo.class, "clawRotate");
+
         planeShooter = loadDevice(hardwareMap, Servo.class, "planeShooter");
 
+        arm = new ServoLikeMotor(loadDevice(hardwareMap, DcMotor.class, "arm"), 0, 3000);
 
-        arm = loadDevice(hardwareMap, DcMotor.class, "arm");
         spinningIntake = loadDevice(hardwareMap, VirtualMotor.class, "spinningIntake");
 	}
 }
