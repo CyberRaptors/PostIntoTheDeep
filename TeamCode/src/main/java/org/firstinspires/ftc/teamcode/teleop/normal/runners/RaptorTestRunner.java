@@ -59,16 +59,19 @@ public class RaptorTestRunner extends ITeleopRunner {
         }
     }
 
-    public void testArmServos() {
+    public void testArmServos(int counter) {
         if (gamepad2.dpad_right) {
-            double newPos = bot.clawRotate1.getPosition()+0.005;
-            bot.clawRotate1.setPosition(newPos);
-            bot.clawRotate2.setPosition(newPos);
+            bot.clawRotate1.setPower(0.2);
+            bot.clawRotate2.setPower(-0.2);
         }
         if (gamepad2.dpad_left) {
-            double newPos = bot.clawRotate1.getPosition()-0.005;
-            bot.clawRotate1.setPosition(newPos);
-            bot.clawRotate2.setPosition(newPos);
+            bot.clawRotate1.setPower(-0.2);
+            bot.clawRotate2.setPower(0.2);
+        }
+        else if (counter % 50 == 0)
+        {
+            bot.clawRotate1.setPower(0);
+            bot.clawRotate2.setPower(0);
         }
     }
 
@@ -76,21 +79,34 @@ public class RaptorTestRunner extends ITeleopRunner {
         bot.arm.setPower(gamepad2.left_stick_y);
     }
 
-    public void DEVFEATURE_initiateHangSequence() {
-        if (gamepad2.x)
-        {
-            telemetry.addLine("Initiating Hang Sequence (will hang in four seconds)");
-            telemetry.update();
-
-            sleep(4000);
+    public void runIntakeSequences() {
+        if (gamepad2.y) {
+            bot.arm.setPower(-1);
             bot.testLift1.setPower(1);
             bot.testLift2.setPower(-1);
             sleep(1000);
-            bot.testLift1.setPower(0.3);
-            bot.testLift2.setPower(-0.3);
-            sleep(300);
             bot.testLift1.setPower(0);
-            bot.testLift2.setPower(0);
+            bot.testLift2.setPower(-0);
+
+            bot.arm.setPower(0.2);
+            bot.clawRotate1.setPower(0.5);
+            bot.clawRotate2.setPower(-0.5);
+            sleep(1000);
+        }
+
+        if (gamepad2.b)
+        {
+            bot.arm.setPower(1);
+            bot.testLift1.setPower(1);
+            bot.testLift2.setPower(-1);
+            bot.clawRotate1.setPower(0.1);
+            bot.clawRotate2.setPower(-0.1);
+            sleep(750);
+            bot.testLift1.setPower(0);
+            bot.testLift2.setPower(-0);
+
+            bot.clawRotate1.setPower(-0);
+            bot.clawRotate2.setPower(0);
         }
     }
 
@@ -103,10 +119,10 @@ public class RaptorTestRunner extends ITeleopRunner {
             testLifts();
             testClaw();
             testPlaneShooter();
-            testArmServos();
+            testArmServos(counter);
             testArm();
+            runIntakeSequences();
 
-            DEVFEATURE_initiateHangSequence();
 
             telemetry.addData(
                     "Wheels (input)",
@@ -128,7 +144,7 @@ public class RaptorTestRunner extends ITeleopRunner {
             telemetry.addData("Claw", bot.claw.getPosition() == bot.CLAW_OPEN ? "OPEN" : "CLOSED");
             telemetry.addData("Lift 1", "power (%.2f)", bot.testLift1.getPower());
             telemetry.addData("Lift2", "power (%.2f)",-bot.testLift2.getPower());
-            telemetry.addData("Claw Rotate Servo Positions", "one (%.2f) two (%.2f)", bot.clawRotate1.getPosition(), bot.clawRotate2.getPosition());
+            telemetry.addData("Claw Rotate Servo Powers", "one (%.2f) two (%.2f)", bot.clawRotate1.getPower(), bot.clawRotate2.getPower());
             telemetry.addData("Arm", "power (%.2f)", bot.arm.getPower());
             telemetry.update();
 

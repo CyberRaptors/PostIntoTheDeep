@@ -10,8 +10,8 @@ import lib8812.common.robot.VirtualServo;
 import lib8812.common.teleop.IDriveableRobot;
 
 public class RaptorRobot extends IDriveableRobot {
-    public final double CLAW_CLOSED = 0.4;
-    public final double CLAW_OPEN = 0.2;
+    public final double CLAW_OPEN = 0.4;
+    public final double CLAW_CLOSED = 0;
     public final double PLANE_SHOT = 0.5;
     public final double PLANE_READY = 0.7;
 
@@ -22,8 +22,8 @@ public class RaptorRobot extends IDriveableRobot {
     public DcMotor testLift1;
     public DcMotor testLift2;
     public Servo claw;
-    public Servo clawRotate1;
-    public Servo clawRotate2;
+    public CRServo clawRotate1;
+    public CRServo clawRotate2;
 
     // mechanical devices not added yet
     public DcMotor arm;
@@ -40,8 +40,8 @@ public class RaptorRobot extends IDriveableRobot {
         testLift2 = loadDevice(hardwareMap, DcMotor.class, "testLiftDeux");
 
         claw = loadDevice(hardwareMap, Servo.class, "claw");
-        clawRotate1 = loadDevice(hardwareMap, Servo.class, "clawRotate1");
-        clawRotate2 = loadDevice(hardwareMap, Servo.class, "clawRotate2");
+        clawRotate1 = loadDevice(hardwareMap, CRServo.class, "clawRotate1");
+        clawRotate2 = loadDevice(hardwareMap, CRServo.class, "clawRotate2");
         planeShooter = loadDevice(hardwareMap, Servo.class, "planeShooter");
 
 
