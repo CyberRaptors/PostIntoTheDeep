@@ -1,16 +1,18 @@
-package lib8812.common.opmodeutil;
+package lib8812.common.teleop;
 
 import java.util.HashMap;
 import java.util.function.Function;
+
+import lib8812.common.teleop.ReflectiveGamepad;
 
 public class KeybindPattern {
     ReflectiveGamepad gamepad1, gamepad2;
 
     HashMap<String, Runnable> onePressedBinds = new HashMap<>();
-    HashMap<String, Function<Double, Object>> oneValueBinds = new HashMap<>();
+    HashMap<String, Function<Double, Integer>> oneValueBinds = new HashMap<>();
 
     HashMap<String, Runnable> twoPressedBinds = new HashMap<>();
-    HashMap<String, Function<Double, Object>> twoValueBinds = new HashMap<>();
+    HashMap<String, Function<Double, Integer>> twoValueBinds = new HashMap<>();
 
     public KeybindPattern(ReflectiveGamepad gamepad1, ReflectiveGamepad gamepad2) {
         this.gamepad1 = gamepad1;
@@ -21,7 +23,7 @@ public class KeybindPattern {
         onePressedBinds.put(key, action);
     }
 
-    public void registerOnGamepad1(String key, Function<Double, Object> action) {
+    public void registerOnGamepad1(String key, Function<Double, Integer> action) {
         oneValueBinds.put(key, action);
     }
 
@@ -29,7 +31,7 @@ public class KeybindPattern {
         twoPressedBinds.put(key, action);
     }
 
-    public void registerOnGamepad2(String key, Function<Double, Object> action) {
+    public void registerOnGamepad2(String key, Function<Double, Integer> action) {
         twoValueBinds.put(key, action);
     }
 

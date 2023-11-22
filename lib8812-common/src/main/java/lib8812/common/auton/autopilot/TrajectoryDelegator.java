@@ -113,12 +113,8 @@ public class TrajectoryDelegator {
 
         drive.followTrajectorySequenceAsync(current);
 
-        while (true) {
+        while (drive.isBusy()) {
             drive.update();
-
-            if (isAtTarget()) {
-                break;
-            }
 
             if (!shouldChangeTrajectory()) continue;
 

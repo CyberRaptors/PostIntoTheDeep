@@ -21,28 +21,28 @@ public class BlueLeftDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
 
     void dropPurple()
     {
-        bot.testLift1.setPower(0.2); // raise lifts a little
-        bot.testLift2.setPower(0.2);
-        bot.arm.setPower(0.75); // out facing tape on floor
-        bot.claw.setPosition(0); // open
-        bot.arm.setPower(0); // by spinning intake, waiting for yellow to be fed in
-        bot.spinningIntake.setPower(1); // take in yellow pixel;
-        sleep(100);
-        bot.spinningIntake.setPower(0);
-        bot.claw.setPosition(1); // clasp yellow pixel
-        bot.testLift1.setPower(0);
-        bot.testLift2.setPower(0);
+//        bot.testLift1.setPower(0.2); // raise lifts a little
+//        bot.testLift2.setPower(0.2);
+//        bot.arm.setPower(0.75); // out facing tape on floor
+//        bot.claw.setPosition(0); // open
+//        bot.arm.setPower(0); // by spinning intake, waiting for yellow to be fed in
+//        bot.spinningIntake.setPower(1); // take in yellow pixel;
+//        sleep(100);
+//        bot.spinningIntake.setPower(0);
+//        bot.claw.setPosition(1); // clasp yellow pixel
+//        bot.testLift1.setPower(0);
+//        bot.testLift2.setPower(0);
     }
 
     void dropYellow()
     {
-        bot.testLift1.setPower(0.2); // raise lifts a little
-        bot.testLift2.setPower(0.2);
-        bot.arm.setPower(1); // out facing backboard
-        bot.claw.setPosition(0); // open
-        bot.arm.setPower(0); // downwards but not interfering with lift
-        bot.testLift1.setPower(0);
-        bot.testLift2.setPower(0);
+//        bot.testLift1.setPower(0.2); // raise lifts a little
+//        bot.testLift2.setPower(0.2);
+//        bot.arm.setPower(1); // out facing backboard
+//        bot.claw.setPosition(0); // open
+//        bot.arm.setPower(0); // downwards but not interfering with lift
+//        bot.testLift1.setPower(0);
+//        bot.testLift2.setPower(0);
     }
 
     protected void internalRun(PixelDetectionConstants.PixelPosition pos) {

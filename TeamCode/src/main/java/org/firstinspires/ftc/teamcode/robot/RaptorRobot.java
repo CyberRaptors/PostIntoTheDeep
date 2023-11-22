@@ -17,6 +17,11 @@ public class RaptorRobot extends IDriveableRobot {
     public final double PLANE_SHOT = 0.5;
     public final double PLANE_READY = 0.7;
 
+    public final int REV_CORE_HEX_TICKS_PER_REV = 288;
+
+    public final int ARM_MAX_TICKS = 288*2/3; // needs to be figured out empirically
+    public final int ARM_MIN_TICKS = 0;
+
     public DcMotor leftBack;
     public DcMotor rightBack;
     public DcMotor leftFront;
@@ -45,7 +50,7 @@ public class RaptorRobot extends IDriveableRobot {
 
         planeShooter = loadDevice(hardwareMap, Servo.class, "planeShooter");
 
-        arm = new ServoLikeMotor(loadDevice(hardwareMap, DcMotor.class, "arm"), 0, 3000);
+        arm = new ServoLikeMotor(loadDevice(hardwareMap, DcMotor.class, "arm"), ARM_MIN_TICKS, ARM_MAX_TICKS);
 
         spinningIntake = loadDevice(hardwareMap, VirtualMotor.class, "spinningIntake");
 	}

@@ -1,10 +1,70 @@
-package lib8812.common.opmodeutil;
+package lib8812.common.teleop;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import java.util.HashMap;
 import java.util.function.Function;
 
 public class ReflectiveGamepad extends Gamepad {
+    public class Mapper {
+        ReflectiveGamepad gamepad;
+        String key;
+
+        public Mapper(ReflectiveGamepad gamepad, String key) {
+            this.gamepad = gamepad;
+            this.key = key;
+        }
+
+        public MapExtender to(Function<Double, Integer> action) {
+            action.apply(gamepad.getValue(key));
+
+            return new MapExtender(gamepad);
+        }
+
+        public MapExtender to(Runnable action) {
+            if (gamepad.getPressed(key)) {
+                action.run();
+            }
+
+            return new MapExtender(gamepad);
+        }
+    }
+
+    public class BooleanMapper {
+        ReflectiveGamepad gamepad;
+
+        boolean condition;
+
+        public BooleanMapper(ReflectiveGamepad gamepad, boolean condition) {
+            this.gamepad = gamepad;
+            this.condition = condition;
+        }
+
+        public MapExtender to(Runnable action) {
+            if (condition) {
+                action.run();
+            }
+
+            return new MapExtender(gamepad);
+        }
+    }
+
+    public class MapExtender {
+        ReflectiveGamepad gamepad;
+
+        public MapExtender(ReflectiveGamepad gamepad) {
+            this.gamepad = gamepad;
+        }
+
+        public Mapper and(String key) {
+            return new Mapper(gamepad, key);
+        }
+
+        public BooleanMapper and(Boolean condition) {
+            return new BooleanMapper(gamepad, condition);
+        }
+    }
+
     public String[] commonKeyList = {
             "dpad_up", "dpad_down", "dpad_left", "dpad_right",
             "right_bumper", "left_bumper", "right_trigger", "left_trigger",
@@ -112,4 +172,10 @@ public class ReflectiveGamepad extends Gamepad {
 
         throw new IllegalArgumentException(name);
     }
+
+    public Mapper map(String key) {
+        return new Mapper(this, key);
+    }
+
+    public BooleanMapper and(Boolean condition) { return new BooleanMapper(this, condition); }
 }
