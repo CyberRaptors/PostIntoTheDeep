@@ -39,13 +39,23 @@ Gamepad 2
     |   X Button - Used to confirm endgame final sequence
     |   B Button - Cancel sequence
 
-    Right Stick (X) - When pushed in either direction, readies arm/claw in backdrop placing position
+    Dpad Down [future/unstable] - Runs a pickup sequence which uses the spinning intake to feed pixels into both claws
+
+    -- THE FOLLOWING MACROS ARE EXTREMELY VOLATILE
+        (they utilize more controls of the already-in-use joysticks,
+        creating a greater chance for mistakes) --
+
+    Right Stick (X) - When pushed (>0.7) in either direction, readies arm/claw in backdrop placing position
+    Left Stick (X) -> Right - When pushed (>0.7), closes both claws
+    Left Stick (X) -> Left - When pushed (>0.7), opens both claws
+
     Left Stick Button - Readies arm/claw in pickup position
     Right Stick Button - Rests arm/claw inside of robot
 
  */
 
 public class RaptorTestRunner extends ITeleopRunner {
+    public static final double MACRO_COMMAND_SAFE_JOYSTICK_THRESH = 0.7;
     RaptorRobot bot = new RaptorRobot();
     boolean showExtraInfo = false;
     boolean ACTUATOR_LOCKED = false;
@@ -155,18 +165,63 @@ public class RaptorTestRunner extends ITeleopRunner {
         });
     }
 
-    public void armSequences() {
-        boolean commandArmUp = (gamepad2.right_stick_x > 0.5) || (gamepad2.right_stick_x < -0.5);
+    public void armSequence_restingPosition() {
+        bot.clawRotate.setPosition(0.3);
+        bot.arm.setPosition(bot.arm.minPos);
+    }
 
-        gamepad2.map("left_stick_button").to(() -> { // pickup position macro
+    public void armSequence_backdropPlacePosition() {
+        bot.arm.setPosition(bot.arm.maxPos*3/4); // 3/4 of the full span
+        bot.clawRotate.setPosition(0);
+    }
+
+    public void armSequences() {
+        boolean commandArmUp = (gamepad2.right_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH) || (gamepad2.right_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH);
+
+        gamepad2.map("left_stick_button").to(() -> {
             bot.arm.setPosition(bot.arm.maxPos);
             bot.clawRotate.setPosition(0.7);
-        }).and("right_stick_button").to(() -> { // resting position macro
-            bot.clawRotate.setPosition(0.3);
-            bot.arm.setPosition(bot.arm.minPos);
-        }).and(commandArmUp).to(() -> { // backdrop place position macro
-            bot.arm.setPosition(bot.arm.maxPos*3/4); // 3/4 of the full span
-            bot.clawRotate.setPosition(0);
+        }).and("right_stick_button").to(
+                this::armSequence_restingPosition
+        ).and(commandArmUp).to(
+                this::armSequence_backdropPlacePosition
+        );
+    }
+
+    public void clawSequence_openBoth() {
+        bot.clawOne.setLabeledPosition("OPEN");
+        bot.clawTwo.setLabeledPosition("OPEN");
+    }
+
+    public void clawSequence_closeBoth() {
+        bot.clawOne.setLabeledPosition("CLOSED");
+        bot.clawTwo.setLabeledPosition("CLOSED");
+    }
+
+    public void clawSequences() {
+        boolean commandCloseClaws = gamepad2.left_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH;
+        boolean commandOpenClaws = gamepad2.left_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH;
+
+        gamepad2.map(commandCloseClaws).to(
+                this::clawSequence_closeBoth
+        ).and(commandOpenClaws).to(
+                this::clawSequence_openBoth
+        );
+    }
+
+    public void FUTURE_pickupSequence() {
+        gamepad2.map("dpad_down").to(() -> {
+            armSequence_restingPosition();
+            clawSequence_openBoth();
+
+            bot.spinningIntake.setPower(1);
+            sleep(300);
+
+            clawSequence_closeBoth();
+
+            bot.spinningIntake.setPower(0);
+
+            armSequence_backdropPlacePosition(); // may need to not use backdrop place position and instead place arm in a shorter position in order to move under the rigging
         });
     }
 
@@ -183,6 +238,8 @@ public class RaptorTestRunner extends ITeleopRunner {
             testClawRotate();
             endgameSequence();
             armSequences();
+            clawSequences();
+            FUTURE_pickupSequence();
 
             if (gamepad1.x) showExtraInfo = !showExtraInfo; // telemetry verbosity
 

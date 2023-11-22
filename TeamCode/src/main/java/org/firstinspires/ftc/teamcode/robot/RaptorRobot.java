@@ -13,7 +13,6 @@ public class RaptorRobot extends IDriveableRobot {
     public final double CLAW_ONE_OPEN = 1;
     public final double CLAW_CLOSED = 0.5;
     public final double CLAW_TWO_OPEN = 0;
-
     public final double PLANE_SHOT = 0.5;
     public final double PLANE_READY = 0.7;
     public final int REV_CORE_HEX_TICKS_PER_REV = 288;

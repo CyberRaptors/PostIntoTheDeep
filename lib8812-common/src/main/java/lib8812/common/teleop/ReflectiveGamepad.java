@@ -2,7 +2,6 @@ package lib8812.common.teleop;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import java.util.HashMap;
 import java.util.function.Function;
 
 public class ReflectiveGamepad extends Gamepad {
@@ -165,9 +164,9 @@ public class ReflectiveGamepad extends Gamepad {
                 return left_stick_y;
 
             case "right_stick":
-                Math.max(right_stick_x, right_stick_y);
+                return Math.max(right_stick_x, right_stick_y);
             case "left_stick":
-                Math.max(left_stick_x, left_stick_y);
+                return Math.max(left_stick_x, left_stick_y);
         }
 
         throw new IllegalArgumentException(name);
@@ -177,5 +176,7 @@ public class ReflectiveGamepad extends Gamepad {
         return new Mapper(this, key);
     }
 
-    public BooleanMapper and(Boolean condition) { return new BooleanMapper(this, condition); }
+    public BooleanMapper map(Boolean condition) {
+        return new BooleanMapper(this, condition);
+    }
 }
