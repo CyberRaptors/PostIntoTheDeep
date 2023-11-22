@@ -1,6 +1,5 @@
 package lib8812.common.teleop;
 
-import org.jetbrains.annotations.Contract;
 
 public class TeleOpUtils {
     public static final double DEFAULT_FINE_TUNE_THRESH = 0.2;

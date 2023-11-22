@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.robot;
 
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import lib8812.common.robot.LabeledPositionServo;
 import lib8812.common.robot.ServoLikeMotor;
 import lib8812.common.robot.VirtualMotor;
 import lib8812.common.teleop.IDriveableRobot;
@@ -16,10 +16,8 @@ public class RaptorRobot extends IDriveableRobot {
 
     public final double PLANE_SHOT = 0.5;
     public final double PLANE_READY = 0.7;
-
     public final int REV_CORE_HEX_TICKS_PER_REV = 288;
-
-    public final int ARM_MAX_TICKS = 288*2/3; // needs to be figured out empirically
+    public final int ARM_MAX_TICKS = REV_CORE_HEX_TICKS_PER_REV*2/3; // needs to be figured out empirically
     public final int ARM_MIN_TICKS = 0;
 
     public DcMotor leftBack;
@@ -28,12 +26,12 @@ public class RaptorRobot extends IDriveableRobot {
     public DcMotor rightFront;
     public DcMotor actuator;
 
-    public Servo clawOne;
-    public Servo clawTwo;
+    public LabeledPositionServo clawOne;
+    public LabeledPositionServo clawTwo;
     public Servo clawRotate;
     // mechanical devices not added yet
     public ServoLikeMotor arm;
-    public Servo planeShooter;
+    public LabeledPositionServo planeShooter;
     public VirtualMotor spinningIntake;
 
     public void init(HardwareMap hardwareMap) {
@@ -44,11 +42,25 @@ public class RaptorRobot extends IDriveableRobot {
 
         actuator = loadDevice(hardwareMap, DcMotor.class, "actuator");
 
-        clawOne = loadDevice(hardwareMap, Servo.class, "clawOne");
-        clawTwo = loadDevice(hardwareMap, Servo.class, "clawTwo");
+        clawOne = new LabeledPositionServo(
+                loadDevice(hardwareMap, Servo.class, "clawOne"),
+                new String[] { "CLOSED", "OPEN" },
+                new Double[] { CLAW_CLOSED, CLAW_ONE_OPEN }
+        );
+
+        clawTwo = new LabeledPositionServo(
+                loadDevice(hardwareMap, Servo.class, "clawTwo"),
+                new String[] { "CLOSED", "OPEN" },
+                new Double[] { CLAW_CLOSED, CLAW_TWO_OPEN }
+        );
+
         clawRotate = loadDevice(hardwareMap, Servo.class, "clawRotate");
 
-        planeShooter = loadDevice(hardwareMap, Servo.class, "planeShooter");
+        planeShooter = new LabeledPositionServo(
+                loadDevice(hardwareMap, Servo.class, "planeShooter"),
+                new String[] { "READY", "SHOT"},
+                new Double[] { PLANE_READY, PLANE_SHOT }
+        );
 
         arm = new ServoLikeMotor(loadDevice(hardwareMap, DcMotor.class, "arm"), ARM_MIN_TICKS, ARM_MAX_TICKS);
 

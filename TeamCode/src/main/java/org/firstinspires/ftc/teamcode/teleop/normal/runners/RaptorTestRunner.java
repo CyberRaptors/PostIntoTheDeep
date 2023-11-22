@@ -1,20 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop.normal.runners;
 
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.Tree;
-import com.sun.source.util.TaskListener;
-
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
-
-import java.io.IOException;
-import java.util.Locale;
-
-import javax.annotation.processing.Processor;
-import javax.lang.model.element.Element;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
-import javax.tools.JavaFileObject;
 
 import lib8812.common.teleop.IDriveableRobot;
 import lib8812.common.teleop.ITeleopRunner;
@@ -64,7 +50,7 @@ public class RaptorTestRunner extends ITeleopRunner {
     boolean showExtraInfo = false;
     boolean ACTUATOR_LOCKED = false;
 
-    protected IDriveableRobot getBot() { return bot; };
+    protected IDriveableRobot getBot() { return bot; }
 
     public double[] testWheelsAndReturnRealInputPower() {
         double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.right_stick_y, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
@@ -96,13 +82,13 @@ public class RaptorTestRunner extends ITeleopRunner {
 
     public void testClaw() {
         gamepad2.map("right_bumper").to(
-                () -> bot.clawOne.setPosition(bot.CLAW_ONE_OPEN)
+                () -> bot.clawOne.setLabeledPosition("OPEN")
         ).and("left_bumper").to(
-                () -> bot.clawTwo.setPosition(bot.CLAW_TWO_OPEN)
+                () -> bot.clawTwo.setLabeledPosition("OPEN")
         ).and("right_trigger").to(
-                () -> bot.clawOne.setPosition(bot.CLAW_CLOSED)
+                () -> bot.clawOne.setLabeledPosition("CLOSED")
         ).and("left_trigger").to(
-                () -> bot.clawTwo.setPosition(bot.CLAW_CLOSED)
+                () -> bot.clawTwo.setLabeledPosition("CLOSED")
         );
     }
 
@@ -120,9 +106,9 @@ public class RaptorTestRunner extends ITeleopRunner {
 
     public void testPlaneShooter() {
         gamepad1.map("dpad_up").to(
-                () -> bot.planeShooter.setPosition(bot.PLANE_SHOT)
+                () -> bot.planeShooter.setLabeledPosition("SHOT")
         ).and("dpad_down").to(
-                () -> bot.planeShooter.setPosition(bot.PLANE_READY)
+                () -> bot.planeShooter.setLabeledPosition("READY")
         );
     }
 
@@ -156,11 +142,11 @@ public class RaptorTestRunner extends ITeleopRunner {
             bot.actuator.setPower(1);
 
             // shoot plane twice for good measure
-            bot.planeShooter.setPosition(bot.PLANE_READY);
-            bot.planeShooter.setPosition(bot.PLANE_SHOT);
+            bot.planeShooter.setLabeledPosition("READY");
+            bot.planeShooter.setLabeledPosition("SHOT");
 
-            bot.planeShooter.setPosition(bot.PLANE_READY);
-            bot.planeShooter.setPosition(bot.PLANE_SHOT);
+            bot.planeShooter.setLabeledPosition("READY");
+            bot.planeShooter.setLabeledPosition("SHOT");
 
             setTimeout(() -> {
                 bot.actuator.setPower(0);
@@ -177,9 +163,9 @@ public class RaptorTestRunner extends ITeleopRunner {
             bot.clawRotate.setPosition(0.7);
         }).and("right_stick_button").to(() -> { // resting position macro
             bot.clawRotate.setPosition(0.3);
-            bot.arm.setPosition(bot.arm.maxPos);
+            bot.arm.setPosition(bot.arm.minPos);
         }).and(commandArmUp).to(() -> { // backdrop place position macro
-            bot.arm.setPosition(bot.arm.maxPos-(bot.arm.maxPos/4));
+            bot.arm.setPosition(bot.arm.maxPos*3/4); // 3/4 of the full span
             bot.clawRotate.setPosition(0);
         });
     }
@@ -219,8 +205,8 @@ public class RaptorTestRunner extends ITeleopRunner {
                 );
             }
 
-            telemetry.addData("Plane Launcher", bot.planeShooter.getPosition() < bot.PLANE_READY ? "SHOT" : "READY");
-            telemetry.addData("Claw", "one (%s) two (%s)", (bot.clawOne.getPosition() == bot.CLAW_ONE_OPEN ? "OPEN" : "CLOSED"), (bot.clawTwo.getPosition() == bot.CLAW_ONE_OPEN ? "OPEN" : "CLOSED"));
+            telemetry.addData("Plane Launcher", bot.planeShooter.getPositionLabel());
+            telemetry.addData("Claw", "one (%s) two (%s)", bot.clawOne.getPositionLabel(), bot.clawTwo.getPositionLabel());
             telemetry.addData("Actuator", "power (%.2f)%s", bot.actuator.getPower(), ACTUATOR_LOCKED ? " (locked by a sequence)" : "");
             telemetry.addData("Claw Rotate Servo", "pos (%.2f)", bot.clawRotate.getPosition());
             telemetry.addData("Arm", "pos (%.2f)", bot.arm.getPosition());
