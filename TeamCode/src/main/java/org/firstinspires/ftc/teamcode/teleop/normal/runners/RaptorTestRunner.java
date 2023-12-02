@@ -63,20 +63,20 @@ public class RaptorTestRunner extends ITeleopRunner {
     protected IDriveableRobot getBot() { return bot; }
 
     public double[] testWheelsAndReturnRealInputPower() {
-        double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.right_stick_y, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
-        double correctedRightX = TeleOpUtils.fineTuneInput(gamepad1.right_stick_x, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
-        double correctedLeftY = TeleOpUtils.fineTuneInput(gamepad1.left_stick_y, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
-        double correctedLeftX = TeleOpUtils.fineTuneInput(gamepad1.left_stick_x, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
+        double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_y, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
+        double correctedRightX = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_x, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
+        double correctedLeftY = TeleOpUtils.fineTuneInput(gamepad1.inner.left_stick_y, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
+        double correctedLeftX = TeleOpUtils.fineTuneInput(gamepad1.inner.left_stick_x, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
 
         double correctedRightFront = -correctedRightY-correctedRightX;
         double correctedLeftFront = correctedLeftY-correctedLeftX;
         double correctedRightBack = -correctedRightY+correctedRightX;
         double correctedLeftBack = correctedLeftY+correctedLeftX;
 
-        double realRightFront = -gamepad1.right_stick_y-gamepad1.right_stick_x;
-        double realLeftFront = gamepad1.left_stick_y-gamepad1.left_stick_x;
-        double realRightBack = -gamepad1.right_stick_y+gamepad1.right_stick_x;
-        double realLeftBack = gamepad1.left_stick_y+gamepad1.left_stick_x;
+        double realRightFront = -gamepad1.inner.right_stick_y-gamepad1.inner.right_stick_x;
+        double realLeftFront = gamepad1.inner.left_stick_y-gamepad1.inner.left_stick_x;
+        double realRightBack = -gamepad1.inner.right_stick_y+gamepad1.inner.right_stick_x;
+        double realLeftBack = gamepad1.inner.left_stick_y+gamepad1.inner.left_stick_x;
 
         bot.rightFront.setPower(correctedRightFront);
         bot.leftFront.setPower(correctedLeftFront);
@@ -87,7 +87,7 @@ public class RaptorTestRunner extends ITeleopRunner {
     }
 
     public void testActuator() {
-        bot.actuator.setPower(gamepad1.right_trigger-gamepad1.left_trigger);
+        if (!ACTUATOR_LOCKED) bot.actuator.setPower(gamepad1.inner.right_trigger-gamepad1.inner.left_trigger);
     }
 
     public void testClaw() {
@@ -107,7 +107,7 @@ public class RaptorTestRunner extends ITeleopRunner {
                 Math.max(
                         Math.min(
                             bot.clawRotate.getPosition()+
-                               gamepad1.left_stick_y/1000
+                               gamepad2.inner.left_stick_y/1000
                             , 1
                     ), 0
                 )
@@ -124,9 +124,10 @@ public class RaptorTestRunner extends ITeleopRunner {
 
     public void testArm() {
         bot.arm.setPosition(
-                bot.arm.getPosition()+
-                (int) (gamepad1.right_stick_y*5)
+                bot.arm.getPosition()+(int) gamepad2.inner.right_stick_y
         );
+
+//        bot.arm.setPower(gamepad2.inner.right_stick_y);
     }
 
     public void endgameSequence() {
@@ -134,11 +135,11 @@ public class RaptorTestRunner extends ITeleopRunner {
             telemetry.addLine("You have initialized the final endgame sequence. Make sure that you are in the correct launching spot. Press X again to confirm or B to cancel. You may not use any other controls until the sequence is confirmed or canceled.");
             telemetry.update();
 
-            while (gamepad2.x); // wait for user to release x first
+            while (gamepad2.inner.x); // wait for user to release x first
 
-            while (!(gamepad2.x || gamepad2.b));
+            while (!(gamepad2.inner.x || gamepad2.inner.b));
 
-            if (gamepad2.b) return;
+            if (gamepad2.inner.b) return;
 
             if (ACTUATOR_LOCKED) {
                 telemetry.addLine("Could not run sequence; the actuator is currently being held by another sequence.");
@@ -162,24 +163,26 @@ public class RaptorTestRunner extends ITeleopRunner {
                 bot.actuator.setPower(0);
                 ACTUATOR_LOCKED = false;
             }, 5000);
+
+            while (gamepad2.inner.x);
         });
     }
 
     public void armSequence_restingPosition() {
         bot.clawRotate.setPosition(0.3);
-        bot.arm.setPosition(bot.arm.minPos);
+//        bot.arm.setPosition(bot.arm.minPos);
     }
 
     public void armSequence_backdropPlacePosition() {
-        bot.arm.setPosition(bot.arm.maxPos*3/4); // 3/4 of the full span
+//        bot.arm.setPosition(bot.arm.maxPos*3/4); // 3/4 of the full span
         bot.clawRotate.setPosition(0);
     }
 
     public void armSequences() {
-        boolean commandArmUp = (gamepad2.right_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH) || (gamepad2.right_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH);
+        boolean commandArmUp = (gamepad2.inner.right_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH) || (gamepad2.inner.right_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH);
 
         gamepad2.map("left_stick_button").to(() -> {
-            bot.arm.setPosition(bot.arm.maxPos);
+//            bot.arm.setPosition(bot.arm.maxPos);
             bot.clawRotate.setPosition(0.7);
         }).and("right_stick_button").to(
                 this::armSequence_restingPosition
@@ -199,8 +202,8 @@ public class RaptorTestRunner extends ITeleopRunner {
     }
 
     public void clawSequences() {
-        boolean commandCloseClaws = gamepad2.left_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH;
-        boolean commandOpenClaws = gamepad2.left_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH;
+        boolean commandCloseClaws = gamepad2.inner.left_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH;
+        boolean commandOpenClaws = gamepad2.inner.left_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH;
 
         gamepad2.map(commandCloseClaws).to(
                 this::clawSequence_closeBoth
@@ -231,7 +234,7 @@ public class RaptorTestRunner extends ITeleopRunner {
         while (opModeIsActive()) {
             double[] realWheelInputPower = testWheelsAndReturnRealInputPower();
 
-            if (!ACTUATOR_LOCKED) testActuator();
+            testActuator();
             testClaw();
             testPlaneShooter();
             testArm();
@@ -241,7 +244,7 @@ public class RaptorTestRunner extends ITeleopRunner {
             clawSequences();
             FUTURE_pickupSequence();
 
-            if (gamepad1.x) showExtraInfo = !showExtraInfo; // telemetry verbosity
+            if (gamepad1.inner.x) showExtraInfo = !showExtraInfo; // telemetry verbosity
 
             if (showExtraInfo) {
                 telemetry.addData(
@@ -266,7 +269,7 @@ public class RaptorTestRunner extends ITeleopRunner {
             telemetry.addData("Claw", "one (%s) two (%s)", bot.clawOne.getPositionLabel(), bot.clawTwo.getPositionLabel());
             telemetry.addData("Actuator", "power (%.2f)%s", bot.actuator.getPower(), ACTUATOR_LOCKED ? " (locked by a sequence)" : "");
             telemetry.addData("Claw Rotate Servo", "pos (%.2f)", bot.clawRotate.getPosition());
-            telemetry.addData("Arm", "pos (%.2f)", bot.arm.getPosition());
+            telemetry.addData("Arm", "power (%d)", bot.arm.getPosition());
             telemetry.addData("Verbose", showExtraInfo);
 
             if (showExtraInfo) {

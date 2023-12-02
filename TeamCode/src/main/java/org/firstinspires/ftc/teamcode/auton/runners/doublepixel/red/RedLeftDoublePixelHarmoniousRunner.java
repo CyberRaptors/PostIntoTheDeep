@@ -10,7 +10,7 @@ import static lib8812.common.auton.autopilot.FieldPositions.Autonomous;
 import static lib8812.common.auton.autopilot.FieldPositions.BLOCK_LENGTH_IN;
 
 
-public class RedLeftDoublePixelRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
+public class RedLeftDoublePixelHarmoniousRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
     RaptorRobot bot = new RaptorRobot();
 
     protected IDriveableRobot getBot() {

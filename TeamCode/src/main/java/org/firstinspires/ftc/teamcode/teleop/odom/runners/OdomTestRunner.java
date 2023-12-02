@@ -36,10 +36,10 @@ public class OdomTestRunner extends ITeleopRunner {
     protected IDriveableRobot getBot() { return bot; };
 
     public void driveRobot() {
-        bot.rightFront.setPower(-gamepad1.right_stick_y-gamepad1.right_stick_x);
-        bot.leftFront.setPower(-gamepad1.left_stick_y+gamepad1.left_stick_x);
-        bot.rightBack.setPower(-gamepad1.right_stick_y+gamepad1.right_stick_x);
-        bot.leftBack.setPower(-gamepad1.left_stick_y-gamepad1.left_stick_x);
+        bot.rightFront.setPower(-gamepad1.inner.right_stick_y-gamepad1.inner.right_stick_x);
+        bot.leftFront.setPower(-gamepad1.inner.left_stick_y+gamepad1.inner.left_stick_x);
+        bot.rightBack.setPower(-gamepad1.inner.right_stick_y+gamepad1.inner.right_stick_x);
+        bot.leftBack.setPower(-gamepad1.inner.left_stick_y-gamepad1.inner.left_stick_x);
     }
 
     public int[] pinpointRobotOnByteMap(Pose2d pos) {
@@ -101,9 +101,9 @@ public class OdomTestRunner extends ITeleopRunner {
         while (opModeIsActive()) {
             drive.setWeightedDrivePower(
                     new Pose2d(
-                            -gamepad1.left_stick_y,
-                            -gamepad1.left_stick_x,
-                            -gamepad1.right_stick_x
+                            -gamepad1.inner.left_stick_y,
+                            -gamepad1.inner.left_stick_x,
+                            -gamepad1.inner.right_stick_x
                     )
             );
 

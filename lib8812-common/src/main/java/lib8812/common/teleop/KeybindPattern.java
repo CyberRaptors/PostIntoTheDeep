@@ -3,8 +3,6 @@ package lib8812.common.teleop;
 import java.util.HashMap;
 import java.util.function.Function;
 
-import lib8812.common.teleop.ReflectiveGamepad;
-
 public class KeybindPattern {
     ReflectiveGamepad gamepad1, gamepad2;
 

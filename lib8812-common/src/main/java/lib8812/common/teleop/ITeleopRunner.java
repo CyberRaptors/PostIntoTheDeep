@@ -47,13 +47,14 @@ public abstract class ITeleopRunner {
 
     public void initializeOpMode(LinearOpMode opMode) {
         this.opMode = opMode;
-        gamepad1 = (ReflectiveGamepad) opMode.gamepad1;
-        gamepad2 = (ReflectiveGamepad) opMode.gamepad2;
+
+        gamepad1 = new ReflectiveGamepad(opMode.gamepad1); // make sure the OpMode updates our ReflectiveGamepads
+        gamepad2 = new ReflectiveGamepad(opMode.gamepad2);
+
         telemetry = opMode.telemetry;
         hardwareMap = opMode.hardwareMap;
 
         bot = getBot();
-
         bot.init(opMode.hardwareMap);
         opMode.waitForStart();
         runtime.reset();

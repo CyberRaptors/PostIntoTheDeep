@@ -12,7 +12,7 @@ import lib8812.common.rr.trajectorysequence.TrajectorySequence;
 import lib8812.common.teleop.IDriveableRobot;
 
 
-public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
+public class BlueRightDoublePixelHarmoniousRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
     RaptorRobot bot = new RaptorRobot();
 
     protected IDriveableRobot getBot() {

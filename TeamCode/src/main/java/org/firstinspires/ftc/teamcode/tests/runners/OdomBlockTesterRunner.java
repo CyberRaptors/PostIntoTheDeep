@@ -20,28 +20,28 @@ public class OdomBlockTesterRunner extends ITeleopRunner {
 
         while (opModeIsActive())
         {
-            if (gamepad1.dpad_up) {
+            if (gamepad1.inner.dpad_up) {
                 drive.followTrajectory(
                         drive.trajectoryBuilder(drive.getPoseEstimate())
                                 .forward(BLOCK_LENGTH_IN)
                                 .build()
                 );
             }
-            if (gamepad1.dpad_down) {
+            if (gamepad1.inner.dpad_down) {
                 drive.followTrajectory(
                         drive.trajectoryBuilder(drive.getPoseEstimate())
                                 .back(BLOCK_LENGTH_IN)
                                 .build()
                 );
             }
-            if (gamepad1.dpad_left) {
+            if (gamepad1.inner.dpad_left) {
                 drive.followTrajectory(
                         drive.trajectoryBuilder(drive.getPoseEstimate())
                                 .strafeLeft(BLOCK_LENGTH_IN)
                                 .build()
                 );
             }
-            if (gamepad1.dpad_right) {
+            if (gamepad1.inner.dpad_right) {
                 drive.followTrajectory(
                         drive.trajectoryBuilder(drive.getPoseEstimate())
                                 .strafeRight(BLOCK_LENGTH_IN)

@@ -10,13 +10,14 @@ import lib8812.common.robot.VirtualMotor;
 import lib8812.common.teleop.IDriveableRobot;
 
 public class RaptorRobot extends IDriveableRobot {
-    public final double CLAW_ONE_OPEN = 1;
-    public final double CLAW_CLOSED = 0.5;
-    public final double CLAW_TWO_OPEN = 0;
+    public final double CLAW_ONE_OPEN = 0.63;
+    public final double CLAW_ONE_CLOSED = 0.58;
+    public final double CLAW_TWO_CLOSED = 0.45;
+    public final double CLAW_TWO_OPEN = 0.4;
     public final double PLANE_SHOT = 0.5;
     public final double PLANE_READY = 0.7;
-    public final int REV_CORE_HEX_TICKS_PER_REV = 288;
-    public final int ARM_MAX_TICKS = REV_CORE_HEX_TICKS_PER_REV*2/3; // needs to be figured out empirically
+    public final double GOBUILDA_117_TICKS_PER_REV = 1425.1;
+    public final int ARM_MAX_TICKS = (int) (GOBUILDA_117_TICKS_PER_REV*2/3); // needs to be figured out empirically
     public final int ARM_MIN_TICKS = 0;
 
     public DcMotor leftBack;
@@ -44,13 +45,13 @@ public class RaptorRobot extends IDriveableRobot {
         clawOne = new LabeledPositionServo(
                 loadDevice(hardwareMap, Servo.class, "clawOne"),
                 new String[] { "CLOSED", "OPEN" },
-                new Double[] { CLAW_CLOSED, CLAW_ONE_OPEN }
+                new Double[] { CLAW_ONE_CLOSED, CLAW_ONE_OPEN }
         );
 
         clawTwo = new LabeledPositionServo(
                 loadDevice(hardwareMap, Servo.class, "clawTwo"),
                 new String[] { "CLOSED", "OPEN" },
-                new Double[] { CLAW_CLOSED, CLAW_TWO_OPEN }
+                new Double[] { CLAW_TWO_CLOSED, CLAW_TWO_OPEN }
         );
 
         clawRotate = loadDevice(hardwareMap, Servo.class, "clawRotate");
@@ -64,5 +65,9 @@ public class RaptorRobot extends IDriveableRobot {
         arm = new ServoLikeMotor(loadDevice(hardwareMap, DcMotor.class, "arm"), ARM_MIN_TICKS, ARM_MAX_TICKS);
 
         spinningIntake = loadDevice(hardwareMap, VirtualMotor.class, "spinningIntake");
+
+        clawOne.setLabeledPosition("CLOSED");
+        clawTwo.setLabeledPosition("CLOSED");
+        arm.setPosition(100);
 	}
 }

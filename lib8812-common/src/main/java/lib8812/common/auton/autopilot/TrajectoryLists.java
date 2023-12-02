@@ -21,6 +21,14 @@ public class TrajectoryLists {
         public static TrajectorySequence[] toRedBackdrop;
     }
 
+    public static class FromRedLeftHarmonious {
+        public static TrajectorySequence[] toRedBackdrop;
+    }
+
+    public static class FromBlueRightHarmonious {
+        public static TrajectorySequence[] toBlueBackdrop;
+    }
+
     public static void initializeTrajectoryLists(SampleMecanumDrive drive)
     {
         // TODO: add more trajectories for redleft and blueright
