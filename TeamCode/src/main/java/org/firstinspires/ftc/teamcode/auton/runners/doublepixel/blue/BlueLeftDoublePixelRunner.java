@@ -62,7 +62,7 @@ public class BlueLeftDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
                         .addTemporalMarker(this::dropPurple)
                         .turn(Math.toRadians(-45))
                         .back(BLOCK_LENGTH_IN)
-                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromRedRight.toRedBackdrop[0]))
+                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromBlueLeft.toBlueBackdrop[0]))
                         .strafeRight(5) // drop in right section
                         .addTemporalMarker(this::dropYellow)
                         .strafeLeft(BLOCK_LENGTH_IN+5)

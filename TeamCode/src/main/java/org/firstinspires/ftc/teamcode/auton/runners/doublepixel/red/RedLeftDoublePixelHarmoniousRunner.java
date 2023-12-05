@@ -61,7 +61,7 @@ public class RedLeftDoublePixelHarmoniousRunner extends IAutonomousRunner<PixelD
                         .addTemporalMarker(this::dropPurple)
                         .turn(Math.toRadians(-45))
                         .back(BLOCK_LENGTH_IN)
-                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromRedLeft.toRedBackdrop[0]))
+                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromRedLeft.Harmonious.toRedBackdrop[0]))
                         .strafeRight(5) // drop in right section
                         .addTemporalMarker(this::dropYellow)
                         .forward(5) // make sure we are in backstage, remove if not necessary
@@ -72,7 +72,7 @@ public class RedLeftDoublePixelHarmoniousRunner extends IAutonomousRunner<PixelD
                         .forward(BLOCK_LENGTH_IN)
                         .addTemporalMarker(this::dropPurple)
                         .back(BLOCK_LENGTH_IN)
-                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromRedLeft.toRedBackdrop[0]))
+                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromRedLeft.Harmonious.toRedBackdrop[0]))
                         .addTemporalMarker(this::dropYellow)
                         .forward(5) // make sure we are in backstage, remove if not necessary
                         .build();
@@ -84,7 +84,7 @@ public class RedLeftDoublePixelHarmoniousRunner extends IAutonomousRunner<PixelD
                         .addTemporalMarker(this::dropPurple)
                         .turn(Math.toRadians(45))
                         .back(BLOCK_LENGTH_IN)
-                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromRedLeft.toRedBackdrop[0]))
+                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromRedLeft.Harmonious.toRedBackdrop[0]))
                         .strafeLeft(5) // drop in right section
                         .addTemporalMarker(this::dropYellow)
                         .forward(5) // make sure we are in backstage, remove if not necessary

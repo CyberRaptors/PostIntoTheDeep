@@ -1,25 +1,24 @@
-package org.firstinspires.ftc.teamcode.auton.runners.doublepixel.blue;
+package org.firstinspires.ftc.teamcode.auton.runners.doublepixel.red;
 
 import static lib8812.common.auton.autopilot.FieldPositions.Autonomous;
 import static lib8812.common.auton.autopilot.FieldPositions.BLOCK_LENGTH_IN;
-import static lib8812.common.auton.autopilot.FieldPositions.InFrontOf;
 
 import org.firstinspires.ftc.teamcode.auton.detectors.PixelDetectionConstants;
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.auton.IAutonomousRunner;
-import lib8812.common.auton.autopilot.TrajectoryDelegator;
 import lib8812.common.auton.autopilot.TrajectoryLists;
 import lib8812.common.rr.trajectorysequence.TrajectorySequence;
 import lib8812.common.teleop.IDriveableRobot;
 
 
-public class BlueRightDoublePixelAutoPilotRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
+public class RedLeftDoublePixelInHarmoniousRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
     RaptorRobot bot = new RaptorRobot();
 
     protected IDriveableRobot getBot() {
         return bot;
     }
+
 
     void dropPurple()
     {
@@ -51,44 +50,43 @@ public class BlueRightDoublePixelAutoPilotRunner extends IAutonomousRunner<Pixel
         sleep(1000); // see below comment
         pos = objectDetector.getCurrentFeed(); // see if this changes anything
 
-        drive.setPoseEstimate(Autonomous.BLUE_RIGHT_START);
+        drive.setPoseEstimate(Autonomous.RED_LEFT_START);
 
-        TrajectoryDelegator delegator = new TrajectoryDelegator(opMode, drive, TrajectoryLists.FromBlueRight.InHarmonious.toBlueBackdrop, InFrontOf.BLUE_BACKDROP);
         TrajectorySequence program;
 
         switch (pos)
         {
             case RIGHT:
-                program = drive.trajectorySequenceBuilder(Autonomous.BLUE_RIGHT_START)
+                program = drive.trajectorySequenceBuilder(Autonomous.RED_LEFT_START)
                         .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(45))
                         .addTemporalMarker(this::dropPurple)
                         .turn(Math.toRadians(-45))
                         .back(BLOCK_LENGTH_IN)
-                        .addTemporalMarker(delegator::pathFindToTarget)
+                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromRedLeft.InHarmonious.toRedBackdrop[0]))
                         .strafeRight(5) // drop in right section
                         .addTemporalMarker(this::dropYellow)
                         .forward(5) // make sure we are in backstage, remove if not necessary
                         .build();
                 break;
             case CENTER:
-                program = drive.trajectorySequenceBuilder(Autonomous.BLUE_RIGHT_START)
+                program = drive.trajectorySequenceBuilder(Autonomous.RED_LEFT_START)
                         .forward(BLOCK_LENGTH_IN)
                         .addTemporalMarker(this::dropPurple)
                         .back(BLOCK_LENGTH_IN)
-                        .addTemporalMarker(delegator::pathFindToTarget)
+                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromRedLeft.InHarmonious.toRedBackdrop[0]))
                         .addTemporalMarker(this::dropYellow)
                         .forward(5) // make sure we are in backstage, remove if not necessary
                         .build();
                 break;
             case LEFT:
-                program = drive.trajectorySequenceBuilder(Autonomous.BLUE_RIGHT_START)
+                program = drive.trajectorySequenceBuilder(Autonomous.RED_LEFT_START)
                         .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(-45))
                         .addTemporalMarker(this::dropPurple)
                         .turn(Math.toRadians(45))
                         .back(BLOCK_LENGTH_IN)
-                        .addTemporalMarker(delegator::pathFindToTarget)
+                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromRedLeft.InHarmonious.toRedBackdrop[0]))
                         .strafeLeft(5) // drop in right section
                         .addTemporalMarker(this::dropYellow)
                         .forward(5) // make sure we are in backstage, remove if not necessary

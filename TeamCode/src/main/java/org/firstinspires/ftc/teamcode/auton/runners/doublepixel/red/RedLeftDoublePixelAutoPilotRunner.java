@@ -51,7 +51,7 @@ public class RedLeftDoublePixelAutoPilotRunner extends IAutonomousRunner<PixelDe
 
         drive.setPoseEstimate(Autonomous.RED_LEFT_START);
 
-        TrajectoryDelegator delegator = new TrajectoryDelegator(opMode, drive, TrajectoryLists.FromRedLeft.toRedBackdrop, InFrontOf.RED_BACKDROP);
+        TrajectoryDelegator delegator = new TrajectoryDelegator(opMode, drive, TrajectoryLists.FromRedLeft.InHarmonious.toRedBackdrop, InFrontOf.RED_BACKDROP);
         TrajectorySequence program;
 
         switch (pos)

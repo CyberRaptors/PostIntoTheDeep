@@ -9,25 +9,32 @@ public class TrajectoryLists {
         public static TrajectorySequence[] toBlueBackdrop;
     }
 
-    public static class FromBlueRight {
-        public static TrajectorySequence[] toBlueBackdrop;
-    }
-
     public static class FromRedRight {
         public static TrajectorySequence[] toRedBackdrop;
     }
 
     public static class FromRedLeft {
-        public static TrajectorySequence[] toRedBackdrop;
+        public static class InHarmonious {
+            public static TrajectorySequence[] toRedBackdrop;
+        }
+
+        public static class Harmonious {
+            public static TrajectorySequence[] toRedBackdrop;
+
+        }
     }
 
-    public static class FromRedLeftHarmonious {
-        public static TrajectorySequence[] toRedBackdrop;
+    public static class FromBlueRight {
+        public static class InHarmonious {
+            public static TrajectorySequence[] toBlueBackdrop;
+        }
+
+        public static class Harmonious {
+            public static TrajectorySequence[] toBlueBackdrop;
+
+        }
     }
 
-    public static class FromBlueRightHarmonious {
-        public static TrajectorySequence[] toBlueBackdrop;
-    }
 
     public static void initializeTrajectoryLists(SampleMecanumDrive drive)
     {
@@ -41,17 +48,24 @@ public class TrajectoryLists {
                         .build()
         };
 
-        FromRedLeft.toRedBackdrop = new TrajectorySequence[] {
+        FromRedLeft.InHarmonious.toRedBackdrop = new TrajectorySequence[] {
                 drive.trajectorySequenceBuilder(Autonomous.RED_LEFT_START)
+                        .strafeLeft(BLOCK_LENGTH_IN)
+                        .forward(BLOCK_LENGTH_IN*2)
                         .turn(Math.toRadians(90))
-                        .forward(BLOCK_LENGTH_IN)
-                        .strafeLeft(BLOCK_LENGTH_IN)
-                        .forward((BLOCK_LENGTH_IN*2) + HALF_BLOCK_LENGTH_IN)
-                        .build(),
-                drive.trajectorySequenceBuilder(Autonomous.CollisionPoints.RED_LEFT_ONE)
-                        .strafeLeft(BLOCK_LENGTH_IN)
-                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN)
+                        .forward(BLOCK_LENGTH_IN*4)
                         .strafeRight(BLOCK_LENGTH_IN)
+                        .forward(HALF_BLOCK_LENGTH_IN)
+                        .build()
+        };
+
+
+        FromRedLeft.Harmonious.toRedBackdrop = new TrajectorySequence[] {
+                drive.trajectorySequenceBuilder(Autonomous.RED_LEFT_START)
+                        .strafeRight(BLOCK_LENGTH_IN*3)
+                        .forward(BLOCK_LENGTH_IN)
+                        .turn(Math.toRadians(90))
+                        .forward(HALF_BLOCK_LENGTH_IN)
                         .build()
         };
 
@@ -63,17 +77,24 @@ public class TrajectoryLists {
                         .build()
         };
 
-        FromBlueRight.toBlueBackdrop = new TrajectorySequence[] {
-                drive.trajectorySequenceBuilder(Autonomous.BLUE_RIGHT_START)
+        FromBlueRight.InHarmonious.toBlueBackdrop = new TrajectorySequence[] {
+                drive.trajectorySequenceBuilder(Autonomous.RED_LEFT_START)
+                        .strafeRight(BLOCK_LENGTH_IN)
+                        .forward(BLOCK_LENGTH_IN*2)
                         .turn(Math.toRadians(-90))
-                        .forward(BLOCK_LENGTH_IN)
-                        .strafeRight(BLOCK_LENGTH_IN)
-                        .forward((BLOCK_LENGTH_IN*2) + HALF_BLOCK_LENGTH_IN)
-                        .build(),
-                drive.trajectorySequenceBuilder(Autonomous.CollisionPoints.RED_LEFT_ONE)
-                        .strafeRight(BLOCK_LENGTH_IN)
-                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN)
+                        .forward(BLOCK_LENGTH_IN*4)
                         .strafeLeft(BLOCK_LENGTH_IN)
+                        .forward(HALF_BLOCK_LENGTH_IN)
+                        .build()
+        };
+
+
+        FromBlueRight.Harmonious.toBlueBackdrop = new TrajectorySequence[] {
+                drive.trajectorySequenceBuilder(Autonomous.RED_LEFT_START)
+                        .strafeLeft(BLOCK_LENGTH_IN*3)
+                        .forward(BLOCK_LENGTH_IN)
+                        .turn(Math.toRadians(-90))
+                        .forward(HALF_BLOCK_LENGTH_IN)
                         .build()
         };
     }
