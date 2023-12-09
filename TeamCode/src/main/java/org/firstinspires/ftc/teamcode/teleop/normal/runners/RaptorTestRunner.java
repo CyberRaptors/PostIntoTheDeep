@@ -107,7 +107,7 @@ public class RaptorTestRunner extends ITeleopRunner {
                 Math.max(
                         Math.min(
                             bot.clawRotate.getPosition()+
-                               gamepad2.inner.left_stick_y/1000
+                               (gamepad2.inner.left_stick_y/1000)
                             , 1
                     ), 0
                 )
@@ -124,7 +124,7 @@ public class RaptorTestRunner extends ITeleopRunner {
 
     public void testArm() {
         bot.arm.setPosition(
-                bot.arm.getPosition()+(int) gamepad2.inner.right_stick_y
+                bot.arm.getPosition()+(int) gamepad2.inner.right_stick_y*2
         );
 
 //        bot.arm.setPower(gamepad2.inner.right_stick_y);
@@ -182,8 +182,8 @@ public class RaptorTestRunner extends ITeleopRunner {
         boolean commandArmUp = (gamepad2.inner.right_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH) || (gamepad2.inner.right_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH);
 
         gamepad2.map("left_stick_button").to(() -> {
-//            bot.arm.setPosition(bot.arm.maxPos);
-            bot.clawRotate.setPosition(0.7);
+            bot.arm.setPosition(bot.arm.maxPos);
+            bot.clawRotate.setPosition(0.75);
         }).and("right_stick_button").to(
                 this::armSequence_restingPosition
         ).and(commandArmUp).to(

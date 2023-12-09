@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.robot;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -11,13 +12,13 @@ import lib8812.common.teleop.IDriveableRobot;
 
 public class RaptorRobot extends IDriveableRobot {
     public final double CLAW_ONE_OPEN = 0.63;
-    public final double CLAW_ONE_CLOSED = 0.58;
-    public final double CLAW_TWO_CLOSED = 0.45;
+    public final double CLAW_ONE_CLOSED = 0.53;
+    public final double CLAW_TWO_CLOSED = 0.49;
     public final double CLAW_TWO_OPEN = 0.4;
     public final double PLANE_SHOT = 0.5;
     public final double PLANE_READY = 0.7;
     public final double GOBUILDA_117_TICKS_PER_REV = 1425.1;
-    public final int ARM_MAX_TICKS = (int) (GOBUILDA_117_TICKS_PER_REV*2/3); // needs to be figured out empirically
+    public final int ARM_MAX_TICKS = 805; // needs to be figured out empirically
     public final int ARM_MIN_TICKS = 0;
 
     public DcMotor leftBack;
@@ -68,6 +69,8 @@ public class RaptorRobot extends IDriveableRobot {
 
         clawOne.setLabeledPosition("CLOSED");
         clawTwo.setLabeledPosition("CLOSED");
-        arm.setPosition(100);
+//        clawRotate.setPosition(0.9);
+//        arm.setPosition((int) GOBUILDA_117_TICKS_PER_REV);
+        arm.setDirection(DcMotorSimple.Direction.REVERSE);
 	}
 }
