@@ -8,7 +8,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import lib8812.common.robot.LabeledPositionServo;
 import lib8812.common.robot.ServoLikeMotor;
 import lib8812.common.robot.VirtualMotor;
-import lib8812.common.teleop.IDriveableRobot;
+import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.uapi.IPixelManager;
 
 public class RaptorRobot extends IDriveableRobot {
     public final double CLAW_ONE_OPEN = 0.63;
@@ -18,7 +19,7 @@ public class RaptorRobot extends IDriveableRobot {
     public final double PLANE_SHOT = 0.5;
     public final double PLANE_READY = 0.7;
     public final double GOBUILDA_117_TICKS_PER_REV = 1425.1;
-    public final int ARM_MAX_TICKS = 805; // needs to be figured out empirically
+    public final int ARM_MAX_TICKS = 798; // needs to be figured out empirically
     public final int ARM_MIN_TICKS = 0;
 
     public DcMotor leftBack;
@@ -34,6 +35,8 @@ public class RaptorRobot extends IDriveableRobot {
     public ServoLikeMotor arm;
     public LabeledPositionServo planeShooter;
     public VirtualMotor spinningIntake;
+
+    public IPixelManager pixelManager;
 
     public void init(HardwareMap hardwareMap) {
 		rightFront  = loadDevice(hardwareMap, DcMotor.class, "rightFront");
@@ -67,10 +70,55 @@ public class RaptorRobot extends IDriveableRobot {
 
         spinningIntake = loadDevice(hardwareMap, VirtualMotor.class, "spinningIntake");
 
+        clawRotate.setPosition(0.77);
         clawOne.setLabeledPosition("CLOSED");
         clawTwo.setLabeledPosition("CLOSED");
-//        clawRotate.setPosition(0.9);
-//        arm.setPosition((int) GOBUILDA_117_TICKS_PER_REV);
         arm.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        pixelManager = new IPixelManager() {
+            int numPixels = 2;
+
+            @Override
+            public void intakeOneFront() throws UnsupportedOperationException {
+                if (numPixels == 2) throw new UnsupportedOperationException();
+
+                if (numPixels == 1) clawOne.setLabeledPosition("CLOSED");
+                else clawTwo.setLabeledPosition("CLOSED");
+
+                numPixels++;
+            }
+
+            @Override
+            public void intakeOneBack() throws UnsupportedOperationException {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void releaseOneFront() throws UnsupportedOperationException {
+                if (numPixels == 0) throw new UnsupportedOperationException();
+
+                if (numPixels == 2) clawOne.setLabeledPosition("OPEN");
+                else clawTwo.setLabeledPosition("OPEN");
+
+                numPixels--;
+            }
+
+            @Override
+            public void releaseOneBack() throws UnsupportedOperationException {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void releaseAutonOneFront() {
+                clawTwo.setLabeledPosition("OPEN");
+                numPixels--;
+            }
+
+            @Override
+            public void releaseAutonTwoFront() {
+                clawOne.setLabeledPosition("OPEN");
+                numPixels--;
+            }
+        };
 	}
 }

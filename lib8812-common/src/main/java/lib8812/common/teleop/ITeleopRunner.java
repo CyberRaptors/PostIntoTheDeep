@@ -9,6 +9,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import lib8812.common.robot.IDriveableRobot;
+
 public abstract class ITeleopRunner {
     public IDriveableRobot bot;
     public LinearOpMode opMode;

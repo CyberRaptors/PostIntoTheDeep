@@ -1,17 +1,16 @@
-package lib8812.common.teleop;
+package lib8812.common.robot;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import lib8812.common.robot.VirtualCRServo;
-import lib8812.common.robot.VirtualMotor;
-import lib8812.common.robot.VirtualServo;
+import lib8812.common.robot.uapi.IPixelManager;
 
 public abstract class IDriveableRobot {
-    DcMotor rightFront = null;
-    DcMotor leftFront = null;
-    DcMotor rightBack = null;
-    DcMotor leftBack = null;
+    public DcMotor rightFront = null;
+    public DcMotor leftFront = null;
+    public DcMotor rightBack = null;
+    public DcMotor leftBack = null;
+    public IPixelManager pixelManager;
 
     public abstract void init(HardwareMap hardwareMap);
 

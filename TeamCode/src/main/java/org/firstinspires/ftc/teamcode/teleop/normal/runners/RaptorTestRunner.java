@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.teleop.normal.runners;
 
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
-import lib8812.common.teleop.IDriveableRobot;
+import lib8812.common.robot.IDriveableRobot;
 import lib8812.common.teleop.ITeleopRunner;
 import lib8812.common.teleop.TeleOpUtils;
 
@@ -182,8 +182,15 @@ public class RaptorTestRunner extends ITeleopRunner {
         boolean commandArmUp = (gamepad2.inner.right_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH) || (gamepad2.inner.right_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH);
 
         gamepad2.map("left_stick_button").to(() -> {
+            bot.clawOne.setLabeledPosition("CLOSED");
+            bot.clawTwo.setLabeledPosition("CLOSED");
+            sleep(300);
+            bot.clawRotate.setPosition(0.74);
+            sleep(500);
+            bot.arm.setPosition(bot.arm.maxPos-100);
+            bot.arm.waitForPosition();
+            sleep(300);
             bot.arm.setPosition(bot.arm.maxPos);
-            bot.clawRotate.setPosition(0.75);
         }).and("right_stick_button").to(
                 this::armSequence_restingPosition
         ).and(commandArmUp).to(

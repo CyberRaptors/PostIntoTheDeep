@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 import lib8812.common.auton.IAutonomousRunner;
 import lib8812.common.auton.autopilot.TrajectoryLists;
 import lib8812.common.rr.trajectorysequence.TrajectorySequence;
-import lib8812.common.teleop.IDriveableRobot;
+import lib8812.common.robot.IDriveableRobot;
 
 
 public class BlueLeftDoublePixelRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {

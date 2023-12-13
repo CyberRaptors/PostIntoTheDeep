@@ -6,7 +6,7 @@ import lib8812.common.auton.IAutonomousRunner;
 import lib8812.common.auton.autopilot.TrajectoryDelegator;
 import lib8812.common.auton.autopilot.TrajectoryLists;
 import lib8812.common.rr.trajectorysequence.TrajectorySequence;
-import lib8812.common.teleop.IDriveableRobot;
+import lib8812.common.robot.IDriveableRobot;
 import static lib8812.common.auton.autopilot.FieldPositions.Autonomous;
 import static lib8812.common.auton.autopilot.FieldPositions.BLOCK_LENGTH_IN;
 import static lib8812.common.auton.autopilot.FieldPositions.InFrontOf;

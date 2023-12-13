@@ -2,14 +2,14 @@ package org.firstinspires.ftc.teamcode.auton.runners.singlepixel.red;
 
 import static lib8812.common.auton.autopilot.FieldPositions.Autonomous;
 import static lib8812.common.auton.autopilot.FieldPositions.BLOCK_LENGTH_IN;
+import static lib8812.common.auton.autopilot.FieldPositions.HALF_BLOCK_LENGTH_IN;
 
 import org.firstinspires.ftc.teamcode.auton.detectors.PixelDetectionConstants;
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.auton.IAutonomousRunner;
-import lib8812.common.auton.autopilot.TrajectoryLists;
 import lib8812.common.rr.trajectorysequence.TrajectorySequence;
-import lib8812.common.teleop.IDriveableRobot;
+import lib8812.common.robot.IDriveableRobot;
 
 
 public class RedRightSinglePixelRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
@@ -19,20 +19,31 @@ public class RedRightSinglePixelRunner extends IAutonomousRunner<PixelDetectionC
         return bot;
     }
 
+    void armDown()
+    {
+        bot.clawRotate.setPosition(0.74);
+        sleep(500);
+        bot.arm.setPosition(bot.arm.maxPos-10);
+        bot.arm.waitForPosition();
+        sleep(300);
+    }
+
+    void armUp()
+    {
+        bot.arm.setPosition(500);
+        bot.arm.waitForPosition();
+        bot.arm.setPosition(bot.arm.minPos);
+        bot.arm.waitForPosition();
+    }
 
     void dropPurple()
     {
-//        bot.testLift1.setPower(0.2); // raise lifts a little
-//        bot.testLift2.setPower(0.2);
-//        bot.arm.setPower(0.75); // out facing tape on floor
-//        bot.claw.setPosition(0); // open
-//        bot.arm.setPower(0); // by spinning intake, waiting for yellow to be fed in
-//        bot.spinningIntake.setPower(1); // take in yellow pixel;
-//        sleep(100);
-//        bot.spinningIntake.setPower(0);
-//        bot.claw.setPosition(1); // clasp yellow pixel
-//        bot.testLift1.setPower(0);
-//        bot.testLift2.setPower(0);
+        armDown();
+        sleep(1000);
+        bot.pixelManager.releaseAutonOneFront();
+        sleep(1000);
+        armUp();
+        sleep(1000);
     }
 
     protected void internalRun(PixelDetectionConstants.PixelPosition pos) {
@@ -41,42 +52,48 @@ public class RedRightSinglePixelRunner extends IAutonomousRunner<PixelDetectionC
 
         drive.setPoseEstimate(Autonomous.RED_RIGHT_START);
 
-        TrajectorySequence program = null;
+        TrajectorySequence toTape = null;
+        TrajectorySequence toBackdrop = null;
 
         switch (pos)
         {
             case RIGHT:
-                program = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
-                        .forward(BLOCK_LENGTH_IN)
-                        .turn(Math.toRadians(45))
-                        .addTemporalMarker(this::dropPurple)
+                toTape = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
+                        .forward(HALF_BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(-45))
-                        .back(BLOCK_LENGTH_IN)
+                        .build();
+                toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
+                        .turn(Math.toRadians(45))
+                        .back(HALF_BLOCK_LENGTH_IN)
                         .strafeRight(BLOCK_LENGTH_IN*2)
                         .build();
                 break;
             case CENTER:
-                program = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
-                        .forward(BLOCK_LENGTH_IN)
-                        .addTemporalMarker(this::dropPurple)
-                        .back(BLOCK_LENGTH_IN)
+                toTape = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
+                        .forward(HALF_BLOCK_LENGTH_IN)
+                        .build();
+                toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
+                        .back(HALF_BLOCK_LENGTH_IN)
                         .strafeRight(BLOCK_LENGTH_IN*2)
                         .build();
                 break;
             case LEFT:
-                program = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
-                        .forward(BLOCK_LENGTH_IN)
-                        .turn(Math.toRadians(-45))
-                        .addTemporalMarker(this::dropPurple)
-                        .turn(Math.toRadians(45))
-                        .back(BLOCK_LENGTH_IN)
-                        .strafeRight(BLOCK_LENGTH_IN*2)
+                toTape = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
+                        .forward(HALF_BLOCK_LENGTH_IN/2)
+                        .turn(Math.toRadians(31))
+                        .build();
+                toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
+                        .turn(Math.toRadians(-31))
+                        .back(HALF_BLOCK_LENGTH_IN/2)
+                        .strafeRight(BLOCK_LENGTH_IN*4)
                         .build();
                 break;
         }
 
 
 
-        drive.followTrajectorySequence(program);
+        drive.followTrajectorySequence(toTape);
+        dropPurple();
+        drive.followTrajectorySequence(toBackdrop);
     }
 }

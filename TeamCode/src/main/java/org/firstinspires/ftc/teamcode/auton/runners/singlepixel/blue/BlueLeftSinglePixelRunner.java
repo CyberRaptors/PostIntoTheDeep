@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.auton.IAutonomousRunner;
 import lib8812.common.rr.trajectorysequence.TrajectorySequence;
-import lib8812.common.teleop.IDriveableRobot;
+import lib8812.common.robot.IDriveableRobot;
 
 
 public class BlueLeftSinglePixelRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
@@ -18,20 +18,31 @@ public class BlueLeftSinglePixelRunner extends IAutonomousRunner<PixelDetectionC
         return bot;
     }
 
+    void armDown()
+    {
+        bot.clawRotate.setPosition(0.74);
+        sleep(500);
+        bot.arm.setPosition(bot.arm.maxPos-10);
+        bot.arm.waitForPosition();
+        sleep(300);
+    }
+
+    void armUp()
+    {
+        bot.arm.setPosition(500);
+        bot.arm.waitForPosition();
+        bot.arm.setPosition(bot.arm.minPos);
+        bot.arm.waitForPosition();
+    }
 
     void dropPurple()
     {
-//        bot.testLift1.setPower(0.2); // raise lifts a little
-//        bot.testLift2.setPower(0.2);
-//        bot.arm.setPower(0.75); // out facing tape on floor
-//        bot.claw.setPosition(0); // open
-//        bot.arm.setPower(0); // by spinning intake, waiting for yellow to be fed in
-//        bot.spinningIntake.setPower(1); // take in yellow pixel;
-//        sleep(100);
-//        bot.spinningIntake.setPower(0);
-//        bot.claw.setPosition(1); // clasp yellow pixel
-//        bot.testLift1.setPower(0);
-//        bot.testLift2.setPower(0);
+        armDown();
+        sleep(1000);
+        bot.pixelManager.releaseAutonOneFront();
+        sleep(1000);
+        armUp();
+        sleep(1000);
     }
 
     protected void internalRun(PixelDetectionConstants.PixelPosition pos) {
@@ -40,33 +51,37 @@ public class BlueLeftSinglePixelRunner extends IAutonomousRunner<PixelDetectionC
 
         drive.setPoseEstimate(Autonomous.BLUE_LEFT_START);
 
-        TrajectorySequence program = null;
+        TrajectorySequence toTape = null;
+        TrajectorySequence toBackdrop = null;
 
         switch (pos)
         {
             case RIGHT:
-                program = drive.trajectorySequenceBuilder(Autonomous.BLUE_LEFT_START)
+                toTape = drive.trajectorySequenceBuilder(Autonomous.BLUE_LEFT_START)
                         .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(45))
-                        .addTemporalMarker(this::dropPurple)
+                        .build();
+                toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
                         .turn(Math.toRadians(-45))
                         .back(BLOCK_LENGTH_IN)
                         .strafeLeft(BLOCK_LENGTH_IN*2)
                         .build();
                 break;
             case CENTER:
-                program = drive.trajectorySequenceBuilder(Autonomous.BLUE_LEFT_START)
+                toTape = drive.trajectorySequenceBuilder(Autonomous.BLUE_LEFT_START)
                         .forward(BLOCK_LENGTH_IN)
-                        .addTemporalMarker(this::dropPurple)
+                        .build();
+                toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
                         .back(BLOCK_LENGTH_IN)
                         .strafeLeft(BLOCK_LENGTH_IN*2)
                         .build();
                 break;
             case LEFT:
-                program = drive.trajectorySequenceBuilder(Autonomous.BLUE_LEFT_START)
+                toTape = drive.trajectorySequenceBuilder(Autonomous.BLUE_LEFT_START)
                         .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(-45))
-                        .addTemporalMarker(this::dropPurple)
+                        .build();
+                toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
                         .turn(Math.toRadians(45))
                         .back(BLOCK_LENGTH_IN)
                         .strafeLeft(BLOCK_LENGTH_IN*2)
@@ -76,6 +91,8 @@ public class BlueLeftSinglePixelRunner extends IAutonomousRunner<PixelDetectionC
 
 
 
-        drive.followTrajectorySequence(program);
+        drive.followTrajectorySequence(toTape);
+        dropPurple();
+        drive.followTrajectorySequence(toBackdrop);
     }
 }

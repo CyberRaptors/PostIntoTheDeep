@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auton.runners.doublepixel.blue;
+package org.firstinspires.ftc.teamcode.auton.runners.doublepixel.blue.harmonious;
 
 import static lib8812.common.auton.autopilot.FieldPositions.Autonomous;
 import static lib8812.common.auton.autopilot.FieldPositions.BLOCK_LENGTH_IN;
@@ -9,10 +9,10 @@ import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 import lib8812.common.auton.IAutonomousRunner;
 import lib8812.common.auton.autopilot.TrajectoryLists;
 import lib8812.common.rr.trajectorysequence.TrajectorySequence;
-import lib8812.common.teleop.IDriveableRobot;
+import lib8812.common.robot.IDriveableRobot;
 
 
-public class BlueRightDoublePixelInHarmoniousRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
+public class BlueRightDoublePixelHarmoniousRunnerLPark extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
     RaptorRobot bot = new RaptorRobot();
 
     protected IDriveableRobot getBot() {
@@ -63,7 +63,7 @@ public class BlueRightDoublePixelInHarmoniousRunner extends IAutonomousRunner<Pi
                         .addTemporalMarker(this::dropPurple)
                         .turn(Math.toRadians(-45))
                         .back(BLOCK_LENGTH_IN)
-                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromBlueRight.InHarmonious.toBlueBackdrop[0]))
+                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromBlueRight.Harmonious.toBlueBackdrop[0]))
                         .strafeRight(5) // drop in right section
                         .addTemporalMarker(this::dropYellow)
                         .forward(5) // make sure we are in backstage, remove if not necessary
@@ -74,7 +74,7 @@ public class BlueRightDoublePixelInHarmoniousRunner extends IAutonomousRunner<Pi
                         .forward(BLOCK_LENGTH_IN)
                         .addTemporalMarker(this::dropPurple)
                         .back(BLOCK_LENGTH_IN)
-                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromBlueRight.InHarmonious.toBlueBackdrop[0]))
+                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromBlueRight.Harmonious.toBlueBackdrop[0]))
                         .addTemporalMarker(this::dropYellow)
                         .forward(5) // make sure we are in backstage, remove if not necessary
                         .build();
@@ -86,7 +86,7 @@ public class BlueRightDoublePixelInHarmoniousRunner extends IAutonomousRunner<Pi
                         .addTemporalMarker(this::dropPurple)
                         .turn(Math.toRadians(45))
                         .back(BLOCK_LENGTH_IN)
-                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromBlueRight.InHarmonious.toBlueBackdrop[0]))
+                        .addTemporalMarker(() -> drive.followTrajectorySequence(TrajectoryLists.FromBlueRight.Harmonious.toBlueBackdrop[0]))
                         .strafeLeft(5) // drop in right section
                         .addTemporalMarker(this::dropYellow)
                         .forward(5) // make sure we are in backstage, remove if not necessary

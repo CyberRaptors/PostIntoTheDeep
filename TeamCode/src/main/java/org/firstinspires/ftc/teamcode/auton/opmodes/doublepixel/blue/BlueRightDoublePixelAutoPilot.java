@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.auton.detectors.BlueElementPositionDetector;
 import org.firstinspires.ftc.teamcode.auton.detectors.PixelDetectionConstants;
-import org.firstinspires.ftc.teamcode.auton.runners.doublepixel.blue.BlueRightDoublePixelAutoPilotRunner;
+import org.firstinspires.ftc.teamcode.auton.runners.doublepixel.blue.autopilot.BlueRightDoublePixelAutoPilotRunner;
 
 @Autonomous(name="Autonomous/Blue/Right/DoublePixel/AutoPilot")
 public class BlueRightDoublePixelAutoPilot extends LinearOpMode {
