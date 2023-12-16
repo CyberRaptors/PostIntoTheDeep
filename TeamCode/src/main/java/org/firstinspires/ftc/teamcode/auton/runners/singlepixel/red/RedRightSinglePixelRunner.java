@@ -23,9 +23,8 @@ public class RedRightSinglePixelRunner extends IAutonomousRunner<PixelDetectionC
     {
         bot.clawRotate.setPosition(0.74);
         sleep(500);
-        bot.arm.setPosition(bot.arm.maxPos-10);
+        bot.arm.setPosition(bot.arm.maxPos-50);
         bot.arm.waitForPosition();
-        sleep(300);
     }
 
     void armUp()
@@ -51,6 +50,11 @@ public class RedRightSinglePixelRunner extends IAutonomousRunner<PixelDetectionC
         pos = objectDetector.getCurrentFeed(); // see if this changes anything
 
         drive.setPoseEstimate(Autonomous.RED_RIGHT_START);
+        drive.followTrajectory(
+                drive.trajectoryBuilder(drive.getPoseEstimate())
+                        .forward(2) // center self in middle of mat
+                        .build()
+        );
 
         TrajectorySequence toTape = null;
         TrajectorySequence toBackdrop = null;
@@ -60,12 +64,12 @@ public class RedRightSinglePixelRunner extends IAutonomousRunner<PixelDetectionC
             case RIGHT:
                 toTape = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
                         .forward(HALF_BLOCK_LENGTH_IN)
-                        .turn(Math.toRadians(-45))
+                        .turn(Math.toRadians(-33))
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .turn(Math.toRadians(45))
+                        .turn(Math.toRadians(33))
                         .back(HALF_BLOCK_LENGTH_IN)
-                        .strafeRight(BLOCK_LENGTH_IN*2)
+                        .strafeRight(BLOCK_LENGTH_IN*2-3)
                         .build();
                 break;
             case CENTER:
@@ -74,23 +78,21 @@ public class RedRightSinglePixelRunner extends IAutonomousRunner<PixelDetectionC
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
                         .back(HALF_BLOCK_LENGTH_IN)
-                        .strafeRight(BLOCK_LENGTH_IN*2)
+                        .strafeRight(BLOCK_LENGTH_IN*2-3)
                         .build();
                 break;
             case LEFT:
                 toTape = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
                         .forward(HALF_BLOCK_LENGTH_IN/2)
-                        .turn(Math.toRadians(31))
+                        .turn(Math.toRadians(33))
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .turn(Math.toRadians(-31))
-                        .back(HALF_BLOCK_LENGTH_IN/2)
-                        .strafeRight(BLOCK_LENGTH_IN*4)
+                        .turn(Math.toRadians(-33))
+                        .back(HALF_BLOCK_LENGTH_IN/2-3)
+                        .strafeRight(BLOCK_LENGTH_IN*2)
                         .build();
                 break;
         }
-
-
 
         drive.followTrajectorySequence(toTape);
         dropPurple();
