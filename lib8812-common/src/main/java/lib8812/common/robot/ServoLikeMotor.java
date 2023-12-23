@@ -27,22 +27,22 @@ public class ServoLikeMotor implements DcMotor {
 
         position = Math.min(Math.max(pos, minPos), maxPos); // cap positions
 
-        inner.setTargetPosition(position);
-
         if (inner.getMode() == RunMode.RUN_WITHOUT_ENCODER) {
             inner.setMode(RunMode.RUN_USING_ENCODER);
             inner.setMode(RunMode.STOP_AND_RESET_ENCODER);
             inner.setMode(RunMode.RUN_TO_POSITION);
         }
 
-        inner.setPower(1);
+        inner.setTargetPosition(position);
+
+        inner.setPower(0.6);
     }
 
     public int getPosition() {
         return position;
     }
 
-    public void waitForPosition() { while (inner.isBusy()); }
+    public void waitForPosition() { while (inner.isBusy()) { } }
 
     @Override
     public MotorConfigurationType getMotorType() {

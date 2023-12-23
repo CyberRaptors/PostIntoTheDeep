@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -34,7 +35,8 @@ public class RaptorRobot extends IDriveableRobot {
     // mechanical devices not added yet
     public ServoLikeMotor arm;
     public LabeledPositionServo planeShooter;
-    public VirtualMotor spinningIntake;
+    public CRServo spinOne;
+    public CRServo spinTwo;
 
     public IPixelManager pixelManager;
 
@@ -68,7 +70,8 @@ public class RaptorRobot extends IDriveableRobot {
 
         arm = new ServoLikeMotor(loadDevice(hardwareMap, DcMotor.class, "arm"), ARM_MIN_TICKS, ARM_MAX_TICKS);
 
-        spinningIntake = loadDevice(hardwareMap, VirtualMotor.class, "spinningIntake");
+        spinOne = loadDevice(hardwareMap, CRServo.class, "spinOne");
+        spinTwo = loadDevice(hardwareMap, CRServo.class, "spinTwo");
 
         clawRotate.setPosition(0.77);
         clawOne.setLabeledPosition("CLOSED");

@@ -24,8 +24,10 @@ public class RedRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
     void armDown()
     {
         bot.clawRotate.setPosition(0.74);
-        sleep(500);
-        bot.arm.setPosition(bot.arm.maxPos-50);
+        sleep(300);
+        bot.arm.setPosition(bot.arm.maxPos-200);
+        bot.arm.waitForPosition();
+        bot.arm.setPosition(bot.arm.maxPos-150);
         bot.arm.waitForPosition();
     }
 
@@ -33,16 +35,17 @@ public class RedRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
     {
         bot.arm.setPosition(500);
         bot.arm.waitForPosition();
+        bot.clawRotate.setPosition(0.73);
     }
 
     void dropPurple()
     {
         armDown();
-        sleep(1000);
+        sleep(300);
         bot.pixelManager.releaseAutonOneFront();
-        sleep(1000);
+        sleep(300);
         armUp();
-        sleep(1000);
+        sleep(300);
     }
 
     void armRest()
@@ -53,92 +56,106 @@ public class RedRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
 
     void dropYellow()
     {
-        drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).forward(1).build());
+        bot.arm.setPosition(610);
+        bot.arm.waitForPosition();
+        bot.arm.setPosition(610);
+        bot.arm.waitForPosition();
         sleep(300);
         bot.pixelManager.releaseAutonTwoFront();
         sleep(300);
-        drive.followTrajectory(drive.trajectoryBuilder(drive.getPoseEstimate()).back(1).build());
-
-        sleep(500);
 
         armRest();
-
-        sleep(500);
     }
 
     protected void internalRun(PixelDetectionConstants.PixelPosition pos) {
-        sleep(1000); // see below comment
+        sleep(500); // see below comment
         pos = objectDetector.getCurrentFeed(); // see if this changes anything
 
         drive.setPoseEstimate(Autonomous.RED_RIGHT_START);
-        drive.followTrajectory(
-                drive.trajectoryBuilder(drive.getPoseEstimate())
-                        .forward(2) // center self in middle of mat
-                        .build()
-        );
 
         TrajectorySequence toTape = null;
-        TrajectorySequence postPurple = null;
-        TrajectorySequence prepPlace = null;
         TrajectorySequence toPark = null;
+        TrajectorySequence toBackdrop = null;
 
         switch (pos)
         {
             case RIGHT:
                 toTape = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
-                        .forward(HALF_BLOCK_LENGTH_IN)
-                        .turn(Math.toRadians(-33))
+                        .forward((HALF_BLOCK_LENGTH_IN/2)+2)
+                        .turn(Math.toRadians(-20))
                         .build();
-                postPurple = drive.trajectorySequenceBuilder(toTape.end())
-                        .turn(Math.toRadians(33))
-                        .back(HALF_BLOCK_LENGTH_IN/2)
-                        .build();
-                prepPlace = drive.trajectorySequenceBuilder(TrajectoryLists.FromRedRight.toRedBackdrop[0].end())
-                        .strafeRight(3)
-                        .build();
-                toPark = drive.trajectorySequenceBuilder(toTape.end())
-                        .strafeRight(BLOCK_LENGTH_IN-3)
+                toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
+                        .turn(Math.toRadians(20))
+                        .back((HALF_BLOCK_LENGTH_IN/2)-2)
+                        .turn(Math.toRadians(-90))
                         .forward(BLOCK_LENGTH_IN)
+                        .turn(Math.toRadians(90))
+                        .forward(HALF_BLOCK_LENGTH_IN+7)
+                        .turn(Math.toRadians(-90))
+                        .waitSeconds(0.5)
+                        .forward(10)
+                        .build();
+                toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
+//                        .back()
+                        .turn(Math.toRadians(-90))
+                        .waitSeconds(0.5)
+                        .forward(HALF_BLOCK_LENGTH_IN+7)
+                        .turn(Math.toRadians(90))
+                        .forward(HALF_BLOCK_LENGTH_IN)
                         .build();
                 break;
             case CENTER:
                 toTape = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
-                        .forward(HALF_BLOCK_LENGTH_IN)
+                        .forward(HALF_BLOCK_LENGTH_IN+3)
+                        .turn(Math.toRadians(30))
                         .build();
-                postPurple = drive.trajectorySequenceBuilder(toTape.end())
-                        .back(HALF_BLOCK_LENGTH_IN/2)
-                        .build();
-                prepPlace = drive.trajectorySequenceBuilder(TrajectoryLists.FromRedRight.toRedBackdrop[0].end())
-                        .build();
-                toPark = drive.trajectorySequenceBuilder(toTape.end())
-                        .strafeRight(BLOCK_LENGTH_IN)
+                toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
+                        .turn(Math.toRadians(-30))
+                        .back(HALF_BLOCK_LENGTH_IN-1)
+                        .turn(Math.toRadians(-90))
                         .forward(BLOCK_LENGTH_IN)
+                        .turn(Math.toRadians(90))
+                        .forward(BLOCK_LENGTH_IN) // *
+                        .turn(Math.toRadians(-90))
+                        .forward(10)
+                        .build();
+                toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
+//                        .back()
+                        .turn(Math.toRadians(-90))
+                        .forward(BLOCK_LENGTH_IN) // *
+                        .turn(Math.toRadians(90))
+                        .forward(HALF_BLOCK_LENGTH_IN)
                         .build();
                 break;
             case LEFT:
                 toTape = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
                         .forward(HALF_BLOCK_LENGTH_IN/2)
-                        .turn(Math.toRadians(33))
+                        .turn(Math.toRadians(41))
                         .build();
-                postPurple = drive.trajectorySequenceBuilder(toTape.end())
-                        .turn(Math.toRadians(-33))
-                        .back(HALF_BLOCK_LENGTH_IN/2)
-                        .build();
-                prepPlace = drive.trajectorySequenceBuilder(TrajectoryLists.FromRedRight.toRedBackdrop[0].end())
-                        .strafeLeft(3)
-                        .build();
-                toPark = drive.trajectorySequenceBuilder(toTape.end())
-                        .strafeRight(BLOCK_LENGTH_IN+3)
+                toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
+                        .turn(Math.toRadians(-41))
+                        .back((HALF_BLOCK_LENGTH_IN/2)-4)
+                        .turn(Math.toRadians(-90))
                         .forward(BLOCK_LENGTH_IN)
+                        .turn(Math.toRadians(90))
+                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN-3)
+                        .turn(Math.toRadians(-90))
+                        .forward(10)
+                        .build();
+                toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
+//                        .back()
+                        .turn(Math.toRadians(-90))
+                        .waitSeconds(0.5)
+                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN)
+                        .turn(Math.toRadians(90))
+                        .forward(HALF_BLOCK_LENGTH_IN)
                         .build();
                 break;
         }
 
         drive.followTrajectorySequence(toTape);
         dropPurple();
-        drive.followTrajectorySequence(postPurple);
-        drive.followTrajectorySequence(TrajectoryLists.FromRedRight.toRedBackdrop[0]);
-        drive.followTrajectorySequence(prepPlace);
+        drive.followTrajectorySequence(toBackdrop);
         dropYellow();
         drive.followTrajectorySequence(toPark);
     }

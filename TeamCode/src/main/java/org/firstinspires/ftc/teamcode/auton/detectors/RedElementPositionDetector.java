@@ -55,7 +55,7 @@ public class RedElementPositionDetector implements IObjectDetector<PixelDetectio
     LinearOpMode opMode;
     CameraStreamProcessor dashboardProcessor = new CameraStreamProcessor();
 
-    public static final float LEFT_SIDE_X_BARRIER = 100;
+    public static final float LEFT_SIDE_X_BARRIER = 200;
     public static final float RIGHT_SIDE_X_BARRIER = 500;
 
     public RedElementPositionDetector(LinearOpMode opMode) {
@@ -112,7 +112,6 @@ public class RedElementPositionDetector implements IObjectDetector<PixelDetectio
 
         List<Recognition> currentRecognitions = tfod.getRecognitions();
 
-        // Step through the list of recognitions and display info for each one.
         for (Recognition recognition : currentRecognitions) {
             double confidence = recognition.getConfidence();
 

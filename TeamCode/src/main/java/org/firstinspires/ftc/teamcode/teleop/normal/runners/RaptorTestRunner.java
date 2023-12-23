@@ -224,15 +224,19 @@ public class RaptorTestRunner extends ITeleopRunner {
             armSequence_restingPosition();
             clawSequence_openBoth();
 
-            bot.spinningIntake.setPower(1);
             sleep(300);
 
             clawSequence_closeBoth();
 
-            bot.spinningIntake.setPower(0);
 
             armSequence_backdropPlacePosition(); // may need to not use backdrop place position and instead place arm in a shorter position in order to move under the rigging
         });
+    }
+
+    public void testIntakes()
+    {
+        bot.spinTwo.setPower(gamepad2.inner.right_stick_y);
+        bot.spinOne.setPower(gamepad2.inner.right_stick_y);
     }
 
     protected void internalRun() {
@@ -244,7 +248,8 @@ public class RaptorTestRunner extends ITeleopRunner {
             testActuator();
             testClaw();
             testPlaneShooter();
-            testArm();
+//            testArm();
+            testIntakes();
             testClawRotate();
             endgameSequence();
             armSequences();

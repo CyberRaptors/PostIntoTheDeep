@@ -43,9 +43,9 @@ public class TrajectoryLists {
         FromRedRight.toRedBackdrop = new TrajectorySequence[] { // includes three turns for now due to strafing inaccuracies, change back once fixed
                 drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
                         .turn(Math.toRadians(-90))
-                        .forward(BLOCK_LENGTH_IN)
+                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(90))
-                        .forward(HALF_BLOCK_LENGTH_IN+BLOCK_LENGTH_IN)
+                        .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(-90))
                         .build()
         };
