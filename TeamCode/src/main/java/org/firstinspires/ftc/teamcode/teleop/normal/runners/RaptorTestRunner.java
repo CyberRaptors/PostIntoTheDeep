@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop.normal.runners;
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.WheelPowers;
 import lib8812.common.teleop.ITeleopRunner;
 import lib8812.common.teleop.TeleOpUtils;
 
@@ -62,7 +63,7 @@ public class RaptorTestRunner extends ITeleopRunner {
 
     protected IDriveableRobot getBot() { return bot; }
 
-    public double[] testWheelsAndReturnRealInputPower() {
+    public void testWheels() {
         double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_y, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
         double correctedRightX = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_x, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
         double correctedLeftY = TeleOpUtils.fineTuneInput(gamepad1.inner.left_stick_y, TeleOpUtils.DEFAULT_FINE_TUNE_THRESH);
@@ -73,17 +74,19 @@ public class RaptorTestRunner extends ITeleopRunner {
         double correctedRightBack = -correctedRightY+correctedRightX;
         double correctedLeftBack = correctedLeftY+correctedLeftX;
 
-        double realRightFront = -gamepad1.inner.right_stick_y-gamepad1.inner.right_stick_x;
-        double realLeftFront = gamepad1.inner.left_stick_y-gamepad1.inner.left_stick_x;
-        double realRightBack = -gamepad1.inner.right_stick_y+gamepad1.inner.right_stick_x;
-        double realLeftBack = gamepad1.inner.left_stick_y+gamepad1.inner.left_stick_x;
-
         bot.rightFront.setPower(correctedRightFront);
         bot.leftFront.setPower(correctedLeftFront);
         bot.rightBack.setPower(correctedRightBack);
         bot.leftBack.setPower(correctedLeftBack);
+    }
 
-        return new double[] { realLeftFront, realLeftBack, realRightFront, realRightBack };
+    public WheelPowers getRealWheelInputPowers() {
+        return new WheelPowers(
+                -gamepad1.inner.right_stick_y-gamepad1.inner.right_stick_x,
+                gamepad1.inner.left_stick_y-gamepad1.inner.left_stick_x,
+                -gamepad1.inner.right_stick_y+gamepad1.inner.right_stick_x,
+                gamepad1.inner.left_stick_y+gamepad1.inner.left_stick_x
+        );
     }
 
     public void testActuator() {
@@ -243,18 +246,19 @@ public class RaptorTestRunner extends ITeleopRunner {
         int counter = 0;
 
         while (opModeIsActive()) {
-            double[] realWheelInputPower = testWheelsAndReturnRealInputPower();
-
+            testWheels();
             testActuator();
             testClaw();
             testPlaneShooter();
-//            testArm();
-            testIntakes();
+            testArm();
+//            testIntakes();
             testClawRotate();
             endgameSequence();
             armSequences();
             clawSequences();
             FUTURE_pickupSequence();
+
+            WheelPowers realWheelInputPowers = getRealWheelInputPowers();
 
             if (gamepad1.inner.x) showExtraInfo = !showExtraInfo; // telemetry verbosity
 
@@ -262,18 +266,18 @@ public class RaptorTestRunner extends ITeleopRunner {
                 telemetry.addData(
                         "Wheels (input)",
                         "leftFront (%.2f) leftBack (%.2f) rightFront (%.2f) rightBack (%.2f)",
-                        realWheelInputPower[0],
-                        realWheelInputPower[1],
-                        realWheelInputPower[2],
-                        realWheelInputPower[3]
+                        realWheelInputPowers.leftFront,
+                        realWheelInputPowers.leftBack,
+                        realWheelInputPowers.rightFront,
+                        realWheelInputPowers.rightBack
                 );
                 telemetry.addData(
                         "Wheels (corrected)",
                         "leftFront (%.2f) [tuned by %.2f] leftBack (%.2f) [tuned by %.2f] rightFront (%.2f) [tuned by %.2f] rightBack (%.2f) [tuned by %.2f]",
-                        bot.leftFront.getPower(), realWheelInputPower[0] - bot.leftFront.getPower(),
-                        bot.leftBack.getPower(), realWheelInputPower[1] - bot.leftBack.getPower(),
-                        bot.rightFront.getPower(), realWheelInputPower[2] - bot.rightFront.getPower(),
-                        bot.rightBack.getPower(), realWheelInputPower[3] - bot.rightBack.getPower()
+                        bot.leftFront.getPower(), realWheelInputPowers.leftFront - bot.leftFront.getPower(),
+                        bot.leftBack.getPower(), realWheelInputPowers.leftBack - bot.leftBack.getPower(),
+                        bot.rightFront.getPower(), realWheelInputPowers.rightFront - bot.rightFront.getPower(),
+                        bot.rightBack.getPower(), realWheelInputPowers.rightBack - bot.rightBack.getPower()
                 );
             }
 

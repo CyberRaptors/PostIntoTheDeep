@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auton.runners.doublepixel.red;
+package org.firstinspires.ftc.teamcode.auton.runners.doublepixel.blue;
 
 import static lib8812.common.auton.autopilot.FieldPositions.Autonomous;
 import static lib8812.common.auton.autopilot.FieldPositions.BLOCK_LENGTH_IN;
@@ -8,18 +8,16 @@ import org.firstinspires.ftc.teamcode.auton.detectors.PixelDetectionConstants;
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.auton.IAutonomousRunner;
-import lib8812.common.auton.autopilot.TrajectoryLists;
-import lib8812.common.rr.trajectorysequence.TrajectorySequence;
 import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.rr.trajectorysequence.TrajectorySequence;
 
 
-public class RedRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
+public class BlueLeftDoublePixelStrafeRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
     RaptorRobot bot = new RaptorRobot();
 
     protected IDriveableRobot getBot() {
         return bot;
     }
-
 
     void armDown()
     {
@@ -71,7 +69,7 @@ public class RedRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
         sleep(500); // see below comment
         pos = objectDetector.getCurrentFeed(); // see if this changes anything
 
-        drive.setPoseEstimate(Autonomous.RED_RIGHT_START);
+        drive.setPoseEstimate(Autonomous.BLUE_LEFT_START);
 
         TrajectorySequence toTape = null;
         TrajectorySequence toPark = null;
@@ -80,77 +78,72 @@ public class RedRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
         switch (pos)
         {
             case RIGHT:
-                toTape = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
+                toTape = drive.trajectorySequenceBuilder(Autonomous.BLUE_LEFT_START)
                         .forward((HALF_BLOCK_LENGTH_IN/2)+2)
                         .turn(Math.toRadians(-20))
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
                         .turn(Math.toRadians(20))
                         .back((HALF_BLOCK_LENGTH_IN/2)-4)
-                        .turn(Math.toRadians(-90))
-                        .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(90))
-                        .forward(HALF_BLOCK_LENGTH_IN+7)
+                        .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(-90))
+                        .forward(HALF_BLOCK_LENGTH_IN+7)
+                        .turn(Math.toRadians(90))
                         .waitSeconds(0.5)
-                        .forward(10)
+                        .forward(7)
                         .build();
                 toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
 //                        .back()
-                        .turn(Math.toRadians(-90))
-                        .waitSeconds(0.5)
-                        .forward(HALF_BLOCK_LENGTH_IN+8+1.5)
-                        .waitSeconds(0.5)
                         .turn(Math.toRadians(90))
+                        .waitSeconds(0.5)
+                        .forward(HALF_BLOCK_LENGTH_IN+7+1.5)
+                        .turn(Math.toRadians(-90))
                         .forward(HALF_BLOCK_LENGTH_IN)
                         .build();
                 break;
             case CENTER:
-                toTape = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
+                toTape = drive.trajectorySequenceBuilder(Autonomous.BLUE_LEFT_START)
                         .forward(HALF_BLOCK_LENGTH_IN+3)
                         .turn(Math.toRadians(30))
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
                         .turn(Math.toRadians(-30))
                         .back(HALF_BLOCK_LENGTH_IN-3)
-                        .turn(Math.toRadians(-90))
-                        .forward(BLOCK_LENGTH_IN)
+                        .strafeLeft(BLOCK_LENGTH_IN)
+                        .waitSeconds(1)
+                        .forward(BLOCK_LENGTH_IN) // *
                         .turn(Math.toRadians(90))
                         .waitSeconds(0.5)
-                        .forward(BLOCK_LENGTH_IN) // *
-                        .turn(Math.toRadians(-90))
-                        .waitSeconds(0.5)
-                        .forward(9)
+                        .forward(7)
                         .build();
                 toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
 //                        .back()
-                        .turn(Math.toRadians(-90))
-                        .forward(BLOCK_LENGTH_IN+2) // *
-                        .turn(Math.toRadians(90))
+                        .strafeLeft(BLOCK_LENGTH_IN+1.5) // *
                         .forward(HALF_BLOCK_LENGTH_IN)
                         .build();
                 break;
             case LEFT:
-                toTape = drive.trajectorySequenceBuilder(Autonomous.RED_RIGHT_START)
+                toTape = drive.trajectorySequenceBuilder(Autonomous.BLUE_LEFT_START)
                         .forward(HALF_BLOCK_LENGTH_IN/2)
                         .turn(Math.toRadians(41))
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
                         .turn(Math.toRadians(-41))
                         .back((HALF_BLOCK_LENGTH_IN/2)-6)
-                        .turn(Math.toRadians(-90))
-                        .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(90))
-                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN-4)
+                        .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(-90))
-                        .forward(10)
+                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN-3)
+                        .turn(Math.toRadians(90))
+                        .forward(7)
                         .build();
                 toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
 //                        .back()
-                        .turn(Math.toRadians(-90))
+                        .turn(Math.toRadians(90))
                         .waitSeconds(0.5)
                         .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN+1.5)
-                        .turn(Math.toRadians(90))
+                        .turn(Math.toRadians(-90))
                         .forward(HALF_BLOCK_LENGTH_IN)
                         .build();
                 break;
@@ -161,5 +154,6 @@ public class RedRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
         drive.followTrajectorySequence(toBackdrop);
         dropYellow();
         drive.followTrajectorySequence(toPark);
+
     }
 }
