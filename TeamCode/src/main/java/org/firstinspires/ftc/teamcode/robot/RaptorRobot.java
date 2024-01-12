@@ -20,7 +20,7 @@ public class RaptorRobot extends IDriveableRobot {
     public final double PLANE_SHOT = 0.5;
     public final double PLANE_READY = 0.9;
     public final double GOBUILDA_117_TICKS_PER_REV = 1425.1;
-    public final int ARM_MAX_TICKS = 798; // needs to be figured out empirically
+    public final int ARM_MAX_TICKS = 797; // needs to be figured out empirically
     public final int ARM_MIN_TICKS = 0;
 
     public DcMotor leftBack;

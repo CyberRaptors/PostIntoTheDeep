@@ -34,12 +34,12 @@ public abstract class ITeleopRunner {
 
     protected static CompletableFuture setTimeout(Runnable runnable, int delay) {
         CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
-            runnable.run();
-
             try { TimeUnit.MILLISECONDS.sleep(delay); }
             catch (InterruptedException e) {
                 throw new IllegalStateException(e);
             }
+
+            runnable.run();
 
             return 0;
         });
