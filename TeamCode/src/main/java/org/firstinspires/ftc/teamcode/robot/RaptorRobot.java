@@ -8,29 +8,32 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import lib8812.common.robot.LabeledPositionServo;
 import lib8812.common.robot.ServoLikeMotor;
-import lib8812.common.robot.VirtualMotor;
 import lib8812.common.robot.IDriveableRobot;
 import lib8812.common.robot.uapi.IPixelManager;
 
 public class RaptorRobot extends IDriveableRobot {
-    public final double CLAW_ONE_OPEN = 0.63;
-    public final double CLAW_ONE_CLOSED = 0.53;
-    public final double CLAW_TWO_CLOSED = 0.49;
-    public final double CLAW_TWO_OPEN = 0.4;
     public final double PLANE_SHOT = 0.5;
     public final double PLANE_READY = 0.9;
     public final double GOBUILDA_117_TICKS_PER_REV = 1425.1;
-    public final int ARM_MAX_TICKS = 797; // needs to be figured out empirically
+    public final int ARM_MAX_TICKS = 800; // needs to be figured out empirically
     public final int ARM_MIN_TICKS = 0;
+    public final double CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS  = 0.7472;
+    public final double CLAW_ROTATE_REST_OVER_WHEELS = 0.7806;
+    public final double CLAW_ROTATE_OPTIMAL_PICKUP = 0.7733;
+    public final double CLAW_ROTATE_GUARANTEED_PICKUP = 0.7778;
+    public final double STANDARD_DROP_CLAW_ROTATE = 0.7783;
+    public final int STANDARD_DROP_ARM_TICKS = 522;
+    public final double PRECISION_DROP_CLAW_ROTATE = 0.7572;
+    public final int PRECISION_DROP_ARM_TICKS = 590;
+    public final double MAX_EXTEND = 0.59;
+    public final double MIN_EXTEND = 0.05;
+
 
     public DcMotor leftBack;
     public DcMotor rightBack;
     public DcMotor leftFront;
     public DcMotor rightFront;
     public DcMotor actuator;
-
-    public LabeledPositionServo clawOne;
-    public LabeledPositionServo clawTwo;
     public Servo clawRotate;
     // mechanical devices not added yet
     public ServoLikeMotor arm;
@@ -40,6 +43,8 @@ public class RaptorRobot extends IDriveableRobot {
 
     public IPixelManager pixelManager;
 
+    public Servo extendRail;
+
     public void init(HardwareMap hardwareMap) {
 		rightFront  = loadDevice(hardwareMap, DcMotor.class, "rightFront");
 		leftFront = loadDevice(hardwareMap, DcMotor.class, "leftFront");
@@ -48,17 +53,7 @@ public class RaptorRobot extends IDriveableRobot {
 
         actuator = loadDevice(hardwareMap, DcMotor.class, "actuator");
 
-        clawOne = new LabeledPositionServo(
-                loadDevice(hardwareMap, Servo.class, "clawOne"),
-                new String[] { "CLOSED", "OPEN" },
-                new Double[] { CLAW_ONE_CLOSED, CLAW_ONE_OPEN }
-        );
-
-        clawTwo = new LabeledPositionServo(
-                loadDevice(hardwareMap, Servo.class, "clawTwo"),
-                new String[] { "CLOSED", "OPEN" },
-                new Double[] { CLAW_TWO_CLOSED, CLAW_TWO_OPEN }
-        );
+        extendRail = loadDevice(hardwareMap, Servo.class, "extendRail");
 
         clawRotate = loadDevice(hardwareMap, Servo.class, "clawRotate");
 
@@ -73,10 +68,13 @@ public class RaptorRobot extends IDriveableRobot {
         spinOne = loadDevice(hardwareMap, CRServo.class, "spinOne");
         spinTwo = loadDevice(hardwareMap, CRServo.class, "spinTwo");
 
-        clawRotate.setPosition(0.77);
-        clawOne.setLabeledPosition("CLOSED");
-        clawTwo.setLabeledPosition("CLOSED");
+        clawRotate.setPosition(CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS);
+//        clawOne.setLabeledPosition("CLOSED");
+//        clawTwo.setLabeledPosition("CLOSED");
         arm.setDirection(DcMotorSimple.Direction.REVERSE);
+        planeShooter.setLabeledPosition("READY");
+
+        extendRail.setPosition(MAX_EXTEND);
 
         pixelManager = new IPixelManager() {
             int numPixels = 2;
@@ -85,8 +83,8 @@ public class RaptorRobot extends IDriveableRobot {
             public void intakeOneFront() throws UnsupportedOperationException {
                 if (numPixels == 2) throw new UnsupportedOperationException();
 
-                if (numPixels == 1) clawOne.setLabeledPosition("CLOSED");
-                else clawTwo.setLabeledPosition("CLOSED");
+//                if (numPixels == 1) clawOne.setLabeledPosition("CLOSED");
+//                else clawTwo.setLabeledPosition("CLOSED");
 
                 numPixels++;
             }
@@ -100,8 +98,8 @@ public class RaptorRobot extends IDriveableRobot {
             public void releaseOneFront() throws UnsupportedOperationException {
                 if (numPixels == 0) throw new UnsupportedOperationException();
 
-                if (numPixels == 2) clawOne.setLabeledPosition("OPEN");
-                else clawTwo.setLabeledPosition("OPEN");
+//                if (numPixels == 2) clawOne.setLabeledPosition("OPEN");
+//                else clawTwo.setLabeledPosition("OPEN");
 
                 numPixels--;
             }
@@ -113,13 +111,13 @@ public class RaptorRobot extends IDriveableRobot {
 
             @Override
             public void releaseAutonOneFront() {
-                clawTwo.setLabeledPosition("OPEN");
+//                clawTwo.setLabeledPosition("OPEN");
                 numPixels--;
             }
 
             @Override
             public void releaseAutonTwoFront() {
-                clawOne.setLabeledPosition("OPEN");
+//                clawOne.setLabeledPosition("OPEN");
                 numPixels--;
             }
         };

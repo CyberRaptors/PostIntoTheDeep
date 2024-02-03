@@ -59,11 +59,14 @@ Gamepad 2
 
 public class RaptorTestRunner extends ITeleopRunner {
     final double MACRO_COMMAND_SAFE_JOYSTICK_THRESH = 0.7;
-    final WheelPowers wheelWeights = new WheelPowers(0.67, 0.67, 0.65, 1);
+    final WheelPowers wheelWeights = new WheelPowers(1, 1, 1, 1); // new WheelPowers(0.67, 0.67, 0.65, 1);
 
     RaptorRobot bot = new RaptorRobot();
     boolean showExtraInfo = false;
     boolean ACTUATOR_LOCKED = false;
+    boolean DRIVE_MACRO_LOCKED = false;
+    boolean ARM_DOWN_MACRO_LOCKED = false;
+    boolean ARM_REST_MACRO_LOCKED = false;
 
     protected IDriveableRobot getBot() { return bot; }
 
@@ -97,16 +100,18 @@ public class RaptorTestRunner extends ITeleopRunner {
         if (!ACTUATOR_LOCKED) bot.actuator.setPower(gamepad1.inner.right_trigger-gamepad1.inner.left_trigger);
     }
 
-    public void testClaw() {
-        gamepad2.map("right_bumper").to(
-                () -> bot.clawOne.setLabeledPosition("OPEN")
-        ).and("left_bumper").to(
-                () -> bot.clawTwo.setLabeledPosition("OPEN")
-        ).and("right_trigger").to(
-                () -> bot.clawOne.setLabeledPosition("CLOSED")
-        ).and("left_trigger").to(
-                () -> bot.clawTwo.setLabeledPosition("CLOSED")
-        );
+    public void testIntakes() {
+        double spinOnePower =
+                gamepad2.getValue("right_bumper") > gamepad2.getValue("right_trigger") ?
+                gamepad2.getValue("right_bumper") : -gamepad2.getValue("right_trigger");
+
+        double spinTwoPower =
+                gamepad2.getValue("left_bumper") > gamepad2.getValue("left_trigger") ?
+                gamepad2.getValue("left_bumper") : -gamepad2.getValue("left_trigger");
+
+
+        bot.spinOne.setPower(spinOnePower);
+        bot.spinTwo.setPower(spinTwoPower);
     }
 
     public void testClawRotate() {
@@ -115,8 +120,8 @@ public class RaptorTestRunner extends ITeleopRunner {
                         Math.min(
                             bot.clawRotate.getPosition()+
                                (gamepad2.inner.left_stick_y/1000)
-                            , 1
-                    ), 0
+                            , 0.83
+                    ), 0.73
                 )
         );
     }
@@ -176,62 +181,87 @@ public class RaptorTestRunner extends ITeleopRunner {
     }
 
     public void armSequence_restingPosition() {
-//        bot.clawRotate.setPosition(0.3);
-        bot.arm.setPosition(bot.arm.minPos);
+        setTimeout(() -> {
+            if (ARM_REST_MACRO_LOCKED) return;
+
+            ARM_REST_MACRO_LOCKED = true;
+
+            try {
+                bot.clawRotate.setPosition(bot.CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS);
+                TimeUnit.MILLISECONDS.sleep(500);
+                bot.arm.setPosition(bot.arm.minPos+20);
+                bot.arm.waitForPosition();
+                bot.clawRotate.setPosition(bot.CLAW_ROTATE_REST_OVER_WHEELS);
+                bot.arm.setPosition(bot.arm.minPos);
+            } catch (InterruptedException e) {
+                throw new IllegalStateException(e);
+            }
+
+            ARM_REST_MACRO_LOCKED = false;
+        }, 0);
     }
 
     public void armSequence_backdropPlacePosition() {
-//        bot.arm.setPosition(bot.arm.maxPos*3/4); // 3/4 of the full span
-        bot.clawRotate.setPosition(0);
+        bot.clawRotate.setPosition(bot.STANDARD_DROP_CLAW_ROTATE);
+        bot.arm.setPosition(bot.STANDARD_DROP_ARM_TICKS);
+    }
+
+    public void armSequence_backdropPrecisionPlacePosition() {
+        bot.clawRotate.setPosition(bot.PRECISION_DROP_CLAW_ROTATE);
+        bot.arm.setPosition(bot.PRECISION_DROP_ARM_TICKS);
     }
 
     public void armSequences() {
-        boolean commandArmUp = (gamepad2.inner.right_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH) || (gamepad2.inner.right_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH);
+        boolean commandArmUpStandard = (gamepad2.inner.right_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH) || (gamepad2.inner.right_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH);
+        boolean commandArmUpPrecision = gamepad2.inner.a;
 
-        gamepad2.map("left_stick_button").to(() -> {
-            setTimeout(() -> {
+        gamepad2.map("left_stick_button").to(() -> setTimeout(() -> {
+                if (ARM_DOWN_MACRO_LOCKED) return;
+
+                ARM_DOWN_MACRO_LOCKED = true;
+
                 try {
-                    bot.clawOne.setLabeledPosition("CLOSED");
-                    bot.clawTwo.setLabeledPosition("CLOSED");
+                    int currPos = bot.arm.getPosition();
+                    if (currPos < 50) {
+                        bot.arm.setPosition(20);
+                        bot.arm.waitForPosition();
+                    }
+
+                    if (currPos < 700) {
+                        bot.clawRotate.setPosition(bot.CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS);
+
+                        TimeUnit.MILLISECONDS.sleep(500);
+                        bot.arm.setPosition(bot.arm.maxPos - 200);
+                        bot.arm.waitForPosition();
+                    }
+
+                    bot.clawRotate.setPosition(bot.CLAW_ROTATE_OPTIMAL_PICKUP);
+                    while (bot.clawRotate.getPosition() != bot.CLAW_ROTATE_OPTIMAL_PICKUP);
+
                     TimeUnit.MILLISECONDS.sleep(300);
-                    bot.clawRotate.setPosition(0.735);
-                    TimeUnit.MILLISECONDS.sleep(500);
-                    bot.arm.setPosition(bot.arm.maxPos - 100);
-                    bot.arm.waitForPosition();
-                    TimeUnit.MILLISECONDS.sleep(300);
-                    bot.arm.setPosition(bot.arm.maxPos);
+                    bot.arm.setPosition(bot.arm.maxPos-1);
                 } catch (InterruptedException e) {
                     throw new IllegalStateException(e);
                 }
-            }, 0);
 
-            sleep(100);
-        }).and("right_stick_button").to(
+                ARM_DOWN_MACRO_LOCKED = false;
+            }, 0)
+        ).and("right_stick_button").to(
                 () -> setTimeout(this::armSequence_restingPosition, 0)
-        ).and(commandArmUp).to(
+        ).and(commandArmUpStandard).to(
                 () -> setTimeout(this::armSequence_backdropPlacePosition, 0)
+        ).and(commandArmUpPrecision).to(
+                () -> setTimeout(this::armSequence_backdropPrecisionPlacePosition, 0)
         );
     }
 
-    public void clawSequence_openBoth() {
-        bot.clawOne.setLabeledPosition("OPEN");
-        bot.clawTwo.setLabeledPosition("OPEN");
-    }
+    public void clawRotateSequences() {
+        boolean commandRotateDown = gamepad2.inner.left_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH || gamepad2.inner.left_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH;
 
-    public void clawSequence_closeBoth() {
-        bot.clawOne.setLabeledPosition("CLOSED");
-        bot.clawTwo.setLabeledPosition("CLOSED");
-    }
-
-    public void clawSequences() {
-        boolean commandCloseClaws = gamepad2.inner.left_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH;
-        boolean commandOpenClaws = gamepad2.inner.left_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH;
-
-        gamepad2.map(commandCloseClaws).to(
-                this::clawSequence_closeBoth
-        ).and(commandOpenClaws).to(
-                this::clawSequence_openBoth
+        gamepad2.map(commandRotateDown).to(
+                () -> bot.clawRotate.setPosition(bot.CLAW_ROTATE_GUARANTEED_PICKUP)
         );
+
     }
 
     public void FUTURE_pickupSequence() {
@@ -247,10 +277,18 @@ public class RaptorTestRunner extends ITeleopRunner {
 //        }, 0));
     }
 
-    public void testIntakes()
+    public void moveExtendRail()
     {
-        bot.spinTwo.setPower(gamepad2.inner.right_stick_y);
-        bot.spinOne.setPower(gamepad2.inner.right_stick_y);
+        gamepad2.map("dpad_down").to(
+                () -> bot.extendRail.setPosition(
+                        Math.min(bot.extendRail.getPosition()+0.0005, bot.MAX_EXTEND)
+                )
+
+        ).and("dpad_up").to(
+                () -> bot.extendRail.setPosition(
+                        Math.max(bot.extendRail.getPosition()-0.0005, bot.MIN_EXTEND)
+                )
+        );
     }
 
     protected void internalRun() {
@@ -259,14 +297,14 @@ public class RaptorTestRunner extends ITeleopRunner {
         while (opModeIsActive()) {
             testWheels();
             testActuator();
-            testClaw();
+            testIntakes();
             testPlaneShooter();
             testArm();
-//            testIntakes();
             testClawRotate();
             endgameSequence();
             armSequences();
-            clawSequences();
+            moveExtendRail();
+            clawRotateSequences();
             FUTURE_pickupSequence();
 
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();
@@ -293,7 +331,8 @@ public class RaptorTestRunner extends ITeleopRunner {
             }
 
             telemetry.addData("Plane Launcher", bot.planeShooter.getPositionLabel());
-            telemetry.addData("Claw", "one (%s) two (%s)", bot.clawOne.getPositionLabel(), bot.clawTwo.getPositionLabel());
+            telemetry.addData("Extend Rail", "position (%.2f)", bot.extendRail.getPosition());
+            telemetry.addData("Intakes", "[power] one (%.2f) two (%.2f)", bot.spinOne.getPower(), bot.spinTwo.getPower());
             telemetry.addData("Actuator", "power (%.2f)%s", bot.actuator.getPower(), ACTUATOR_LOCKED ? " (locked by a sequence)" : "");
             telemetry.addData("Claw Rotate Servo", "pos (%.4f)", bot.clawRotate.getPosition());
             telemetry.addData("Arm", "power (%d)", bot.arm.getPosition());
