@@ -24,6 +24,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
@@ -43,6 +44,7 @@ import static lib8812.common.rr.drive.DriveConstants.kA;
 import static lib8812.common.rr.drive.DriveConstants.kStatic;
 import static lib8812.common.rr.drive.DriveConstants.kV;
 
+import lib8812.common.robot.ServoLikeMotor;
 import lib8812.common.rr.trajectorysequence.TrajectorySequence;
 import lib8812.common.rr.trajectorysequence.TrajectorySequenceBuilder;
 import lib8812.common.rr.trajectorysequence.TrajectorySequenceRunner;
@@ -53,10 +55,11 @@ import lib8812.common.rr.util.LynxModuleUtil;
  */
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(4, 0, 0); // used to be kP:4, kD:1
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(13, 0, 0); // used to be kP:15
+    // TODO: MAKE kD NONZERO
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(6, 0, 0); // used to be kP:4, kD:1
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0); // used to be kP:15
 
-    public static double LATERAL_MULTIPLIER = 1.638225256;
+    public static double LATERAL_MULTIPLIER = 1.42857142857143;
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -98,6 +101,16 @@ public class SampleMecanumDrive extends MecanumDrive {
 //        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
 //                DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR));
 //        imu.initialize(parameters);
+
+        // ROADRUNNER TUNING
+//        ServoLikeMotor arm = new ServoLikeMotor(hardwareMap.get(DcMotor.class, "arm"), 0, 2900);
+//        arm.setDirection(DcMotorSimple.Direction.REVERSE);
+//        Servo clawRotate = hardwareMap.get(Servo.class, "clawRotate");
+//
+//        arm.setPosition(150);
+//        arm.waitForPosition();
+//        clawRotate.setPosition(0.6144);
+        // END ROADRUNNER TUNING
 
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         leftRear = hardwareMap.get(DcMotorEx.class, "leftBack");

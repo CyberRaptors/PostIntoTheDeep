@@ -55,7 +55,7 @@ public class BlueElementPositionDetector implements IObjectDetector<PixelDetecti
     LinearOpMode opMode;
     CameraStreamProcessor dashboardProcessor = new CameraStreamProcessor();
 
-    public static final float LEFT_SIDE_X_BARRIER = 100;
+    public static final float LEFT_SIDE_X_BARRIER = 150;
     public static final float RIGHT_SIDE_X_BARRIER = 500;
 
     public BlueElementPositionDetector(LinearOpMode opMode) {
@@ -139,7 +139,7 @@ public class BlueElementPositionDetector implements IObjectDetector<PixelDetecti
         try { visionPortal.stopStreaming(); }
         catch (RuntimeException e) { }
         visionPortal.close();
-    };
+    }
 
     /**
      * Add telemetry about TensorFlow Object Detection (TFOD) recognitions.

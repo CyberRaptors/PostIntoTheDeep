@@ -6,38 +6,38 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-
 import java.util.function.Consumer;
+import java.util.function.Function;
 
+import lib8812.common.robot.IDriveableRobot;
 import lib8812.common.robot.LabeledPositionServo;
 import lib8812.common.robot.ServoLikeMotor;
-import lib8812.common.robot.IDriveableRobot;
 import lib8812.common.robot.uapi.IPixelManager;
 
-public class RaptorRobot extends IDriveableRobot {
+public class RaptorRobotWeakArm extends IDriveableRobot {
     public final double PLANE_SHOT = 0.5;
     public final double PLANE_READY = 0.9;
     public final double GOBILDA_117_RPM_TICKS_PER_REV = 1425.1;
     public final double GOBILDA_30_RPM_TICKS_PER_REV = 5291.1;
-    public final double ARM_MOTOR_TICKS_PER_REV = GOBILDA_30_RPM_TICKS_PER_REV;
-    public final double ARM_MAX_ROTATION = 0.52;
-    public final double MAX_EXTEND = 0.59;
-    public final double MIN_EXTEND = 0.05;
-    public final double CLAW_ROTATE_MIN = 0.54;
-    public final double CLAW_ROTATE_MAX = 0.64;
+    public final double ARM_MOTOR_TICKS_PER_REV = GOBILDA_117_RPM_TICKS_PER_REV;
+    public final double ARM_MAX_ROTATION = 0.561364114798962;
     public final int ARM_MAX_TICKS = (int) (ARM_MOTOR_TICKS_PER_REV*ARM_MAX_ROTATION);
     public final int ARM_MIN_TICKS = 0;
 
-    public final double CLAW_ROTATE_REST_OVER_WHEELS = 0.6144;
-    public final double CLAW_ROTATE_OPTIMAL_PICKUP = 0.6170;
-    public final double CLAW_ROTATE_GUARANTEED_PICKUP = 0.6200;
-    public final double CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS = CLAW_ROTATE_MAX;
-    public final double AUTON_FROZEN_CLAW_ROTATE = 0.5811;
-    public final int AUTON_FROZEN_ARM_TICKS = 2106;
-    public final double STANDARD_DROP_CLAW_ROTATE = 0.5978;
-    public final int STANDARD_DROP_ARM_TICKS = 1926;
-    public final double PRECISION_DROP_CLAW_ROTATE = 0.5811;
-    public final int PRECISION_DROP_ARM_TICKS = 2106;
+    public final double CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS  = 0.7472;
+    public final double CLAW_ROTATE_REST_OVER_WHEELS = 0.7806;
+    public final double CLAW_ROTATE_OPTIMAL_PICKUP = 0.7733;
+    public final double CLAW_ROTATE_GUARANTEED_PICKUP = 0.7778;
+    public final double STANDARD_DROP_CLAW_ROTATE = 0.7783;
+    public final int STANDARD_DROP_ARM_TICKS = 522;
+    public final double PRECISION_DROP_CLAW_ROTATE = 0.7572;
+    public final int PRECISION_DROP_ARM_TICKS = 590;
+
+
+    public final double MAX_EXTEND = 0.59;
+    public final double MIN_EXTEND = 0.05;
+    public final double CLAW_ROTATE_MIN = 0.68;
+    public final double CLAW_ROTATE_MAX = 0.83;
 
 
     public DcMotor leftBack;
@@ -77,7 +77,7 @@ public class RaptorRobot extends IDriveableRobot {
         spinOne = loadDevice(hardwareMap, CRServo.class, "spinOne");
         spinTwo = loadDevice(hardwareMap, CRServo.class, "spinTwo");
 
-        clawRotate.setPosition(CLAW_ROTATE_MAX);
+        clawRotate.setPosition(CLAW_ROTATE_MIN);
 //        clawOne.setLabeledPosition("CLOSED");
 //        clawTwo.setLabeledPosition("CLOSED");
         arm.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -87,12 +87,11 @@ public class RaptorRobot extends IDriveableRobot {
 
         pixelManager = new IPixelManager() {
             int numPixels = 2;
-            Consumer<Long> sleep;
 
             @Override
-            public void init(Consumer<Long> sleepFunc)
+            public void init(Consumer<Long> func)
             {
-                sleep = sleepFunc;
+                throw new RuntimeException("not in use");
             }
 
             @Override
@@ -101,7 +100,6 @@ public class RaptorRobot extends IDriveableRobot {
 
 //                if (numPixels == 1) clawOne.setLabeledPosition("CLOSED");
 //                else clawTwo.setLabeledPosition("CLOSED");
-
 
                 numPixels++;
             }
@@ -128,32 +126,13 @@ public class RaptorRobot extends IDriveableRobot {
 
             @Override
             public void releaseAutonOneFront() {
-                spinOne.setPower(-1); // spinOne -> yellow
-                spinTwo.setPower(-1); // spinTwo -> purple
-                sleep.accept(500L);
-                spinOne.setPower(0);
-                sleep.accept(500L);
-                spinTwo.setPower(0);
-
-                spinOne.setPower(-1);
-                sleep.accept(500L);
-                spinOne.setPower(0);
-
-                spinTwo.setPower(1);
-                sleep.accept(200L);
-                spinTwo.setPower(0);
-
+//                clawTwo.setLabeledPosition("OPEN");
                 numPixels--;
             }
 
             @Override
             public void releaseAutonTwoFront() {
-                spinOne.setPower(1); // negative this time because dropping from other side evn though this technically violates the implications of releaseOne**Front**
-                spinTwo.setPower(1);
-                sleep.accept(1500l);
-                spinOne.setPower(0);
-                spinTwo.setPower(0);
-
+//                clawOne.setLabeledPosition("OPEN");
                 numPixels--;
             }
         };

@@ -118,10 +118,10 @@ public class RaptorTestRunner extends ITeleopRunner {
         bot.clawRotate.setPosition(
                 Math.max(
                         Math.min(
-                            bot.clawRotate.getPosition()+
-                               (gamepad2.inner.left_stick_y/1000)
-                            , 0.83
-                    ), 0.73
+                                bot.clawRotate.getPosition() +
+                                        (gamepad2.inner.left_stick_y / 3000)
+                                , bot.CLAW_ROTATE_MAX
+                        ), bot.CLAW_ROTATE_MIN
                 )
         );
     }
@@ -227,18 +227,15 @@ public class RaptorTestRunner extends ITeleopRunner {
                         bot.arm.waitForPosition();
                     }
 
-                    if (currPos < 700) {
-                        bot.clawRotate.setPosition(bot.CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS);
+                    bot.clawRotate.setPosition(bot.CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS);
 
-                        TimeUnit.MILLISECONDS.sleep(500);
-                        bot.arm.setPosition(bot.arm.maxPos - 200);
-                        bot.arm.waitForPosition();
-                    }
+                    TimeUnit.MILLISECONDS.sleep(500);
+                    bot.arm.setPosition(bot.arm.maxPos - 400);
+                    bot.arm.waitForPosition();
 
                     bot.clawRotate.setPosition(bot.CLAW_ROTATE_OPTIMAL_PICKUP);
-                    while (bot.clawRotate.getPosition() != bot.CLAW_ROTATE_OPTIMAL_PICKUP);
+                    TimeUnit.MILLISECONDS.sleep(1000);
 
-                    TimeUnit.MILLISECONDS.sleep(300);
                     bot.arm.setPosition(bot.arm.maxPos-1);
                 } catch (InterruptedException e) {
                     throw new IllegalStateException(e);
@@ -335,7 +332,7 @@ public class RaptorTestRunner extends ITeleopRunner {
             telemetry.addData("Intakes", "[power] one (%.2f) two (%.2f)", bot.spinOne.getPower(), bot.spinTwo.getPower());
             telemetry.addData("Actuator", "power (%.2f)%s", bot.actuator.getPower(), ACTUATOR_LOCKED ? " (locked by a sequence)" : "");
             telemetry.addData("Claw Rotate Servo", "pos (%.4f)", bot.clawRotate.getPosition());
-            telemetry.addData("Arm", "power (%d)", bot.arm.getPosition());
+            telemetry.addData("Arm", "pos (%d)", bot.arm.getPosition());
             telemetry.addData("Verbose", showExtraInfo);
 
             if (showExtraInfo) {

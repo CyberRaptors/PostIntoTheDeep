@@ -35,7 +35,7 @@ public class ServoLikeMotor implements DcMotor {
 
         inner.setTargetPosition(position);
 
-        inner.setPower(0.6);
+        inner.setPower(1);
     }
 
     public int getPosition() {
