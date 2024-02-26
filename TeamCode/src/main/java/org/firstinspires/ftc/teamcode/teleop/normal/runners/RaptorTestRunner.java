@@ -67,6 +67,7 @@ public class RaptorTestRunner extends ITeleopRunner {
     boolean DRIVE_MACRO_LOCKED = false;
     boolean ARM_DOWN_MACRO_LOCKED = false;
     boolean ARM_REST_MACRO_LOCKED = false;
+    boolean ARM_REVERSE_LOCKED = false;
 
     double newClawRotate;
 
@@ -215,7 +216,6 @@ public class RaptorTestRunner extends ITeleopRunner {
 
     public void armSequences() {
         boolean commandArmUpStandard = (gamepad2.inner.right_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH) || (gamepad2.inner.right_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH);
-        boolean commandArmUpPrecision = gamepad2.inner.a;
 
         gamepad2.map("left_stick_button").to(() -> setTimeout(() -> {
                 if (ARM_DOWN_MACRO_LOCKED) return;
@@ -249,7 +249,7 @@ public class RaptorTestRunner extends ITeleopRunner {
                 () -> setTimeout(this::armSequence_restingPosition, 0)
         ).and(commandArmUpStandard).to(
                 () -> setTimeout(this::armSequence_backdropPlacePosition, 0)
-        ).and(commandArmUpPrecision).to(
+        ).and("a").to(
                 () -> setTimeout(this::armSequence_backdropPrecisionPlacePosition, 0)
         );
     }
@@ -280,13 +280,18 @@ public class RaptorTestRunner extends ITeleopRunner {
 //        }, 0));
     }
 
-    public void moveExtendRail()
-    {
+    public void runArmFailSafes() {
+        gamepad1.map("x")
+                .to(bot.arm::resetEncoder)
+                .and("y")
+                .to(bot.arm::reverse); // no need to make a lock for reverse since this call is synchronous
+    }
+
+    public void moveExtendRail() {
         gamepad2.map("dpad_down").to(
                 () -> bot.extendRail.setPosition(
                         Math.min(bot.extendRail.getPosition()+0.0005, bot.MAX_EXTEND)
                 )
-
         ).and("dpad_up").to(
                 () -> bot.extendRail.setPosition(
                         Math.max(bot.extendRail.getPosition()-0.0005, bot.MIN_EXTEND)
@@ -308,6 +313,7 @@ public class RaptorTestRunner extends ITeleopRunner {
             armSequences();
             moveExtendRail();
             clawRotateSequences();
+            runArmFailSafes();
             FUTURE_pickupSequence();
 
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();

@@ -29,11 +29,31 @@ public class ServoLikeMotor implements DcMotor {
         inner.setMode(RunMode.RUN_TO_POSITION);
     }
 
-    public void enableAutoAntiStress() { antiStressAutomatic = true; }
+    public void enableAlgorithmAutomatic(String name) {
+        if (name == "anti-stress") {
+            antiStressAutomatic = true;
+        }
+
+        else throw new IllegalArgumentException(String.format("Algorithm '%s' unknown.", name));
+    }
+
+    public void resetEncoder() {
+        if (inner.getMode() == RunMode.RUN_WITHOUT_ENCODER) {
+            inner.setMode(RunMode.RUN_USING_ENCODER);
+            inner.setMode(RunMode.STOP_AND_RESET_ENCODER);
+            inner.setMode(RunMode.RUN_TO_POSITION);
+        } else {
+            inner.setMode(RunMode.STOP_AND_RESET_ENCODER);
+            inner.setMode(RunMode.RUN_TO_POSITION);
+        }
+    }
+
+    public void reverse() {
+        if (inner.getDirection() == Direction.FORWARD) inner.setDirection(Direction.REVERSE);
+        else inner.setDirection(Direction.FORWARD);
+    }
 
     public void setPosition(int pos, boolean startAutoAntiStress) {
-//        waitForPosition();
-
         position = Math.min(Math.max(pos, minPos), maxPos); // cap positions
 
         if (inner.getMode() == RunMode.RUN_WITHOUT_ENCODER) {

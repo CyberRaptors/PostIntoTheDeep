@@ -82,7 +82,7 @@ public class RaptorRobot extends IDriveableRobot {
 //        clawOne.setLabeledPosition("CLOSED");
 //        clawTwo.setLabeledPosition("CLOSED");
         arm.setDirection(DcMotorSimple.Direction.REVERSE);
-        arm.enableAutoAntiStress();
+        arm.enableAlgorithmAutomatic("anti-stress");
 
         planeShooter.setLabeledPosition("READY");
 
