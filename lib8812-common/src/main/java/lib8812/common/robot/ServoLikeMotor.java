@@ -30,7 +30,7 @@ public class ServoLikeMotor implements DcMotor {
     }
 
     public void enableAlgorithmAutomatic(String name) {
-        if (name == "anti-stress") {
+        if (name.equals("anti-stress")) {
             antiStressAutomatic = true;
         }
 
@@ -108,7 +108,14 @@ public class ServoLikeMotor implements DcMotor {
     }
 
     public void waitForPosition() {
-        if (antiStressAutomatic) relieveStress();
+        if (antiStressAutomatic) {
+            if (currentAntiStressWatcher != null) {
+                currentAntiStressWatcher.cancel(true);
+                currentAntiStressWatcher = null;
+            }
+
+            relieveStress();
+        }
         else while (inner.isBusy());
     }
 
