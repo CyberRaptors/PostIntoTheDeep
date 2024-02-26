@@ -72,24 +72,23 @@ public class BlueLeftDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
             case RIGHT:
                 toTape = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                         .addTemporalMarker(0, this::armDown)
-                        .forward((HALF_BLOCK_LENGTH_IN-1))
-                        .turn(Math.toRadians(-14))
+                        .forward((HALF_BLOCK_LENGTH_IN-7))
+                        .turn(Math.toRadians(-11))
                         .build();
                 _toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .turn(Math.toRadians(14))
-                        .back(HALF_BLOCK_LENGTH_IN-3)
+                        .turn(Math.toRadians(11))
+                        .back(HALF_BLOCK_LENGTH_IN-6)
                         .turn(Math.toRadians(90))
                         .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(-90))
                         .waitSeconds(0.5)
-                        .forward(BLOCK_LENGTH_IN-1) // l/r on backdrop
+                        .forward(BLOCK_LENGTH_IN+4) // l/r on backdrop
                         .turn(Math.toRadians(90))
                         .waitSeconds(0.5)
                         .forward(HALF_BLOCK_LENGTH_IN-4) // f/b on backdrop
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
                         .addTemporalMarker(0, this::armUp)
-                        .back(2)
                         .splineToSplineHeading(_toBackdrop.end(), _toBackdrop.end().getHeading())
                         .build();
                 _toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
@@ -97,7 +96,7 @@ public class BlueLeftDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
                         .forward(5)
                         .turn(Math.toRadians(90))
                         .waitSeconds(0.5)
-                        .forward(HALF_BLOCK_LENGTH_IN) // *
+                        .forward(BLOCK_LENGTH_IN) // *
                         .build();
 
                 toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
@@ -154,7 +153,7 @@ public class BlueLeftDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
                         .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(-90))
                         .waitSeconds(0.5)
-                        .forward(BLOCK_LENGTH_IN-11 /*10*/) // l/**(r)** on backdrop
+                        .forward(BLOCK_LENGTH_IN-10 /*10*/) // l/**(r)** on backdrop
                         .turn(Math.toRadians(90))
                         .waitSeconds(0.5)
                         .forward(HALF_BLOCK_LENGTH_IN-4) // f/b on backdrop

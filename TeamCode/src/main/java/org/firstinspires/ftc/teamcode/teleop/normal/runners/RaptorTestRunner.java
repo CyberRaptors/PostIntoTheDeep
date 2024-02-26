@@ -59,7 +59,7 @@ Gamepad 2
 
 public class RaptorTestRunner extends ITeleopRunner {
     final double MACRO_COMMAND_SAFE_JOYSTICK_THRESH = 0.7;
-    final WheelPowers wheelWeights = new WheelPowers(1, 1, 1, 1); // new WheelPowers(0.67, 0.67, 0.65, 1);
+    final WheelPowers wheelWeights = new WheelPowers(0.7, 1, 0.7, 1); // new WheelPowers(0.67, 0.67, 0.65, 1);
 
     RaptorRobot bot = new RaptorRobot();
     boolean showExtraInfo = false;
@@ -67,6 +67,8 @@ public class RaptorTestRunner extends ITeleopRunner {
     boolean DRIVE_MACRO_LOCKED = false;
     boolean ARM_DOWN_MACRO_LOCKED = false;
     boolean ARM_REST_MACRO_LOCKED = false;
+
+    double newClawRotate;
 
     protected IDriveableRobot getBot() { return bot; }
 
@@ -115,15 +117,15 @@ public class RaptorTestRunner extends ITeleopRunner {
     }
 
     public void testClawRotate() {
-        bot.clawRotate.setPosition(
-                Math.max(
-                        Math.min(
-                                bot.clawRotate.getPosition() +
-                                        (gamepad2.inner.left_stick_y / 3000)
-                                , bot.CLAW_ROTATE_MAX
-                        ), bot.CLAW_ROTATE_MIN
-                )
+        newClawRotate = Math.max(
+                Math.min(
+                        bot.clawRotate.getPosition() +
+                                (gamepad2.inner.left_stick_y / 3000)
+                        , bot.CLAW_ROTATE_MAX
+                ), bot.CLAW_ROTATE_MIN
         );
+
+        bot.clawRotate.setPosition(newClawRotate);
     }
 
     public void testPlaneShooter() {
@@ -189,7 +191,7 @@ public class RaptorTestRunner extends ITeleopRunner {
             try {
                 bot.clawRotate.setPosition(bot.CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS);
                 TimeUnit.MILLISECONDS.sleep(500);
-                bot.arm.setPosition(bot.arm.minPos+20);
+                bot.arm.setPosition(bot.arm.minPos+150);
                 bot.arm.waitForPosition();
                 bot.clawRotate.setPosition(bot.CLAW_ROTATE_REST_OVER_WHEELS);
                 bot.arm.setPosition(bot.arm.minPos);
@@ -233,7 +235,7 @@ public class RaptorTestRunner extends ITeleopRunner {
                     bot.arm.setPosition(bot.arm.maxPos - 400);
                     bot.arm.waitForPosition();
 
-                    bot.clawRotate.setPosition(bot.CLAW_ROTATE_OPTIMAL_PICKUP);
+                    bot.clawRotate.setPosition(bot.CLAW_ROTATE_PARALLEL_FOR_PICKUP_MOVEMENT);
                     TimeUnit.MILLISECONDS.sleep(1000);
 
                     bot.arm.setPosition(bot.arm.maxPos-1);
@@ -253,10 +255,14 @@ public class RaptorTestRunner extends ITeleopRunner {
     }
 
     public void clawRotateSequences() {
-        boolean commandRotateDown = gamepad2.inner.left_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH || gamepad2.inner.left_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH;
+        // both of these are basically the same
+        boolean commandRotateOptimal = gamepad2.inner.left_stick_x < -MACRO_COMMAND_SAFE_JOYSTICK_THRESH;
+        boolean commandRotateParallel = gamepad2.inner.left_stick_x > MACRO_COMMAND_SAFE_JOYSTICK_THRESH;
 
-        gamepad2.map(commandRotateDown).to(
-                () -> bot.clawRotate.setPosition(bot.CLAW_ROTATE_GUARANTEED_PICKUP)
+        gamepad2.map(commandRotateOptimal).to(
+                () -> bot.clawRotate.setPosition(bot.CLAW_ROTATE_OPTIMAL_PICKUP)
+        ).and(commandRotateParallel).to(
+                () -> bot.clawRotate.setPosition(bot.CLAW_ROTATE_PARALLEL_FOR_PICKUP_MOVEMENT)
         );
 
     }
@@ -332,6 +338,7 @@ public class RaptorTestRunner extends ITeleopRunner {
             telemetry.addData("Intakes", "[power] one (%.2f) two (%.2f)", bot.spinOne.getPower(), bot.spinTwo.getPower());
             telemetry.addData("Actuator", "power (%.2f)%s", bot.actuator.getPower(), ACTUATOR_LOCKED ? " (locked by a sequence)" : "");
             telemetry.addData("Claw Rotate Servo", "pos (%.4f)", bot.clawRotate.getPosition());
+            telemetry.addData("Claw Rotate Set Pos", "pos (%.4f)", newClawRotate);
             telemetry.addData("Arm", "pos (%d)", bot.arm.getPosition());
             telemetry.addData("Verbose", showExtraInfo);
 
