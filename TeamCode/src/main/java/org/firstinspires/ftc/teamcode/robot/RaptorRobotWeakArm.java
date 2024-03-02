@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.robot;
 
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -72,7 +73,7 @@ public class RaptorRobotWeakArm extends IDriveableRobot {
                 new Double[] { PLANE_READY, PLANE_SHOT }
         );
 
-        arm = new ServoLikeMotor(loadDevice(hardwareMap, DcMotor.class, "arm"), ARM_MIN_TICKS, ARM_MAX_TICKS);
+        arm = new ServoLikeMotor(loadDevice(hardwareMap, DcMotorEx.class, "arm"), ARM_MIN_TICKS, ARM_MAX_TICKS);
 
         spinOne = loadDevice(hardwareMap, CRServo.class, "spinOne");
         spinTwo = loadDevice(hardwareMap, CRServo.class, "spinTwo");

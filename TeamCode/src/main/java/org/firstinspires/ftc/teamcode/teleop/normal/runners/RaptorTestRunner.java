@@ -345,7 +345,7 @@ public class RaptorTestRunner extends ITeleopRunner {
             telemetry.addData("Actuator", "power (%.2f)%s", bot.actuator.getPower(), ACTUATOR_LOCKED ? " (locked by a sequence)" : "");
             telemetry.addData("Claw Rotate Servo", "pos (%.4f)", bot.clawRotate.getPosition());
             telemetry.addData("Claw Rotate Set Pos", "pos (%.4f)", newClawRotate);
-            telemetry.addData("Arm", "pos (%d)", bot.arm.getPosition());
+            telemetry.addData("Arm", "pos (%d) real (%d)", bot.arm.getPosition(), bot.arm.getCurrentPosition());
             telemetry.addData("Verbose", showExtraInfo);
 
             if (showExtraInfo) {

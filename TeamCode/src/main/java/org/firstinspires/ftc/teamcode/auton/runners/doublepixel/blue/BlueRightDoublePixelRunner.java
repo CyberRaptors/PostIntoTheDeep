@@ -8,8 +8,8 @@ import org.firstinspires.ftc.teamcode.auton.detectors.PixelDetectionConstants;
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.auton.IAutonomousRunner;
-import lib8812.common.robot.IDriveableRobot;
 import lib8812.common.rr.trajectorysequence.TrajectorySequence;
+import lib8812.common.robot.IDriveableRobot;
 
 
 public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
@@ -35,12 +35,14 @@ public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetection
     void dropPurple()
     {
         sleep(500);
-        bot.arm.setPosition(bot.arm.maxPos-300);
+        bot.arm.setPosition(bot.arm.maxPos-150);
         bot.arm.waitForPosition();
-        bot.arm.setPosition(bot.arm.maxPos-300);
+        bot.arm.setPosition(bot.arm.maxPos-150);
         bot.arm.waitForPosition();
 
         bot.pixelManager.releaseAutonOneFront();
+        sleep(300);
+        bot.arm.setPosition(bot.arm.minPos);
         sleep(300);
     }
 
@@ -65,6 +67,8 @@ public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetection
         TrajectorySequence toBackdrop = null;
 
         TrajectorySequence _toBackdrop;
+        TrajectorySequence _aroundSpikeMark;
+        TrajectorySequence _toGate;
         TrajectorySequence _toPark;
 
         switch (pos)
@@ -72,31 +76,38 @@ public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetection
             case RIGHT:
                 toTape = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                         .addTemporalMarker(0, this::armDown)
-                        .forward((HALF_BLOCK_LENGTH_IN-7))
+                        .forward((HALF_BLOCK_LENGTH_IN-8))
                         .turn(Math.toRadians(-11))
                         .build();
-                _toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
+                _toGate = drive.trajectorySequenceBuilder(toTape.end())
                         .turn(Math.toRadians(11))
-                        .back(HALF_BLOCK_LENGTH_IN-6)
+                        .forward((BLOCK_LENGTH_IN-(HALF_BLOCK_LENGTH_IN-8))+BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(90))
                         .forward(BLOCK_LENGTH_IN)
-                        .turn(Math.toRadians(-90))
-                        .waitSeconds(0.5)
-                        .forward(BLOCK_LENGTH_IN+4) // l/r on backdrop
+                        .build();
+                _toBackdrop = drive.trajectorySequenceBuilder(_toGate.end())
+                        .forward(BLOCK_LENGTH_IN*2)
                         .turn(Math.toRadians(90))
-                        .waitSeconds(0.5)
-                        .forward(HALF_BLOCK_LENGTH_IN-4) // f/b on backdrop
+                        .forward(HALF_BLOCK_LENGTH_IN+(HALF_BLOCK_LENGTH_IN*0.7))
+                        .turn(Math.toRadians(-90))
+                        .forward(HALF_BLOCK_LENGTH_IN*0.6)
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .addTemporalMarker(0, this::armUp)
+                        .turn(Math.toRadians(11))
+                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN+2)
+                        .splineToSplineHeading(_toGate.end(), _toGate.end().getHeading())
+                        .waitSeconds(8)
+                        .addTemporalMarker(8+5, this::armUp)
+                        .forward(BLOCK_LENGTH_IN)
                         .splineToSplineHeading(_toBackdrop.end(), _toBackdrop.end().getHeading())
                         .build();
                 _toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
 //                        .back()
-                        .forward(5)
-                        .turn(Math.toRadians(90))
+                        .turn(Math.toRadians(-90))
                         .waitSeconds(0.5)
                         .forward(BLOCK_LENGTH_IN) // *
+                        .turn(Math.toRadians(90))
+                        .forward(HALF_BLOCK_LENGTH_IN)
                         .build();
 
                 toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
@@ -107,72 +118,88 @@ public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetection
                 toTape = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                         .addTemporalMarker(0, this::armDown)
                         .forward((HALF_BLOCK_LENGTH_IN-1))
-                        .turn(Math.toRadians(25))
+                        .turn(Math.toRadians(24))
                         .build();
-                _toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .turn(Math.toRadians(-25))
+                _aroundSpikeMark = drive.trajectorySequenceBuilder(toTape.end())
                         .back(HALF_BLOCK_LENGTH_IN-3)
+                        .turn(Math.toRadians(-90))
+                        .forward(BLOCK_LENGTH_IN)
+                        .turn(Math.toRadians(90))
+                        .forward(BLOCK_LENGTH_IN)
+                        .build();
+                _toGate = drive.trajectorySequenceBuilder(_aroundSpikeMark.end())
+                        .forward(BLOCK_LENGTH_IN)
+                        .turn(Math.toRadians(90))
+                        .forward(BLOCK_LENGTH_IN*2)
+                        .build();
+                _toBackdrop = drive.trajectorySequenceBuilder(_toGate.end())
+                        .forward(BLOCK_LENGTH_IN*2)
                         .turn(Math.toRadians(90))
                         .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(-90))
-                        .waitSeconds(0.5)
-                        .forward(BLOCK_LENGTH_IN-6) // l/r on backdrop
-                        .turn(Math.toRadians(90))
-                        .waitSeconds(0.5)
-                        .forward(HALF_BLOCK_LENGTH_IN-4) // f/b on backdrop
+                        .forward(HALF_BLOCK_LENGTH_IN*0.6)
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .addTemporalMarker(0, this::armUp)
-//                        .back(2)
-                        .splineToSplineHeading(_toBackdrop.end(), _toBackdrop.end().getHeading())
+//                        .turn(Math.toRadians(-24))
+//                        .splineToSplineHeading(_aroundSpikeMark.end(), _aroundSpikeMark.end().getHeading())
+//                        .splineToSplineHeading(_toGate.end(), _toGate.end().getHeading())
+//                        .waitSeconds(5)
+//                        .addTemporalMarker(5+5, this::armUp)
+//                        .forward(BLOCK_LENGTH_IN)
+//                        .splineToSplineHeading(_toBackdrop.end(), _toBackdrop.end().getHeading())
                         .build();
                 _toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
 //                        .back()
-                        .forward(5)
-                        .turn(Math.toRadians(90))
+                        .turn(Math.toRadians(-90))
                         .waitSeconds(0.5)
-                        .forward(HALF_BLOCK_LENGTH_IN) // *
+                        .forward(BLOCK_LENGTH_IN+(HALF_BLOCK_LENGTH_IN/2)) // *
+                        .turn(Math.toRadians(90))
+                        .forward(HALF_BLOCK_LENGTH_IN)
                         .build();
 
                 toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
-                        .back(3)
-                        .splineToSplineHeading(_toPark.end(), _toPark.end().getHeading())
-//                        .strafeLeft(HALF_BLOCK_LENGTH_IN)
+//                        .splineToSplineHeading(_toPark.end(), _toPark.end().getHeading())
                         .build();
                 break;
             case LEFT:
                 toTape = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                         .addTemporalMarker(0, this::armDown)
-                        .forward((HALF_BLOCK_LENGTH_IN-7))
+                        .forward((HALF_BLOCK_LENGTH_IN-8))
                         .turn(Math.toRadians(40))
                         .build();
-                _toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
+                _toGate = drive.trajectorySequenceBuilder(toTape.end())
                         .turn(Math.toRadians(-40))
-                        .back(HALF_BLOCK_LENGTH_IN-6)
+                        .forward((BLOCK_LENGTH_IN-(HALF_BLOCK_LENGTH_IN-8))+BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(90))
                         .forward(BLOCK_LENGTH_IN)
-                        .turn(Math.toRadians(-90))
-                        .waitSeconds(0.5)
-                        .forward(BLOCK_LENGTH_IN-10 /*10*/) // l/**(r)** on backdrop
+                        .build();
+                _toBackdrop = drive.trajectorySequenceBuilder(_toGate.end())
+                        .forward(BLOCK_LENGTH_IN*2)
                         .turn(Math.toRadians(90))
-                        .waitSeconds(0.5)
-                        .forward(HALF_BLOCK_LENGTH_IN-4) // f/b on backdrop
+                        .forward(BLOCK_LENGTH_IN+(HALF_BLOCK_LENGTH_IN*0.7))
+                        .turn(Math.toRadians(-90))
+                        .forward(HALF_BLOCK_LENGTH_IN*0.6)
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .addTemporalMarker(0, this::armUp)
+                        .turn(Math.toRadians(-40))
+                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN+2)
+                        .splineToSplineHeading(_toGate.end(), _toGate.end().getHeading())
+                        .waitSeconds(6)
+                        .addTemporalMarker(6+5, this::armUp)
+                        .forward(BLOCK_LENGTH_IN)
                         .splineToSplineHeading(_toBackdrop.end(), _toBackdrop.end().getHeading())
                         .build();
                 _toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
 //                        .back()
-                        .forward(5)
-                        .turn(Math.toRadians(90))
+                        .turn(Math.toRadians(-90))
                         .waitSeconds(0.5)
-                        .forward(HALF_BLOCK_LENGTH_IN-8) // *
+                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN) // *
+                        .turn(Math.toRadians(90))
+                        .forward(HALF_BLOCK_LENGTH_IN)
                         .build();
 
                 toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
-//                        .splineToSplineHeading(_toPark.end(), _toPark.end().getHeading())
-                        .strafeLeft(HALF_BLOCK_LENGTH_IN-8)
+                        .splineToSplineHeading(_toPark.end(), _toPark.end().getHeading())
                         .build();
                 break;
         }

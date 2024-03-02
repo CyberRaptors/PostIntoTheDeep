@@ -1,24 +1,25 @@
 package lib8812.common.robot;
 
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import java.util.EmptyStackException;
 import java.util.Stack;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 public class ServoLikeMotor implements DcMotor {
     int position = 0;
     boolean antiStressAutomatic = false;
     CompletableFuture<Boolean> currentAntiStressWatcher;
-    DcMotor inner;
-
+    DcMotorEx inner;
     public int minPos;
     public int maxPos;
 
-    public ServoLikeMotor(DcMotor innerMotor, int minPos, int maxPos)
+
+    public ServoLikeMotor(DcMotorEx innerMotor, int minPos, int maxPos)
     {
         inner = innerMotor;
         this.minPos = minPos;
@@ -66,11 +67,13 @@ public class ServoLikeMotor implements DcMotor {
 
         inner.setPower(1);
 
-        if (startAutoAntiStress && antiStressAutomatic) currentAntiStressWatcher = CompletableFuture.supplyAsync(this::relieveStress);
+        if (startAutoAntiStress) {
+            currentAntiStressWatcher = CompletableFuture.supplyAsync(this::relieveStress);
+        }
     }
 
     public void setPosition(int pos) {
-        setPosition(pos, currentAntiStressWatcher == null || currentAntiStressWatcher.isDone()); // only start new auto anti stress if there is no old one or if the old one is done
+        setPosition(pos, antiStressAutomatic && (currentAntiStressWatcher == null || currentAntiStressWatcher.isDone()) && (Math.abs(inner.getCurrentPosition()-position) > 50)); // the Math.abs... bit makes sure that the anti-stress only runs when a gap between desired and real position accumulates
     }
 
     public int getPosition() {
@@ -79,29 +82,15 @@ public class ServoLikeMotor implements DcMotor {
 
     public boolean relieveStress() {
         boolean relieved = false;
-        int counter = 0;
-        Stack<Integer> prevPos = new Stack<>();
 
-        prevPos.push(inner.getCurrentPosition());
+        try { TimeUnit.MILLISECONDS.sleep(100); }
+        catch (InterruptedException ignored) {}
 
         while (inner.isBusy()) {
-            if (counter % 100 == 0) { // anti-stress failsafe
-                try {
-                    if ((inner.getCurrentPosition()-prevPos.peek()) < 2) // if little to no change within 100 iterations, stop the movement
-                    {
-                        inner.setTargetPosition(prevPos.peek()); // don't break out of the loop, if the motor is still busy that means there is still stress
-                        position = prevPos.pop(); // we pop instead of peek here so that if the motor is still being stress it has another fallback pos
-                        relieved = true;
-                    }
-                    else prevPos.push(inner.getCurrentPosition());
-                }
-                catch (EmptyStackException e) {
-                    // when setting the new pos, don't start another async job
-                    setPosition(position-75, false); // if the arm was already stressed and there is no fallback position, then generate a fallback position 75 ticks back (since this is in a loop it will run incrementally until stress is relieved)
-                }
+            if (inner.getVelocity() < 3) {
+                setPosition(position-20, false);
+                relieved = true;
             }
-
-            counter++;
         }
 
         return relieved;
