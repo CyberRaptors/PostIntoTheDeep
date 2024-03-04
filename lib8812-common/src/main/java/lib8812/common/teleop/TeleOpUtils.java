@@ -17,4 +17,6 @@ public class TeleOpUtils {
 
         return input;
     }
+
+    public static double fineTuneInput(double input) { return fineTuneInput(input, DEFAULT_FINE_TUNE_THRESH); }
 }
