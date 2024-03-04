@@ -4,6 +4,8 @@ Code for the 2023-2024 FTC season robot (Team 8812 - CyberRaptors).
 
 ## Team Coding Conventions
 
+TODO: fix/normalize conventions
+
 ### Naming
 - Use Java-style naming conventions (PascalCase for classes, variables/methods use camelCase, etc.)
 - For naming opmodes, use the following filesystem-like syntax:
