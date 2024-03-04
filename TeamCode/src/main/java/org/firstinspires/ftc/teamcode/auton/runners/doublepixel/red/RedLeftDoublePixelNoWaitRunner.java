@@ -8,11 +8,11 @@ import org.firstinspires.ftc.teamcode.auton.detectors.PixelDetectionConstants;
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.auton.IAutonomousRunner;
-import lib8812.common.rr.trajectorysequence.TrajectorySequence;
 import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.rr.trajectorysequence.TrajectorySequence;
 
 
-public class RedRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
+public class RedLeftDoublePixelNoWaitRunner extends IAutonomousRunner<PixelDetectionConstants.PixelPosition> {
     RaptorRobot bot = new RaptorRobot();
 
     protected IDriveableRobot getBot() {
@@ -27,20 +27,22 @@ public class RedRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
 
     void armUp()
     {
-        bot.arm.setPosition(bot.AUTON_FROZEN_ARM_TICKS);
-        bot.arm.setPosition(bot.AUTON_FROZEN_ARM_TICKS);
         bot.clawRotate.setPosition(bot.AUTON_FROZEN_CLAW_ROTATE);
+        bot.arm.setPosition(bot.AUTON_FROZEN_ARM_TICKS);
+        bot.arm.setPosition(bot.AUTON_FROZEN_ARM_TICKS);
     }
 
     void dropPurple()
     {
         sleep(500);
-        bot.arm.setPosition(bot.arm.maxPos-300);
+        bot.arm.setPosition(bot.arm.maxPos-150);
         bot.arm.waitForPosition();
-        bot.arm.setPosition(bot.arm.maxPos-300);
+        bot.arm.setPosition(bot.arm.maxPos-150);
         bot.arm.waitForPosition();
 
         bot.pixelManager.releaseAutonOneFront();
+        sleep(300);
+        bot.arm.setPosition(bot.arm.minPos);
         sleep(300);
     }
 
@@ -60,12 +62,15 @@ public class RedRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
 
         drive.setPoseEstimate(Autonomous.BLUE_LEFT_START);
         bot.pixelManager.init(this::sleep);
+        bot.arm.disableAlgorithmAutomatic("anti-stress");
 
         TrajectorySequence toTape = null;
         TrajectorySequence toPark = null;
         TrajectorySequence toBackdrop = null;
 
         TrajectorySequence _toBackdrop;
+        TrajectorySequence _aroundSpikeMark;
+        TrajectorySequence _toGate;
         TrajectorySequence _toPark;
 
         switch (pos)
@@ -73,31 +78,37 @@ public class RedRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
             case RIGHT:
                 toTape = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                         .addTemporalMarker(0, this::armDown)
-                        .forward((HALF_BLOCK_LENGTH_IN-7))
-                        .turn(Math.toRadians(-11.5))
+                        .forward((HALF_BLOCK_LENGTH_IN-8))
+                        .turn(Math.toRadians(-11))
                         .build();
-                _toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .turn(Math.toRadians(11.5))
-                        .back(HALF_BLOCK_LENGTH_IN-7)
+                _toGate = drive.trajectorySequenceBuilder(toTape.end())
+                        .turn(Math.toRadians(11))
+                        .forward(BLOCK_LENGTH_IN*1.85)
                         .turn(Math.toRadians(-90))
                         .forward(BLOCK_LENGTH_IN)
-                        .turn(Math.toRadians(90))
-                        .waitSeconds(0.5)
-                        .forward(BLOCK_LENGTH_IN) // **(l)**/r on backdrop
+                        .build();
+                _toBackdrop = drive.trajectorySequenceBuilder(_toGate.end())
+                        .forward(BLOCK_LENGTH_IN*2)
                         .turn(Math.toRadians(-90))
-                        .waitSeconds(0.5)
-                        .forward(HALF_BLOCK_LENGTH_IN-3) // f/b on backdrop
+                        .forward(BLOCK_LENGTH_IN*1.3)
+                        .turn(Math.toRadians(90))
+                        .forward(HALF_BLOCK_LENGTH_IN*0.3)
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .addTemporalMarker(0, this::armUp)
-                        .turn(Math.toRadians(-(67.5-11.5)))
+                        .turn(Math.toRadians(11))
+                        .forward(BLOCK_LENGTH_IN*1.85)
+                        .splineToSplineHeading(_toGate.end(), _toGate.end().getHeading())
+                        .addTemporalMarker(5, this::armUp)
+                        .forward(BLOCK_LENGTH_IN)
+                        .waitSeconds(1.5)
                         .splineToSplineHeading(_toBackdrop.end(), _toBackdrop.end().getHeading())
                         .build();
                 _toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
-//                        .back()
-                        .turn(Math.toRadians(-90))
+                        .turn(Math.toRadians(90))
                         .waitSeconds(0.5)
-                        .forward(BLOCK_LENGTH_IN-3) // *
+                        .forward(BLOCK_LENGTH_IN+2) // *
+                        .turn(Math.toRadians(-90))
+                        .forward(HALF_BLOCK_LENGTH_IN)
                         .build();
 
                 toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
@@ -110,66 +121,88 @@ public class RedRightDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
                         .forward((HALF_BLOCK_LENGTH_IN-1))
                         .turn(Math.toRadians(24))
                         .build();
-                _toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .turn(Math.toRadians(-24))
+                _aroundSpikeMark = drive.trajectorySequenceBuilder(toTape.end())
                         .back(HALF_BLOCK_LENGTH_IN-3)
                         .turn(Math.toRadians(-90))
                         .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(90))
-                        .waitSeconds(0.5)
-                        .forward(BLOCK_LENGTH_IN+3) // **(l)**/r on backdrop
-                        .turn(Math.toRadians(-90))
-                        .waitSeconds(0.5)
-                        .forward(HALF_BLOCK_LENGTH_IN-2) // f/b on backdrop
+                        .forward(BLOCK_LENGTH_IN)
                         .build();
-                toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .addTemporalMarker(0, this::armUp)
-//                        .back(2)
-                        .splineToSplineHeading(_toBackdrop.end(), _toBackdrop.end().getHeading())
-                        .build();
-                _toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
-                        .back(1)
-                        .turn(Math.toRadians(-90))
-                        .waitSeconds(0.5)
-                        .forward(BLOCK_LENGTH_IN+3) // *
-                        .build();
-
-                toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
-                        .splineToSplineHeading(_toPark.end(), _toPark.end().getHeading())
-                        .build();
-                break;
-            case LEFT:
-                toTape = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                        .addTemporalMarker(0, this::armDown)
-                        .forward((HALF_BLOCK_LENGTH_IN-7))
-                        .turn(Math.toRadians(40))
-                        .build();
-                _toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .turn(Math.toRadians(-40))
-                        .back(HALF_BLOCK_LENGTH_IN-6)
-                        .turn(Math.toRadians(-90))
+                _toGate = drive.trajectorySequenceBuilder(_aroundSpikeMark.end())
                         .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(90))
-                        .waitSeconds(0.5)
-                        .forward(BLOCK_LENGTH_IN+12) // **(l)**/r on backdrop
+                        .forward(BLOCK_LENGTH_IN*2)
+                        .build();
+                _toBackdrop = drive.trajectorySequenceBuilder(_toGate.end())
+                        .forward(BLOCK_LENGTH_IN*2)
+                        .turn(Math.toRadians(90))
+                        .forward(BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(-90))
-                        .waitSeconds(0.5)
-                        .forward(HALF_BLOCK_LENGTH_IN-3) // f/b on backdrop
+                        .forward(HALF_BLOCK_LENGTH_IN*0.6)
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
-                        .addTemporalMarker(0, this::armUp)
-                        .splineToSplineHeading(_toBackdrop.end(), _toBackdrop.end().getHeading())
+                        .turn(Math.toRadians(-24))
+//                        .turn(Math.toRadians(-24))
+//                        .splineToSplineHeading(_aroundSpikeMark.end(), _aroundSpikeMark.end().getHeading())
+//                        .splineToSplineHeading(_toGate.end(), _toGate.end().getHeading())
+//                        .waitSeconds(5)
+//                        .addTemporalMarker(5+5, this::armUp)
+//                        .forward(BLOCK_LENGTH_IN)
+//                        .splineToSplineHeading(_toBackdrop.end(), _toBackdrop.end().getHeading())
                         .build();
                 _toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
 //                        .back()
                         .turn(Math.toRadians(-90))
                         .waitSeconds(0.5)
-                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN-2) // *
+                        .forward(BLOCK_LENGTH_IN+(HALF_BLOCK_LENGTH_IN/2)) // *
+                        .turn(Math.toRadians(90))
+                        .forward(HALF_BLOCK_LENGTH_IN)
+                        .build();
+
+                toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
+                        .back(1)
+//                        .splineToSplineHeading(_toPark.end(), _toPark.end().getHeading())
+                        .build();
+                break;
+            case LEFT:
+                toTape = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                        .addTemporalMarker(0, this::armDown)
+                        .forward((HALF_BLOCK_LENGTH_IN-8))
+                        .turn(Math.toRadians(40))
+                        .build();
+                _toGate = drive.trajectorySequenceBuilder(toTape.end())
+                        .turn(Math.toRadians(-40))
+                        .forward(BLOCK_LENGTH_IN*1.9)
+                        .turn(Math.toRadians(-90))
+                        .forward(BLOCK_LENGTH_IN)
+                        .build();
+                _toBackdrop = drive.trajectorySequenceBuilder(_toGate.end())
+                        .forward(BLOCK_LENGTH_IN*2)
+                        .turn(Math.toRadians(-90))
+                        .forward(BLOCK_LENGTH_IN*0.85)
+                        .turn(Math.toRadians(90))
+                        .forward(HALF_BLOCK_LENGTH_IN*0.3)
+                        .build();
+                toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
+                        .turn(Math.toRadians(-40))
+                        .forward(BLOCK_LENGTH_IN*1.9)
+                        .splineToSplineHeading(_toGate.end(), _toGate.end().getHeading())
+                        .addTemporalMarker(5, this::armUp)
+                        .forward(BLOCK_LENGTH_IN)
+                        .waitSeconds(1.5)
+                        .splineToSplineHeading(_toBackdrop.end(), _toBackdrop.end().getHeading())
+                        .build();
+                _toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
+//                        .back()
+                        .turn(Math.toRadians(90))
+                        .waitSeconds(0.5)
+                        .forward(BLOCK_LENGTH_IN*0.85) // *
+                        .turn(Math.toRadians(-90))
+                        .forward(HALF_BLOCK_LENGTH_IN)
                         .build();
 
                 toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
                         .splineToSplineHeading(_toPark.end(), _toPark.end().getHeading())
-//                        .strafeRight(HALF_BLOCK_LENGTH_IN-8)
                         .build();
                 break;
         }

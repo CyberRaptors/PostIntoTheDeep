@@ -112,9 +112,9 @@ public class RaptorTestRunner extends ITeleopRunner {
                 gamepad2.getValue("left_bumper") > gamepad2.getValue("left_trigger") ?
                 gamepad2.getValue("left_bumper") : -gamepad2.getValue("left_trigger");
 
-
-        bot.spinOne.setPower(spinOnePower);
-        bot.spinTwo.setPower(spinTwoPower);
+        // TODO: build
+        bot.spinOne.setPower(spinOnePower*0.3);
+        bot.spinTwo.setPower(spinTwoPower*0.3);
     }
 
     public void testClawRotate() {
@@ -193,9 +193,9 @@ public class RaptorTestRunner extends ITeleopRunner {
                 bot.clawRotate.setPosition(bot.CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS);
                 TimeUnit.MILLISECONDS.sleep(500);
                 bot.arm.setPosition(bot.arm.minPos+150);
-                bot.arm.waitForPosition();
+                TimeUnit.MILLISECONDS.sleep(300);
                 bot.clawRotate.setPosition(bot.CLAW_ROTATE_REST_OVER_WHEELS);
-                bot.arm.setPosition(bot.arm.minPos);
+                bot.arm.setPosition(bot.arm.minPos+50);
             } catch (InterruptedException e) {
                 throw new IllegalStateException(e);
             }
@@ -233,12 +233,21 @@ public class RaptorTestRunner extends ITeleopRunner {
 
                     TimeUnit.MILLISECONDS.sleep(500);
                     bot.arm.setPosition(bot.arm.maxPos - 400);
+
+                    boolean antiStressWasEnabled = bot.arm.antiStressAutomatic;
+
+                    if (antiStressWasEnabled) bot.arm.disableAlgorithmAutomatic("anti-stress");
+
+
                     bot.arm.waitForPosition();
 
                     bot.clawRotate.setPosition(bot.CLAW_ROTATE_PARALLEL_FOR_PICKUP_MOVEMENT);
                     TimeUnit.MILLISECONDS.sleep(1000);
 
                     bot.arm.setPosition(bot.arm.maxPos-1);
+                    bot.arm.waitForPosition();
+
+                    if (antiStressWasEnabled) bot.arm.enableAlgorithmAutomatic("anti-stress");
                 } catch (InterruptedException e) {
                     throw new IllegalStateException(e);
                 }
@@ -280,11 +289,17 @@ public class RaptorTestRunner extends ITeleopRunner {
 //        }, 0));
     }
 
+    public void toggleArmAntiStress() {
+        bot.arm.antiStressAutomatic = !bot.arm.antiStressAutomatic;
+    }
+
     public void runArmFailSafes() {
         gamepad1.map("x")
                 .to(bot.arm::resetEncoder)
                 .and("y")
-                .to(bot.arm::reverse); // no need to make a lock for reverse since this call is synchronous
+                .to(bot.arm::reverse) // no need to make a lock for reverse since this call is synchronous
+                .and("b")
+                .to(this::toggleArmAntiStress);
     }
 
     public void moveExtendRail() {
@@ -345,7 +360,7 @@ public class RaptorTestRunner extends ITeleopRunner {
             telemetry.addData("Actuator", "power (%.2f)%s", bot.actuator.getPower(), ACTUATOR_LOCKED ? " (locked by a sequence)" : "");
             telemetry.addData("Claw Rotate Servo", "pos (%.4f)", bot.clawRotate.getPosition());
             telemetry.addData("Claw Rotate Set Pos", "pos (%.4f)", newClawRotate);
-            telemetry.addData("Arm", "pos (%d) real (%d)", bot.arm.getPosition(), bot.arm.getCurrentPosition());
+            telemetry.addData("Arm", "pos (%d) real (%d) anti-stress %s", bot.arm.getPosition(), bot.arm.getCurrentPosition(), bot.arm.antiStressAutomatic ? "enabled" : "disabled");
             telemetry.addData("Verbose", showExtraInfo);
 
             if (showExtraInfo) {

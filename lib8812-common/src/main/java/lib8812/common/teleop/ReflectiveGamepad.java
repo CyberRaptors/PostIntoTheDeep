@@ -121,7 +121,7 @@ public class ReflectiveGamepad {
             case "left_stick_y":
                 return inner.left_stick_y != 0;
 
-            case "rightinner._stick":
+            case "right_stick":
                 return getActivated("right_stick_x") || getActivated("right_stick_y");
             case "left_stick":
                 return getActivated("left_stick_x") || getActivated("left_stick_y");

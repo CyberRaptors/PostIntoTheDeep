@@ -50,6 +50,7 @@ public class BlueLeftDoublePixelRunner extends IAutonomousRunner<PixelDetectionC
         sleep(300);
         bot.pixelManager.releaseAutonTwoFront();
         sleep(100);
+        bot.clawRotate.setPosition(bot.CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS);
         bot.arm.setPosition(bot.arm.minPos);
     }
 

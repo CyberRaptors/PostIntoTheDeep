@@ -52,6 +52,7 @@ public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetection
         sleep(300);
         bot.pixelManager.releaseAutonTwoFront();
         sleep(100);
+        bot.clawRotate.setPosition(bot.CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS);
         bot.arm.setPosition(bot.arm.minPos);
     }
 
@@ -81,7 +82,7 @@ public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetection
                         .build();
                 _toGate = drive.trajectorySequenceBuilder(toTape.end())
                         .turn(Math.toRadians(11))
-                        .forward((BLOCK_LENGTH_IN-(HALF_BLOCK_LENGTH_IN-8))+BLOCK_LENGTH_IN)
+                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(90))
                         .forward(BLOCK_LENGTH_IN)
                         .build();
@@ -96,9 +97,10 @@ public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetection
                         .turn(Math.toRadians(11))
                         .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN+2)
                         .splineToSplineHeading(_toGate.end(), _toGate.end().getHeading())
-                        .waitSeconds(8)
-                        .addTemporalMarker(8+5, this::armUp)
+                        .waitSeconds(6.5)
+                        .addTemporalMarker(6.5+5, this::armUp)
                         .forward(BLOCK_LENGTH_IN)
+                        .waitSeconds(1.5)
                         .splineToSplineHeading(_toBackdrop.end(), _toBackdrop.end().getHeading())
                         .build();
                 _toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
@@ -140,6 +142,7 @@ public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetection
                         .forward(HALF_BLOCK_LENGTH_IN*0.6)
                         .build();
                 toBackdrop = drive.trajectorySequenceBuilder(toTape.end())
+                        .turn(Math.toRadians(-24))
 //                        .turn(Math.toRadians(-24))
 //                        .splineToSplineHeading(_aroundSpikeMark.end(), _aroundSpikeMark.end().getHeading())
 //                        .splineToSplineHeading(_toGate.end(), _toGate.end().getHeading())
@@ -158,6 +161,7 @@ public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetection
                         .build();
 
                 toPark = drive.trajectorySequenceBuilder(toBackdrop.end())
+                        .back(2)
 //                        .splineToSplineHeading(_toPark.end(), _toPark.end().getHeading())
                         .build();
                 break;
@@ -169,7 +173,7 @@ public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetection
                         .build();
                 _toGate = drive.trajectorySequenceBuilder(toTape.end())
                         .turn(Math.toRadians(-40))
-                        .forward((BLOCK_LENGTH_IN-(HALF_BLOCK_LENGTH_IN-8))+BLOCK_LENGTH_IN)
+                        .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN)
                         .turn(Math.toRadians(90))
                         .forward(BLOCK_LENGTH_IN)
                         .build();
@@ -184,9 +188,10 @@ public class BlueRightDoublePixelRunner extends IAutonomousRunner<PixelDetection
                         .turn(Math.toRadians(-40))
                         .forward(BLOCK_LENGTH_IN+HALF_BLOCK_LENGTH_IN+2)
                         .splineToSplineHeading(_toGate.end(), _toGate.end().getHeading())
-                        .waitSeconds(6)
-                        .addTemporalMarker(6+5, this::armUp)
+                        .waitSeconds(4.5)
+                        .addTemporalMarker(4.5+5, this::armUp)
                         .forward(BLOCK_LENGTH_IN)
+                        .waitSeconds(1.5)
                         .splineToSplineHeading(_toBackdrop.end(), _toBackdrop.end().getHeading())
                         .build();
                 _toPark = drive.trajectorySequenceBuilder(toBackdrop.end())

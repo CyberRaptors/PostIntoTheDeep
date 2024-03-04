@@ -31,10 +31,10 @@ public class RaptorRobot extends IDriveableRobot {
 
     public final double CLAW_ROTATE_PARALLEL_FOR_PICKUP_MOVEMENT = 0.6022;
     public final double CLAW_ROTATE_REST_OVER_WHEELS = 0.6144;
-    public final double CLAW_ROTATE_OPTIMAL_PICKUP = 0.6088;
+    public final double CLAW_ROTATE_OPTIMAL_PICKUP = 0.6228 /*0.6088*/;
     public final double CLAW_ROTATE_GUARANTEED_PICKUP = 0.6090;
     public final double CLAW_ROTATE_OVER_PLANE_LAUNCHER_POS = CLAW_ROTATE_MAX;
-    public final double AUTON_FROZEN_CLAW_ROTATE = 0.5811;
+    public final double AUTON_FROZEN_CLAW_ROTATE = 0.5820;
     public final int AUTON_FROZEN_ARM_TICKS = 2106;
     public final double STANDARD_DROP_CLAW_ROTATE = 0.5978;
     public final int STANDARD_DROP_ARM_TICKS = 1926;
@@ -132,8 +132,8 @@ public class RaptorRobot extends IDriveableRobot {
 
             @Override
             public void releaseAutonOneFront() {
-                spinOne.setPower(-0.4); // spinOne -> yellow
-                spinTwo.setPower(-0.4); // spinTwo -> purple
+                spinOne.setPower(-0.35); // spinOne -> yellow
+                spinTwo.setPower(-0.35); // spinTwo -> purple
                 sleep.accept(650L);
                 spinOne.setPower(0);
                 sleep.accept(500L);
@@ -149,8 +149,8 @@ public class RaptorRobot extends IDriveableRobot {
 
             @Override
             public void releaseAutonTwoFront() {
-                spinOne.setPower(0.25); // negative this time because dropping from other side evn though this technically violates the implications of releaseOne**Front**
-                spinTwo.setPower(0.25);
+                spinOne.setPower(0.22); // negative this time because dropping from other side evn though this technically violates the implications of releaseOne**Front**
+                spinTwo.setPower(0.22);
                 sleep.accept(1000l);
                 spinOne.setPower(0);
                 spinTwo.setPower(0);
