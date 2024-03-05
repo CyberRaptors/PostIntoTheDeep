@@ -30,14 +30,19 @@ import lib8812.common.rr.util.Encoder;
 @Config
 public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer {
     public static double TICKS_PER_REV = 8192;
-    public static double WHEEL_RADIUS = 0; // in
+    public static double WHEEL_RADIUS = 0.6889764; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double LATERAL_DISTANCE = 0; // in; distance between the left and right wheels
-    public static double FORWARD_OFFSET = 0; // in; offset of the lateral wheel
+    // TODO: TUNE BOTH BELOW TO FIX HEADING ISSUES [if not tuned properly, try moving other odom wheel back (to correct pos)
+    public static double LATERAL_DISTANCE = 3.57; // in; distance between the left and right wheels
+    public static double FORWARD_OFFSET = -1.25; // in; offset of the lateral wheel
 
-    public static final double X_MULTIPLIER = 1;
-    public static final double Y_MULTIPLIER = 1;
+    public static final double X_MULTIPLIER = ((0.9603225522209607+0.9732771196960248+0.9745678008910785)/3)*1.031369446428815;
+    public static final double Y_MULTIPLIER = 0.9820367215608667;
+
+    public static final double[] COLLECTING_Y = new double[] {
+            0.9820367215608667,
+    };
 
     private Encoder leftEncoder, rightEncoder, frontEncoder;
 
