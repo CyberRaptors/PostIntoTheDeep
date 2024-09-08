@@ -37,22 +37,22 @@ public class WheelPowers {
         );
     }
 
-    public void applyTo(IDriveableRobot bot) {
+    public <TRobot extends IDriveableRobot> void applyTo(TRobot bot) {
         bot.leftFront.setPower(leftFront);
         bot.leftBack.setPower(leftBack);
         bot.rightFront.setPower(rightFront);
         bot.rightBack.setPower(rightBack);
     }
 
-    public void applyTo(IDriveableRobot bot, WheelPowers weightage) {
+    public <TRobot extends IDriveableRobot> void applyTo(TRobot bot, WheelPowers weightage) {
         morph(weightage).applyTo(bot);
     }
 
-    public void applyTo(IDriveableRobot bot, Function<Double, Double> simpleFineTuner) {
+    public <TRobot extends IDriveableRobot> void applyTo(TRobot bot, Function<Double, Double> simpleFineTuner) {
         morph(simpleFineTuner).applyTo(bot);
     }
 
-    public void applyTo(IDriveableRobot bot, WheelPowers weightage, Function<Double, Double> simpleFineTuner) {
+    public <TRobot extends IDriveableRobot> void applyTo(TRobot bot, WheelPowers weightage, Function<Double, Double> simpleFineTuner) {
         morph(simpleFineTuner).morph(weightage).applyTo(bot);
     }
 }

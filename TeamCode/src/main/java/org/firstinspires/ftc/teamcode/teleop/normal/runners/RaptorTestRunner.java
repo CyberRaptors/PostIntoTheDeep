@@ -47,6 +47,8 @@ public class RaptorTestRunner extends ITeleopRunner {
 
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();
 
+            bot.swider.setPower(gamepad2.inner.right_stick_y);
+
             if (counter % 100 == 0)
                 gamepad1
                         .map("x")
@@ -68,6 +70,10 @@ public class RaptorTestRunner extends ITeleopRunner {
                         bot.leftBack.getPower(), realWheelInputPowers.leftBack - bot.leftBack.getPower(),
                         bot.rightFront.getPower(), realWheelInputPowers.rightFront - bot.rightFront.getPower(),
                         bot.rightBack.getPower(), realWheelInputPowers.rightBack - bot.rightBack.getPower()
+                );
+                telemetry.addData(
+                        "swider", "power (%.2f)",
+                        bot.swider.getPower()
                 );
             }
 
