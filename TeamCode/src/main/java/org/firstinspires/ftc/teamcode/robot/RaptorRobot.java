@@ -7,10 +7,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import lib8812.common.robot.IDriveableRobot;
 
 public class RaptorRobot extends IDriveableRobot {
-    public DcMotor leftBack;
-    public DcMotor rightBack;
-    public DcMotor leftFront;
-    public DcMotor rightFront;
     public CRServo swider;
 
     public void init(HardwareMap hardwareMap) {

@@ -6,10 +6,10 @@ import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.rr.drive.SampleMecanumDrive;
 import lib8812.common.robot.IDriveableRobot;
-import lib8812.common.teleop.ITeleopRunner;
+import lib8812.common.teleop.ITeleOpRunner;
 import static lib8812.common.auton.autopilot.FieldPositions.BLOCK_LENGTH_IN;
 
-public class OdomBlockTesterRunner extends ITeleopRunner {
+public class OdomBlockTesterRunner extends ITeleOpRunner {
     RaptorRobot bot = new RaptorRobot();
 
     protected IDriveableRobot getBot() { return bot; }
