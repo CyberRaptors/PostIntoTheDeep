@@ -10,9 +10,9 @@ import lib8812.common.telemetrymap.CenterStageFieldComponent;
 import lib8812.common.telemetrymap.FieldConstants;
 import lib8812.common.telemetrymap.SelectorCenterStageMiniMap;
 import lib8812.common.robot.IDriveableRobot;
-import lib8812.common.teleop.ITeleopRunner;
+import lib8812.common.teleop.ITeleOpRunner;
 
-public class OdomTestRunner extends ITeleopRunner {
+public class OdomTestRunner extends ITeleOpRunner {
     // TODO: Change this to include backdrops, etc.
     CenterStageFieldComponent[][] defaultByteMap = new CenterStageFieldComponent[][] {
             new CenterStageFieldComponent[] { CenterStageFieldComponent.EMPTY_MAT, CenterStageFieldComponent.EMPTY_MAT, CenterStageFieldComponent.EMPTY_MAT, CenterStageFieldComponent.EMPTY_MAT, CenterStageFieldComponent.EMPTY_MAT, CenterStageFieldComponent.EMPTY_MAT },
@@ -32,7 +32,7 @@ public class OdomTestRunner extends ITeleopRunner {
             new CenterStageFieldComponent[] { CenterStageFieldComponent.EMPTY_MAT, CenterStageFieldComponent.EMPTY_MAT, CenterStageFieldComponent.EMPTY_MAT, CenterStageFieldComponent.EMPTY_MAT, CenterStageFieldComponent.EMPTY_MAT, CenterStageFieldComponent.EMPTY_MAT }
     };
     RaptorRobot bot = new RaptorRobot();
-    protected IDriveableRobot getBot() { return bot; };
+    protected IDriveableRobot getBot() { return bot; }
 
     public void driveRobot() {
         bot.rightFront.setPower(-gamepad1.inner.right_stick_y-gamepad1.inner.right_stick_x);

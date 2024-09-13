@@ -1,6 +1,9 @@
 package lib8812.common.teleop;
 
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
 public class TeleOpUtils {
     public static final double DEFAULT_FINE_TUNE_THRESH = 0.2;
 
@@ -19,4 +22,17 @@ public class TeleOpUtils {
     }
 
     public static double fineTuneInput(double input) { return fineTuneInput(input, DEFAULT_FINE_TUNE_THRESH); }
+
+    protected static CompletableFuture<Integer> setTimeout(Runnable runnable, int delay) {
+        return CompletableFuture.supplyAsync(() -> {
+            try { TimeUnit.MILLISECONDS.sleep(delay); }
+            catch (InterruptedException e) {
+                throw new IllegalStateException(e);
+            }
+
+            runnable.run();
+
+            return 0;
+        });
+    }
 }

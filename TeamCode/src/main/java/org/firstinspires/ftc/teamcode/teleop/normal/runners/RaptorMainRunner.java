@@ -5,10 +5,10 @@ import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.robot.IDriveableRobot;
 import lib8812.common.robot.WheelPowers;
-import lib8812.common.teleop.ITeleopRunner;
+import lib8812.common.teleop.ITeleOpRunner;
 import lib8812.common.teleop.TeleOpUtils;
 
-public class RaptorMainRunner extends ITeleopRunner {
+public class RaptorMainRunner extends ITeleOpRunner {
     RaptorRobot bot = new RaptorRobot();
     private final WheelPowers wheelWeights = new WheelPowers(1, 1, 1, 1);
 
