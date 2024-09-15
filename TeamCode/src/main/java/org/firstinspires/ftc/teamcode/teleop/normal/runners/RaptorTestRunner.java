@@ -40,13 +40,17 @@ public class RaptorTestRunner extends ITeleOpRunner {
     }
 
     void moveExtension() {
-        bot.extension.setPosition((gamepad2.inner.right_stick_y+1)*0.5);
+        bot.extension.setPosition((gamepad2.inner.right_stick_y+1)*0.54);
 
         // stick up full -> 0 [out]
         // stick halfway up -> 0.25 [halfway out]
         // stick resting pos -> 0.5 [in]
 
         // note that gamepad2.inner.right_stick_y seems to give us negative inputs
+    }
+
+    void moveIntake() {
+        bot.intake.setPower(gamepad2.inner.right_trigger-gamepad2.inner.left_trigger);
     }
 
     void moveLift() {
@@ -65,6 +69,7 @@ public class RaptorTestRunner extends ITeleOpRunner {
 
             moveExtension();
             moveLift();
+            moveIntake();
 
             if (counter % 100 == 0)
                 gamepad1
@@ -74,6 +79,10 @@ public class RaptorTestRunner extends ITeleOpRunner {
             telemetry.addData(
                     "extension", "pos (%.2f)",
                     bot.extension.getPosition()
+            );
+            telemetry.addData(
+                    "intake", "power (%.2f)",
+                    bot.intake.getPower()
             );
 
             if (showExtraInfo) {
