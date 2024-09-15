@@ -6,36 +6,31 @@ import java.util.function.Function;
 
 public class ReflectiveGamepad {
     public class Mapper {
-        ReflectiveGamepad gamepad;
         String key;
 
-        public Mapper(ReflectiveGamepad gamepad, String key) {
-            this.gamepad = gamepad;
+        Mapper(String key) {
             this.key = key;
         }
 
         public MapExtender to(Function<Double, Integer> action) {
-            action.apply(gamepad.getValue(key));
+            action.apply(getValue(key));
 
-            return new MapExtender(gamepad);
+            return new MapExtender();
         }
 
         public MapExtender to(Runnable action) {
-            if (gamepad.getPressed(key)) {
+            if (getPressed(key)) {
                 action.run();
             }
 
-            return new MapExtender(gamepad);
+            return new MapExtender();
         }
     }
 
     public class BooleanMapper {
-        ReflectiveGamepad gamepad;
-
         boolean condition;
 
-        public BooleanMapper(ReflectiveGamepad gamepad, boolean condition) {
-            this.gamepad = gamepad;
+        BooleanMapper(boolean condition) {
             this.condition = condition;
         }
 
@@ -44,23 +39,19 @@ public class ReflectiveGamepad {
                 action.run();
             }
 
-            return new MapExtender(gamepad);
+            return new MapExtender();
         }
     }
 
     public class MapExtender {
-        ReflectiveGamepad gamepad;
-
-        public MapExtender(ReflectiveGamepad gamepad) {
-            this.gamepad = gamepad;
-        }
+        MapExtender() { }
 
         public Mapper and(String key) {
-            return new Mapper(gamepad, key);
+            return new Mapper(key);
         }
 
         public BooleanMapper and(Boolean condition) {
-            return new BooleanMapper(gamepad, condition);
+            return new BooleanMapper(condition);
         }
     }
 
@@ -180,10 +171,10 @@ public class ReflectiveGamepad {
     }
 
     public Mapper map(String key) {
-        return new Mapper(this, key);
+        return new Mapper(key);
     }
 
     public BooleanMapper map(Boolean condition) {
-        return new BooleanMapper(this, condition);
+        return new BooleanMapper(condition);
     }
 }
