@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-public class ServoLikeMotor implements DcMotor {
+public class ServoLikeMotor implements DcMotor, ICustomHardwareDevice {
     int targetPosition = 0;
     CompletableFuture<Boolean> currentAntiStressWatcher;
     DcMotorEx inner;
@@ -17,6 +17,7 @@ public class ServoLikeMotor implements DcMotor {
     public int maxPos;
     public boolean antiStressAutomatic = false;
 
+    public boolean isVirtualDevice() { return false; }
 
     public ServoLikeMotor(DcMotorEx innerMotor, int minPos, int maxPos)
     {

@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 import lib8812.common.robot.IDriveableRobot;
 import lib8812.common.robot.WheelPowers;
 import lib8812.common.teleop.ITeleOpRunner;
+import lib8812.common.teleop.KeybindPattern;
 import lib8812.common.teleop.TeleOpUtils;
 
 public class RaptorTestRunner extends ITeleOpRunner {
@@ -49,9 +50,9 @@ public class RaptorTestRunner extends ITeleOpRunner {
         // note that gamepad2.inner.right_stick_y seems to give us negative inputs
     }
 
-    void moveIntake() {
-        bot.intake.setPower(gamepad2.inner.right_trigger-gamepad2.inner.left_trigger);
-    }
+//    void moveSpinningIntake() {
+//        bot.spinningIntake.setPower(gamepad2.inner.right_trigger-gamepad2.inner.left_trigger);
+//    }
 
     void moveLift() {
         bot.mainLift.setPosition(
@@ -59,8 +60,25 @@ public class RaptorTestRunner extends ITeleOpRunner {
         );
     }
 
+    void moveClawRotate() {
+        double change = 0;
+
+        if (gamepad1.inner.left_bumper) change = -0.05;
+        else if (gamepad1.inner.right_bumper) change = 0.05;
+
+        bot.clawRotate.setPosition(
+                bot.clawRotate.getPosition()+change
+        );
+    }
+
+
     protected void internalRun() {
         int counter = 0;
+
+        KeybindPattern.GamepadBinder x = keybinder.bind("x");
+
+        x.of(gamepad1).to(() -> showExtraInfo = !showExtraInfo);
+        x.of(gamepad2).to(bot.claw::toggle);
 
         while (opModeIsActive()) {
             testWheels();
@@ -69,20 +87,32 @@ public class RaptorTestRunner extends ITeleOpRunner {
 
             moveExtension();
             moveLift();
-            moveIntake();
+            moveClawRotate();
 
-            if (counter % 100 == 0)
-                gamepad1
-                        .map("x")
-                        .to(() -> showExtraInfo = !showExtraInfo); // telemetry verbosity
+//            moveSpinningIntake();
+
+            if (counter % 100 == 0) keybinder.executeActions();
 
             telemetry.addData(
                     "extension", "pos (%.2f)",
                     bot.extension.getPosition()
             );
+
+//            telemetry.addData(
+//                    "intake", "power (%.2f)",
+//                    bot.spinningIntake.getPower()
+//            );
+
+            telemetry.addData("claw", bot.claw.getStatus());
+
             telemetry.addData(
-                    "intake", "power (%.2f)",
-                    bot.intake.getPower()
+                    "clawRotate", "pos (%.2f)",
+                    bot.clawRotate.getPosition()
+            );
+
+            telemetry.addData(
+                    "lift", "pos (%d), target (%d)",
+                    bot.mainLift.getPosition(), bot.mainLift.getTargetPosition()
             );
 
             if (showExtraInfo) {

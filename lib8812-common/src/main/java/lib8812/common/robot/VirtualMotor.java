@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
-public final class VirtualMotor implements IVirtualHardwareDevice, DcMotorEx {
+public final class VirtualMotor implements ICustomHardwareDevice, DcMotorEx {
     public boolean isVirtualDevice() { return true; }
 
     public MotorConfigurationType getMotorType() {

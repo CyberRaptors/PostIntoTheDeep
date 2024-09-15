@@ -4,10 +4,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public abstract class IDriveableRobot {
-    public DcMotor rightFront = null;
-    public DcMotor leftFront = null;
-    public DcMotor rightBack = null;
-    public DcMotor leftBack = null;
+    public DcMotor rightFront;
+    public DcMotor leftFront;
+    public DcMotor rightBack ;
+    public DcMotor leftBack;
+
     public abstract void init(HardwareMap hardwareMap);
 
     protected static <THardwareDevice> THardwareDevice loadDevice(HardwareMap hardwareMap, Class<? extends THardwareDevice> cls, String name) {
