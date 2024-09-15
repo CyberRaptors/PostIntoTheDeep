@@ -11,7 +11,7 @@ TODO: fix/normalize conventions
 ### Syntactic
 
 ### Organization
-- All team-edited code is located in [TeamCode/src/main/java/org/firstinspires/ftc/teamcode/raptor/](https://github.com/User0332/CenterStage8812/tree/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/raptor)
+- All team-edited code is located in [TeamCode/src/main/java/org/firstinspires/ftc/teamcode/](https://github.com/CyberRaptors/IntoTheDeep/tree/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/)
 - Robot configuration code should go in the robot/ directory of the parent dir
 - Driver controlled code should go in teleop/
 - Autonomous code should go in auton/
