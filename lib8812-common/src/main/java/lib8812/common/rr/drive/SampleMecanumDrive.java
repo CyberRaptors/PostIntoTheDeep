@@ -24,7 +24,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
@@ -44,7 +43,6 @@ import static lib8812.common.rr.drive.DriveConstants.kA;
 import static lib8812.common.rr.drive.DriveConstants.kStatic;
 import static lib8812.common.rr.drive.DriveConstants.kV;
 
-import lib8812.common.robot.ServoLikeMotor;
 import lib8812.common.rr.trajectorysequence.TrajectorySequence;
 import lib8812.common.rr.trajectorysequence.TrajectorySequenceBuilder;
 import lib8812.common.rr.trajectorysequence.TrajectorySequenceRunner;
