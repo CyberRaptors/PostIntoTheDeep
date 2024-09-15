@@ -14,7 +14,7 @@ public class RaptorTestRunner extends ITeleOpRunner {
 
     protected IDriveableRobot getBot() { return bot; }
 
-    public void testWheels() {
+    void testWheels() {
         double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_y);
         double correctedRightX = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_x);
         double correctedLeftY = TeleOpUtils.fineTuneInput(gamepad1.inner.left_stick_y);
@@ -30,12 +30,28 @@ public class RaptorTestRunner extends ITeleOpRunner {
         correctedWheelPowers.applyTo(bot, wheelWeights);
     }
 
-    public WheelPowers getRealWheelInputPowers() {
+    WheelPowers getRealWheelInputPowers() {
         return new WheelPowers(
                 -gamepad1.inner.right_stick_y-gamepad1.inner.right_stick_x,
                 gamepad1.inner.left_stick_y-gamepad1.inner.left_stick_x,
                 -gamepad1.inner.right_stick_y+gamepad1.inner.right_stick_x,
                 gamepad1.inner.left_stick_y+gamepad1.inner.left_stick_x
+        );
+    }
+
+    void moveExtension() {
+        bot.extension.setPosition((gamepad2.inner.right_stick_y+1)*0.5);
+
+        // stick up full -> 0 [out]
+        // stick halfway up -> 0.25 [halfway out]
+        // stick resting pos -> 0.5 [in]
+
+        // note that gamepad2.inner.right_stick_y seems to give us negative inputs
+    }
+
+    void moveLift() {
+        bot.mainLift.setPosition(
+                bot.mainLift.getPosition()- (int) (gamepad2.inner.left_stick_y*50)
         );
     }
 
@@ -47,12 +63,18 @@ public class RaptorTestRunner extends ITeleOpRunner {
 
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();
 
-            bot.swider.setPower(gamepad2.inner.right_stick_y);
+            moveExtension();
+            moveLift();
 
             if (counter % 100 == 0)
                 gamepad1
                         .map("x")
                         .to(() -> showExtraInfo = !showExtraInfo); // telemetry verbosity
+
+            telemetry.addData(
+                    "extension", "pos (%.2f)",
+                    bot.extension.getPosition()
+            );
 
             if (showExtraInfo) {
                 telemetry.addData(
@@ -70,10 +92,6 @@ public class RaptorTestRunner extends ITeleOpRunner {
                         bot.leftBack.getPower(), realWheelInputPowers.leftBack - bot.leftBack.getPower(),
                         bot.rightFront.getPower(), realWheelInputPowers.rightFront - bot.rightFront.getPower(),
                         bot.rightBack.getPower(), realWheelInputPowers.rightBack - bot.rightBack.getPower()
-                );
-                telemetry.addData(
-                        "swider", "power (%.2f)",
-                        bot.swider.getPower()
                 );
             }
 

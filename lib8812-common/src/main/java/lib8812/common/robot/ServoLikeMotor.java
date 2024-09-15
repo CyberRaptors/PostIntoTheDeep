@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public class ServoLikeMotor implements DcMotor {
-    int position = 0;
+    int targetPosition = 0;
     CompletableFuture<Boolean> currentAntiStressWatcher;
     DcMotorEx inner;
     public int minPos;
@@ -62,7 +62,7 @@ public class ServoLikeMotor implements DcMotor {
     }
 
     public void setPosition(int pos, boolean startAutoAntiStress) {
-        position = Math.min(Math.max(pos, minPos), maxPos); // cap positions
+        targetPosition = Math.min(Math.max(pos, minPos), maxPos); // cap positions
 
         if (inner.getMode() == RunMode.RUN_WITHOUT_ENCODER) {
             inner.setMode(RunMode.RUN_USING_ENCODER);
@@ -70,7 +70,7 @@ public class ServoLikeMotor implements DcMotor {
             inner.setMode(RunMode.RUN_TO_POSITION);
         }
 
-        inner.setTargetPosition(position);
+        inner.setTargetPosition(targetPosition);
 
         inner.setPower(1);
 
@@ -80,11 +80,11 @@ public class ServoLikeMotor implements DcMotor {
     }
 
     public void setPosition(int pos) {
-        setPosition(pos, antiStressAutomatic && (currentAntiStressWatcher == null || currentAntiStressWatcher.isDone()) && (Math.abs(inner.getCurrentPosition()-position) > 15)); // the Math.abs... bit makes sure that the anti-stress only runs when a gap between desired and real position accumulates
+        setPosition(pos, antiStressAutomatic && (currentAntiStressWatcher == null || currentAntiStressWatcher.isDone()) && (Math.abs(inner.getCurrentPosition()- targetPosition) > 15)); // the Math.abs... bit makes sure that the anti-stress only runs when a gap between desired and real position accumulates
     }
 
     public int getPosition() {
-        return position;
+        return getCurrentPosition();
     }
 
     public boolean relieveStress() {
@@ -95,8 +95,8 @@ public class ServoLikeMotor implements DcMotor {
 
         while (inner.isBusy()) {
             int ticks = inner.getCurrentPosition();
-            if ((ticks > 200) && (Math.abs(inner.getVelocity()) < 12) && (Math.abs(position-ticks) > 1)) { // low speed and more than 5 ticks away from target (when target is greater than current pos)
-                setPosition(position-20, false);
+            if ((ticks > 200) && (Math.abs(inner.getVelocity()) < 12) && (Math.abs(targetPosition -ticks) > 1)) { // low speed and more than 5 ticks away from target (when target is greater than current pos)
+                setPosition(targetPosition -20, false);
                 relieved = true;
             }
         }
@@ -114,13 +114,7 @@ public class ServoLikeMotor implements DcMotor {
                 currentAntiStressWatcher.cancel(true);
             }
 
-            currentAntiStressWatcher = CompletableFuture.supplyAsync(() -> {
-                boolean run = true; // to stop IDE complaining
-
-                while (run);
-
-                return false;
-            });
+            currentAntiStressWatcher = CompletableFuture.supplyAsync(() -> false);
 
             boolean relieved = relieveStress();
 
