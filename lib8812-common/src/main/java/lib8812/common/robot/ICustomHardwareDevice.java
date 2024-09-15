@@ -1,5 +1,5 @@
 package lib8812.common.robot;
 
-public interface IVirtualHardwareDevice {
+public interface ICustomHardwareDevice {
     boolean isVirtualDevice();
 }

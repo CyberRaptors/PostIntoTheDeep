@@ -6,13 +6,14 @@ import com.qualcomm.robotcore.hardware.ServoController;
 import java.util.Arrays;
 import java.util.List;
 
-public class LabeledPositionServo implements Servo {
+public class LabeledPositionServo implements Servo, ICustomHardwareDevice {
     Servo inner;
     List<String> labels;
     List<Double> positions;
 
-    public LabeledPositionServo(Servo innerServo, String[] labels, Double[] positions)
-    {
+    public boolean isVirtualDevice() { return false; }
+
+    public LabeledPositionServo(Servo innerServo, String[] labels, Double[] positions) {
         inner = innerServo;
 
         assert labels.length == positions.length;

@@ -1,10 +1,11 @@
 package lib8812.common.robot;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.ServoController;
 
-public final class VirtualCRServo implements IVirtualHardwareDevice {
+public final class VirtualCRServo implements ICustomHardwareDevice, CRServo {
     public boolean isVirtualDevice() { return true; }
 
     public ServoController getController() {

@@ -1,4 +1,4 @@
-package lib8812.common.robot.uapi;
+package lib8812.common.robot.uapi.centerstage;
 
 import java.util.function.Consumer;
 

@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 
-public final class VirtualServo implements IVirtualHardwareDevice {
+public final class VirtualServo implements ICustomHardwareDevice, Servo {
     public boolean isVirtualDevice() { return true; }
 
     public ServoController getController() {

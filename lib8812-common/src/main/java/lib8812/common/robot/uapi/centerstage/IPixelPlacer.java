@@ -1,4 +1,4 @@
-package lib8812.common.robot.uapi;
+package lib8812.common.robot.uapi.centerstage;
 
 /*
 User0332 - lib8812 CenterStage UAPI [Uniform Autonomous Placing Interface]

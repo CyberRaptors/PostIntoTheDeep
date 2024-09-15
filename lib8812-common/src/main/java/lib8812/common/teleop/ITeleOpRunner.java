@@ -15,6 +15,7 @@ public abstract class ITeleOpRunner {
     // synonyms
     protected ReflectiveGamepad gamepad1;
     protected ReflectiveGamepad gamepad2;
+    protected KeybindPattern keybinder;
     protected Telemetry telemetry;
     protected HardwareMap hardwareMap;
 
@@ -35,6 +36,8 @@ public abstract class ITeleOpRunner {
 
         gamepad1 = new ReflectiveGamepad(opMode.gamepad1); // make sure the OpMode updates our ReflectiveGamepads
         gamepad2 = new ReflectiveGamepad(opMode.gamepad2);
+
+        keybinder = new KeybindPattern(gamepad1, gamepad2);
 
         telemetry = opMode.telemetry;
         hardwareMap = opMode.hardwareMap;
