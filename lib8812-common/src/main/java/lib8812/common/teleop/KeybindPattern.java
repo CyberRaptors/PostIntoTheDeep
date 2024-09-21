@@ -18,9 +18,9 @@ public class KeybindPattern {
 
         public FunctionBinder of(ReflectiveGamepad gamepad) {
             if (gamepad1 == gamepad)
-                return new FunctionBinder(KeybindPattern.this::registerOnGamepad1, KeybindPattern.this::registerOnGamepad1);
+                return new FunctionBinder(key, KeybindPattern.this::registerOnGamepad1, KeybindPattern.this::registerOnGamepad1);
 
-            return new FunctionBinder(KeybindPattern.this::registerOnGamepad2, KeybindPattern.this::registerOnGamepad2);
+            return new FunctionBinder(key, KeybindPattern.this::registerOnGamepad2, KeybindPattern.this::registerOnGamepad2);
         }
     }
 
@@ -29,9 +29,10 @@ public class KeybindPattern {
         BindingFunction<Runnable> registerPress;
         BindingFunction<Function<Double, Void>> registerValue;
 
-        FunctionBinder(BindingFunction<Runnable> registerPress, BindingFunction<Function<Double, Void>> registerValue) {
+        FunctionBinder(String key, BindingFunction<Runnable> registerPress, BindingFunction<Function<Double, Void>> registerValue) {
             this.registerPress = registerPress;
             this.registerValue = registerValue;
+            this.key = key;
         }
 
         public void to(Runnable action) {

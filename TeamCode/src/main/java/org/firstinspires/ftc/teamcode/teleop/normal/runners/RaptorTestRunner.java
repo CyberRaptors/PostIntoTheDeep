@@ -41,7 +41,12 @@ public class RaptorTestRunner extends ITeleOpRunner {
     }
 
     void moveExtension() {
-        bot.extension.setPosition((gamepad2.inner.right_stick_y+1)*0.54);
+        bot.extension.setPosition(
+                Math.min( // hard upper bound @ 0.7
+                        (gamepad2.inner.right_stick_y+1)*0.7,
+                        0.7
+                )
+        );
 
         // stick up full -> 0 [out]
         // stick halfway up -> 0.25 [halfway out]
@@ -50,9 +55,9 @@ public class RaptorTestRunner extends ITeleOpRunner {
         // note that gamepad2.inner.right_stick_y seems to give us negative inputs
     }
 
-//    void moveSpinningIntake() {
-//        bot.spinningIntake.setPower(gamepad2.inner.right_trigger-gamepad2.inner.left_trigger);
-//    }
+    void moveSpinningIntake() {
+        bot.spinningIntake.setPower(gamepad2.inner.right_trigger-gamepad2.inner.left_trigger);
+    }
 
     void moveLift() {
         bot.mainLift.setPosition(
@@ -60,14 +65,28 @@ public class RaptorTestRunner extends ITeleOpRunner {
         );
     }
 
+    void resetLiftBlocking() {
+        bot.mainLift.setPosition(0);
+        bot.mainLift.waitForPosition();
+    }
+
+    void setLiftToMaxHeightBlocking() {
+        bot.mainLift.setPosition(bot.mainLift.maxPos);
+        bot.mainLift.waitForPosition();
+    }
+
     void moveClawRotate() {
         double change = 0;
 
-        if (gamepad1.inner.left_bumper) change = -0.05;
-        else if (gamepad1.inner.right_bumper) change = 0.05;
+        if (gamepad2.inner.left_bumper) change = -0.0005;
+        else if (gamepad2.inner.right_bumper) change = 0.0005;
 
         bot.clawRotate.setPosition(
-                bot.clawRotate.getPosition()+change
+                Math.min(
+                        Math.max(
+                            bot.clawRotate.getPosition()+change, bot.CLAW_ROTATE_MIN_POS
+                    ), bot.CLAW_ROTATE_MAX_POS
+                )
         );
     }
 
@@ -80,6 +99,9 @@ public class RaptorTestRunner extends ITeleOpRunner {
         x.of(gamepad1).to(() -> showExtraInfo = !showExtraInfo);
         x.of(gamepad2).to(bot.claw::toggle);
 
+        keybinder.bind("a").of(gamepad2).to(this::resetLiftBlocking);
+        keybinder.bind("y").of(gamepad2).to(this::setLiftToMaxHeightBlocking);
+
         while (opModeIsActive()) {
             testWheels();
 
@@ -89,7 +111,7 @@ public class RaptorTestRunner extends ITeleOpRunner {
             moveLift();
             moveClawRotate();
 
-//            moveSpinningIntake();
+            moveSpinningIntake();
 
             if (counter % 100 == 0) keybinder.executeActions();
 
@@ -98,10 +120,10 @@ public class RaptorTestRunner extends ITeleOpRunner {
                     bot.extension.getPosition()
             );
 
-//            telemetry.addData(
-//                    "intake", "power (%.2f)",
-//                    bot.spinningIntake.getPower()
-//            );
+            telemetry.addData(
+                    "intake", "power (%.2f)",
+                    bot.spinningIntake.getPower()
+            );
 
             telemetry.addData("claw", bot.claw.getStatus());
 
@@ -111,8 +133,9 @@ public class RaptorTestRunner extends ITeleOpRunner {
             );
 
             telemetry.addData(
-                    "lift", "pos (%d), target (%d)",
-                    bot.mainLift.getPosition(), bot.mainLift.getTargetPosition()
+                    "lift", "pos (%d), target (%d), power (%.2f)",
+                    bot.mainLift.getPosition(), bot.mainLift.getTargetPosition(),
+                    bot.mainLift.getPower()
             );
 
             if (showExtraInfo) {
