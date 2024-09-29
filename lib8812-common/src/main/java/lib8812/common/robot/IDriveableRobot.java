@@ -6,16 +6,15 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public abstract class IDriveableRobot {
     public DcMotor rightFront;
     public DcMotor leftFront;
-    public DcMotor rightBack ;
+    public DcMotor rightBack;
     public DcMotor leftBack;
 
     public abstract void init(HardwareMap hardwareMap);
 
-    protected static <THardwareDevice> THardwareDevice loadDevice(HardwareMap hardwareMap, Class<? extends THardwareDevice> cls, String name) {
+    protected static <THardwareDevice> THardwareDevice loadDevice(HardwareMap hardwareMap, Class<THardwareDevice> cls, String name) {
         if (cls.equals(VirtualMotor.class)) return (THardwareDevice) new VirtualMotor();
         if (cls.equals(VirtualServo.class)) return (THardwareDevice) new VirtualServo();
         if (cls.equals(VirtualCRServo.class)) return (THardwareDevice) new VirtualCRServo();
-
 
         return hardwareMap.get(cls, name);
     }
