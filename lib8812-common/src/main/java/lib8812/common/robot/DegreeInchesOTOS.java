@@ -52,13 +52,16 @@ public class DegreeInchesOTOS implements ICustomHardwareDevice {
 		}
 	}
 
-	SparkFunOTOS inner;
+	public final SparkFunOTOS inner;
 
 	public DegreeInchesOTOS(SparkFunOTOS otos, Configuration config) {
 		otos.setLinearUnit(DistanceUnit.INCH);
 		otos.setAngularUnit(AngleUnit.DEGREES);
 
 		otos.setOffset(config.offset);
+
+		otos.setLinearScalar(1);
+		otos.setAngularScalar(1);
 
 		otos.setLinearScalar(config.linearMultiplier);
 		otos.setAngularScalar(config.angularMultiplier);
@@ -77,6 +80,10 @@ public class DegreeInchesOTOS implements ICustomHardwareDevice {
 
 	public SimpleDegreePose getPosition() {
 		return SimpleDegreePose.fromSparkFunDegrees(inner.getPosition());
+	}
+
+	public SimpleDegreePose getVelocity() {
+		return SimpleDegreePose.fromSparkFunDegrees(inner.getVelocity());
 	}
 
 	public void setPosition(SimpleDegreePose pos) {

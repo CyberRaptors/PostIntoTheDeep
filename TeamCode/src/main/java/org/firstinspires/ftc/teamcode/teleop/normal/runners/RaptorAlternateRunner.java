@@ -1,6 +1,7 @@
+
 package org.firstinspires.ftc.teamcode.teleop.normal.runners;
 
-import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
+import org.firstinspires.ftc.teamcode.robot.AlternateRaptorRobot;
 
 import lib8812.common.robot.IDriveableRobot;
 import lib8812.common.robot.WheelPowers;
@@ -8,8 +9,8 @@ import lib8812.common.teleop.ITeleOpRunner;
 import lib8812.common.teleop.KeybindPattern;
 import lib8812.common.teleop.TeleOpUtils;
 
-public class RaptorTestRunner extends ITeleOpRunner {
-    RaptorRobot bot = new RaptorRobot();
+public class RaptorAlternateRunner extends ITeleOpRunner {
+    AlternateRaptorRobot bot = new AlternateRaptorRobot();
     private final WheelPowers wheelWeights = new WheelPowers(1, 1, 1, 1);
     boolean showExtraInfo = false;
 
@@ -40,40 +41,16 @@ public class RaptorTestRunner extends ITeleOpRunner {
         );
     }
 
-    void moveExtension() {
-        bot.extension.setPosition(
-                Math.min( // hard upper bound @ 0.7
-                        (gamepad2.inner.right_stick_y+1)*0.7,
-                        0.7
-                )
-        );
-
-        // stick up full -> 0 [out]
-        // stick halfway up -> 0.25 [halfway out]
-        // stick resting pos -> 0.5 [in]
-
-        // note that gamepad2.inner.right_stick_y seems to give us negative inputs
-    }
-
     void moveSpinningIntake() {
         bot.spinningIntake.setPower(gamepad2.inner.right_trigger-gamepad2.inner.left_trigger);
     }
 
-    void moveLift() {
-        bot.mainLift.setPosition(
-                bot.mainLift.getPosition()- (int) (gamepad2.inner.left_stick_y*50)
+    void moveArm() {
+        bot.arm.setPosition(
+                bot.arm.getPosition()- (int) (gamepad2.inner.left_stick_y*50)
         );
     }
 
-    void resetLiftBlocking() {
-        bot.mainLift.setPosition(0);
-        bot.mainLift.waitForPosition();
-    }
-
-    void setLiftToMaxHeightBlocking() {
-        bot.mainLift.setPosition(bot.mainLift.maxPos);
-        bot.mainLift.waitForPosition();
-    }
 
     void moveClawRotate() {
         double change = 0;
@@ -97,18 +74,13 @@ public class RaptorTestRunner extends ITeleOpRunner {
         KeybindPattern.GamepadBinder x = keybinder.bind("x");
 
         x.of(gamepad1).to(() -> showExtraInfo = !showExtraInfo);
-        x.of(gamepad2).to(bot.claw::toggle);
-
-        keybinder.bind("a").of(gamepad2).to(this::resetLiftBlocking);
-        keybinder.bind("y").of(gamepad2).to(this::setLiftToMaxHeightBlocking);
 
         while (opModeIsActive()) {
             testWheels();
 
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();
 
-            moveExtension();
-            moveLift();
+            moveArm();
             moveClawRotate();
 
             moveSpinningIntake();
@@ -116,16 +88,9 @@ public class RaptorTestRunner extends ITeleOpRunner {
             if (counter % 100 == 0) keybinder.executeActions();
 
             telemetry.addData(
-                    "extension", "pos (%.2f)",
-                    bot.extension.getPosition()
-            );
-
-            telemetry.addData(
                     "intake", "power (%.2f)",
                     bot.spinningIntake.getPower()
             );
-
-            telemetry.addData("claw", bot.claw.getStatus());
 
             telemetry.addData(
                     "clawRotate", "pos (%.2f)",
@@ -133,9 +98,9 @@ public class RaptorTestRunner extends ITeleOpRunner {
             );
 
             telemetry.addData(
-                    "lift", "pos (%d), target (%d), power (%.2f)",
-                    bot.mainLift.getPosition(), bot.mainLift.getTargetPosition(),
-                    bot.mainLift.getPower()
+                    "arm", "pos (%d), target (%d), power (%.2f)",
+                    bot.arm.getPosition(), bot.arm.getTargetPosition(),
+                    bot.arm.getPower()
             );
 
             if (showExtraInfo) {
