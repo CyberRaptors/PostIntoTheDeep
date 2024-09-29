@@ -22,14 +22,16 @@ import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
 
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
-import lib8812.common.rr.MecanumDrive;
-import lib8812.common.rr.TankDrive;
-import lib8812.common.rr.ThreeDeadWheelLocalizer;
-import lib8812.common.rr.TwoDeadWheelLocalizer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import lib8812.common.rr.MecanumDrive;
+import lib8812.common.rr.OTOSLocalizer;
+import lib8812.common.rr.TankDrive;
+import lib8812.common.rr.ThreeDeadWheelLocalizer;
+import lib8812.common.rr.TwoDeadWheelLocalizer;
 
 public final class TuningOpModes {
     // TODO: change this to TankDrive.class if you're using tank
@@ -74,6 +76,34 @@ public final class TuningOpModes {
                     TwoDeadWheelLocalizer dl = (TwoDeadWheelLocalizer) md.localizer;
                     parEncs.add(dl.par);
                     perpEncs.add(dl.perp);
+                } else if (md.localizer instanceof OTOSLocalizer) {
+                    OTOSLocalizer localizer = (OTOSLocalizer) md.localizer;
+
+                    return new DriveView(
+                            DriveType.MECANUM,
+                            MecanumDrive.PARAMS.inPerTick,
+                            MecanumDrive.PARAMS.maxWheelVel,
+                            MecanumDrive.PARAMS.minProfileAccel,
+                            MecanumDrive.PARAMS.maxProfileAccel,
+                            hardwareMap.getAll(LynxModule.class),
+                            Arrays.asList(
+                                    md.leftFront,
+                                    md.leftBack
+                            ),
+                            Arrays.asList(
+                                    md.rightFront,
+                                    md.rightBack
+                            ),
+                            leftEncs,
+                            rightEncs,
+                            parEncs,
+                            perpEncs,
+                            md.lazyImu,
+                            md.voltageSensor,
+                            () -> new MotorFeedforward(MecanumDrive.PARAMS.kS,
+                                    MecanumDrive.PARAMS.kV / MecanumDrive.PARAMS.inPerTick,
+                                    MecanumDrive.PARAMS.kA / MecanumDrive.PARAMS.inPerTick)
+                    );
                 } else {
                     throw new RuntimeException("unknown localizer: " + md.localizer.getClass().getName());
                 }
