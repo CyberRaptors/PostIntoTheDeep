@@ -14,7 +14,7 @@ import lib8812.common.robot.hardwarewrappers.DegreeInchesOTOS;
 import lib8812.common.robot.poses.SimpleDegreePose;
 
 @Config
-public final class OTOSLocalizer implements Localizer {
+public final class OTOSLocalizer implements Localizer{
     final DegreeInchesOTOS otos;
     final DegreeInchesOTOS.Configuration otosConfig =
             new DegreeInchesOTOS.Configuration()
