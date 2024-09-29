@@ -6,10 +6,10 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import lib8812.common.robot.BinaryClaw;
-import lib8812.common.robot.DegreeInchesOTOS;
+import lib8812.common.robot.hardwarewrappers.BinaryClaw;
+import lib8812.common.robot.hardwarewrappers.DegreeInchesOTOS;
 import lib8812.common.robot.IDriveableRobot;
-import lib8812.common.robot.ServoLikeMotor;
+import lib8812.common.robot.hardwarewrappers.ServoLikeMotor;
 
 public class RaptorRobot extends IDriveableRobot {
     static final int LIFT_MAX_TICKS = 3100;

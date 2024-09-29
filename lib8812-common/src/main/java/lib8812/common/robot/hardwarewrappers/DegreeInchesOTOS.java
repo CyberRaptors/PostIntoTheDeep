@@ -1,4 +1,4 @@
-package lib8812.common.robot;
+package lib8812.common.robot.hardwarewrappers;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
