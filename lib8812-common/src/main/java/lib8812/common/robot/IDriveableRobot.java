@@ -3,6 +3,10 @@ package lib8812.common.robot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import lib8812.common.robot.hardwarewrappers.VirtualCRServo;
+import lib8812.common.robot.hardwarewrappers.VirtualMotor;
+import lib8812.common.robot.hardwarewrappers.VirtualServo;
+
 public abstract class IDriveableRobot {
     public DcMotor rightFront;
     public DcMotor leftFront;

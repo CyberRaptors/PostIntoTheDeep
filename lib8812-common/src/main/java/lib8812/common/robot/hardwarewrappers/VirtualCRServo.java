@@ -1,10 +1,11 @@
-package lib8812.common.robot;
+package lib8812.common.robot.hardwarewrappers;
 
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 
-public final class VirtualServo implements ICustomHardwareDevice, Servo {
+public final class VirtualCRServo implements ICustomHardwareDevice, CRServo {
     public boolean isVirtualDevice() { return true; }
 
     public ServoController getController() {
@@ -15,24 +16,20 @@ public final class VirtualServo implements ICustomHardwareDevice, Servo {
         return 0;
     }
 
-    public void setDirection(Servo.Direction direction) {
+    public void setDirection(DcMotorSimple.Direction direction) {
 
     }
 
-    public Servo.Direction getDirection() {
+    public DcMotorSimple.Direction getDirection() {
         return null;
     }
 
-    public void setPosition(double position) {
+    public void setPower(double power) {
 
     }
 
-    public double getPosition() {
+    public double getPower() {
         return 0;
-    }
-
-    public void scaleRange(double min, double max) {
-
     }
 
     public HardwareDevice.Manufacturer getManufacturer() {

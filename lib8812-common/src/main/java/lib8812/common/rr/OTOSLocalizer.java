@@ -10,7 +10,7 @@ import com.acmerobotics.roadrunner.Vector2dDual;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import lib8812.common.robot.DegreeInchesOTOS;
+import lib8812.common.robot.hardwarewrappers.DegreeInchesOTOS;
 import lib8812.common.robot.poses.SimpleDegreePose;
 
 @Config
