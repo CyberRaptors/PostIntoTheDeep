@@ -11,8 +11,11 @@ import lib8812.common.robot.IDriveableRobot;
 import lib8812.common.robot.ServoLikeMotor;
 
 public class AlternateRaptorRobot extends IDriveableRobot {
-    static final int ARM_MAX_TICKS = 1500;
+    static final int ARM_MAX_TICKS = 4530;
     static final int ARM_MIN_TICKS = 0;
+
+    public final double CLAW_ROTATE_MIN_POS = 0;
+    public final double CLAW_ROTATE_MAX_POS = 0.1;
 
     public Servo clawRotate;
 

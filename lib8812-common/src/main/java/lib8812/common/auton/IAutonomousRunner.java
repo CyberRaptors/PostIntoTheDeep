@@ -7,8 +7,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import lib8812.common.auton.autopilot.TrajectoryLists;
-import lib8812.common.rr.drive.SampleMecanumDrive;
 import lib8812.common.robot.IDriveableRobot;
 
 import java.lang.reflect.InvocationTargetException;
@@ -18,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
     IDriveableRobot bot;
     ElapsedTime runtime = new ElapsedTime();
-    protected SampleMecanumDrive drive;
     protected LinearOpMode opMode;
     protected IObjectDetector<TLabelEnum> objectDetector;
 
@@ -40,9 +37,6 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
         bot = getBot();
 
         bot.init(opMode.hardwareMap);
-        drive = new SampleMecanumDrive(opMode.hardwareMap);
-
-        TrajectoryLists.initializeTrajectoryLists(drive);
     }
 
     void initializeOpMode(LinearOpMode opMode) {
@@ -60,7 +54,7 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
         initializeOpModeSynonymsAndBot(opMode);
 
         try {
-            result = this.<ObjectDetector> getDetectionResult(objectDetectorClass, defaultLabel);
+            result = this.getDetectionResult(objectDetectorClass, defaultLabel);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -75,8 +69,8 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
         while (opModeIsActive()); // see if this fixes the restarting issue
     }
 
-    protected static CompletableFuture setTimeout(Runnable runnable, int delay) {
-        CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
+    protected static CompletableFuture<Integer> setTimeout(Runnable runnable, int delay) {
+		return CompletableFuture.supplyAsync(() -> {
             runnable.run();
 
             try { TimeUnit.MILLISECONDS.sleep(delay); }
@@ -86,8 +80,6 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
 
             return 0;
         });
-
-        return future;
     }
 
     protected void debugLogOverTelemetry(String message)
