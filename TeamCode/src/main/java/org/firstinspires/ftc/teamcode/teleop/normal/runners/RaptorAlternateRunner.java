@@ -47,24 +47,28 @@ public class RaptorAlternateRunner extends ITeleOpRunner {
 
     void moveArm() {
         bot.arm.setPosition(
-                bot.arm.getPosition()- (int) (gamepad2.inner.left_stick_y*50)
+                bot.arm.getPosition()- (int) (gamepad2.inner.left_stick_y*100)
         );
     }
 
+    void moveExtension() {
+        bot.extension.setPosition(
+                (gamepad2.inner.right_stick_y+1)*bot.extension.maxPos
+        );
+
+        // stick up full -> 0 [out]
+        // stick halfway up -> 0.25 [halfway out]
+        // stick resting pos -> 0.5 [in]
+
+        // note that gamepad2.inner.right_stick_y seems to give us negative inputs
+    }
 
     void moveClawRotate() {
-        double change = 0;
+        double change = (
+                gamepad1.getValue("right_bumper")+gamepad2.getValue("left_bumper")
+        )*bot.clawRotate.increment;
 
-        if (gamepad2.inner.left_bumper) change = -0.0005;
-        else if (gamepad2.inner.right_bumper) change = 0.0005;
-
-        bot.clawRotate.setPosition(
-                Math.min(
-                        Math.max(
-                            bot.clawRotate.getPosition()+change, bot.CLAW_ROTATE_MIN_POS
-                    ), bot.CLAW_ROTATE_MAX_POS
-                )
-        );
+        bot.clawRotate.setPosition(bot.clawRotate.getPosition()+change);
     }
 
 
@@ -82,10 +86,15 @@ public class RaptorAlternateRunner extends ITeleOpRunner {
 
             moveArm();
             moveClawRotate();
-
+            moveExtension();
             moveSpinningIntake();
 
             if (counter % 100 == 0) keybinder.executeActions();
+
+            telemetry.addData(
+                    "extension", "pos (%.2f)",
+                    bot.extension.getPosition()
+            );
 
             telemetry.addData(
                     "intake", "power (%.2f)",
