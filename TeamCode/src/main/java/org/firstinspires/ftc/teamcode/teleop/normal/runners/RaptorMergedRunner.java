@@ -45,30 +45,38 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         bot.spinningIntake.setPower(gamepad2.inner.right_trigger-gamepad2.inner.left_trigger);
     }
 
+    void moveLift() {
+        bot.extensionLift.setPosition(
+                bot.extensionLift.getPosition()-(int) (gamepad2.inner.right_stick_y*50)
+        );
+    }
+
     void moveArm() {
         bot.arm.setPosition(
-                bot.arm.getPosition()- (int) (gamepad2.inner.left_stick_y*100)
+                bot.arm.getPosition()- (int) (gamepad2.inner.left_stick_y*50)
         );
     }
 
-    void moveExtension() {
-        bot.extension.setPosition(
-                (gamepad2.inner.right_stick_y+1)*bot.extension.maxPos
-        );
-
-        // stick up full -> 0 [out]
-        // stick halfway up -> 0.25 [halfway out]
-        // stick resting pos -> 0.5 [in]
-
-        // note that gamepad2.inner.right_stick_y seems to give us negative inputs
-    }
 
     void moveClawRotate() {
-        double change = (
-                gamepad1.getValue("right_bumper")+gamepad2.getValue("left_bumper")
-        )*bot.clawRotate.increment;
+        double change = 0;
 
-        bot.clawRotate.setPosition(bot.clawRotate.getPosition()+change);
+        if (gamepad2.inner.left_bumper) change = -0.0005;
+        else if (gamepad2.inner.right_bumper) change = 0.0005;
+
+        bot.clawRotate.setPosition(
+                Math.min(
+                        Math.max(
+                            bot.clawRotate.getPosition()+change, bot.CLAW_ROTATE_MIN_POS
+                    ), bot.CLAW_ROTATE_MAX_POS
+                )
+        );
+    }
+
+    void moveActuator() {
+        bot.actuator.setPower(
+                gamepad1.inner.left_trigger-gamepad1.inner.right_trigger
+        );
     }
 
 
@@ -85,16 +93,13 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();
 
             moveArm();
+            moveLift();
             moveClawRotate();
-            moveExtension();
+            moveActuator();
+
             moveSpinningIntake();
 
             if (counter % 100 == 0) keybinder.executeActions();
-
-            telemetry.addData(
-                    "extension", "pos (%.2f)",
-                    bot.extension.getPosition()
-            );
 
             telemetry.addData(
                     "intake", "power (%.2f)",
@@ -102,14 +107,25 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             );
 
             telemetry.addData(
-                    "clawRotate", "pos (%.2f)",
+                    "claw rotate", "pos (%.2f)",
                     bot.clawRotate.getPosition()
+            );
+
+            telemetry.addData(
+                    "extension lift", "pos (%d), target (%d), power (%.2f)",
+                    bot.extensionLift.getPosition(), bot.extensionLift.getTargetPosition(),
+                    bot.extensionLift.getPower()
             );
 
             telemetry.addData(
                     "arm", "pos (%d), target (%d), power (%.2f)",
                     bot.arm.getPosition(), bot.arm.getTargetPosition(),
                     bot.arm.getPower()
+            );
+
+            telemetry.addData(
+                    "actuator", "power (%.2f)",
+                    bot.actuator.getPower()
             );
 
             if (showExtraInfo) {
