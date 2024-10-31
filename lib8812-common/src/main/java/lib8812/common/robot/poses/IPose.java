@@ -3,10 +3,10 @@ package lib8812.common.robot.poses;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
-public interface IPose {
-	Pose2d toRoadRunner();
-	SparkFunOTOS.Pose2D toSparkFunDegrees();
-	SparkFunOTOS.Pose2D toSparkFunRadians();
-	IDegreePose toDegrees();
-	IRadianPose toRadians();
+public abstract class IPose extends SparkFunOTOS.Pose2D {
+	abstract Pose2d toRoadRunner();
+	abstract SparkFunOTOS.Pose2D toSparkFunDegrees();
+	abstract SparkFunOTOS.Pose2D toSparkFunRadians();
+	abstract IDegreePose toDegrees();
+	abstract IRadianPose toRadians();
 }

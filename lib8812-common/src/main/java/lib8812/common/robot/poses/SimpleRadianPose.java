@@ -3,11 +3,7 @@ package lib8812.common.robot.poses;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
-public class SimpleRadianPose implements IRadianPose {
-	public final double x;
-	public final double y;
-	public final double h;
-
+public class SimpleRadianPose extends IRadianPose {
 	public SimpleRadianPose(double x, double y, double h) {
 		this.x = x;
 		this.y = y;
@@ -35,7 +31,7 @@ public class SimpleRadianPose implements IRadianPose {
 	}
 
 	public SparkFunOTOS.Pose2D toSparkFunRadians() {
-		return new SparkFunOTOS.Pose2D(x, y, h);
+		return this;
 	}
 
 	public SimpleDegreePose toDegrees() {
