@@ -1,5 +1,5 @@
 package lib8812.common.robot.poses;
 
-public interface IRadianPose extends IPose {
+public abstract class IRadianPose extends IPose {
 
 }

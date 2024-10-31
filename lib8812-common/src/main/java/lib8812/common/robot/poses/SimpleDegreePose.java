@@ -3,11 +3,7 @@ package lib8812.common.robot.poses;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
-public class SimpleDegreePose implements IDegreePose {
-	public final double x;
-	public final double y;
-	public final double h;
-
+public class SimpleDegreePose extends IDegreePose {
 	public SimpleDegreePose(double x, double y, double h) {
 		this.x = x;
 		this.y = y;
@@ -31,7 +27,7 @@ public class SimpleDegreePose implements IDegreePose {
 	}
 
 	public SparkFunOTOS.Pose2D toSparkFunDegrees() {
-		return new SparkFunOTOS.Pose2D(x, y, h);
+		return this;
 	}
 
 	public SparkFunOTOS.Pose2D toSparkFunRadians() {

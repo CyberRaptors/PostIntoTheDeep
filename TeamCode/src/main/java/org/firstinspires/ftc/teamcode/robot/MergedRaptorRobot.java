@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot;
 
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -9,29 +10,41 @@ import lib8812.common.robot.IDriveableRobot;
 import lib8812.common.robot.hardwarewrappers.ServoLikeMotor;
 
 public class MergedRaptorRobot extends IDriveableRobot {
-    static final int ARM_MAX_TICKS = 4530;
+    public final int ARM_HANG_MAX_TICKS = 4820;
+    public final int ARM_MAX_TICKS = 4530;
     static final int ARM_MIN_TICKS = 0;
     static final int LIFT_MAX_TICKS = 2000;
     static final int LIFT_MIN_TICKS = 0;
 
-    public final double CLAW_ROTATE_MIN_POS = 0;
-    public final double CLAW_ROTATE_MAX_POS = 0.1;
+    public final double CLAW_ROTATE_MIN_POS = 0.3;
+    public final double CLAW_ROTATE_MAX_POS = 1;
 
-    public Servo clawRotate;
+    final double INTAKE_SMALL_DIAMETER = 3.75;
+    final double INTAKE_LARGE_DIAMETER = 4.75;
 
-    public DcMotor spinningIntake;
+
+    /* MATH - DO NOT TOUCH */
+    final double INTAKE_SMALL_RADIUS = INTAKE_SMALL_DIAMETER/2;
+    final double INTAKE_LARGE_RADIUS = INTAKE_LARGE_DIAMETER/2;
+
+    public final double INTAKE_SMALL_TO_LARGE_RADIUS_RATIO = INTAKE_SMALL_RADIUS/INTAKE_LARGE_RADIUS;
+
+    /* Hardware Devices */
+
     public DcMotor actuator;
 
     public ServoLikeMotor arm;
     public ServoLikeMotor extensionLift;
+
+    public Servo clawRotate;
+    public CRServo intakeSmall;
+    public CRServo intakeLarge;
 
     public void init(HardwareMap hardwareMap) {
         rightFront = loadDevice(hardwareMap, DcMotor.class, "rightFront");
         leftFront = loadDevice(hardwareMap, DcMotor.class, "leftFront");
         rightBack = loadDevice(hardwareMap, DcMotor.class, "rightBack");
         leftBack = loadDevice(hardwareMap, DcMotor.class, "leftBack");
-
-        spinningIntake = loadDevice(hardwareMap, DcMotor.class, "intake");
 
         arm = new ServoLikeMotor(
                 loadDevice(hardwareMap, DcMotorEx.class, "arm0"),
@@ -46,6 +59,10 @@ public class MergedRaptorRobot extends IDriveableRobot {
         extensionLift.reverse();
 
         clawRotate = loadDevice(hardwareMap, Servo.class, "clawRotate");
+        intakeSmall = loadDevice(hardwareMap, CRServo.class, "intake0");
+        intakeLarge = loadDevice(hardwareMap, CRServo.class, "intake1");
+
+        clawRotate.setPosition(CLAW_ROTATE_MAX_POS);
 
         actuator = loadDevice(hardwareMap, DcMotor.class, "actuator0");
     }

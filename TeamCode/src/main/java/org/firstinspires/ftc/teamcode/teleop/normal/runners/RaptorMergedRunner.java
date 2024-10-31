@@ -42,7 +42,11 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     }
 
     void moveSpinningIntake() {
-        bot.spinningIntake.setPower(gamepad2.inner.right_trigger-gamepad2.inner.left_trigger);
+        double inputPwr = gamepad2.inner.right_trigger-gamepad2.inner.left_trigger;
+
+        bot.intakeSmall.setPower(inputPwr); // we don't multiply by the ratio since the servo driver only accepts 1 a power value
+
+        bot.intakeLarge.setPower(-inputPwr);
     }
 
     void moveLift() {
@@ -53,7 +57,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
     void moveArm() {
         bot.arm.setPosition(
-                bot.arm.getPosition()- (int) (gamepad2.inner.left_stick_y*50)
+                bot.arm.getPosition()+ (int) (gamepad2.inner.left_stick_y*50)
         );
     }
 
@@ -61,8 +65,8 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     void moveClawRotate() {
         double change = 0;
 
-        if (gamepad2.inner.left_bumper) change = -0.0005;
-        else if (gamepad2.inner.right_bumper) change = 0.0005;
+        if (gamepad2.inner.left_bumper) change = -0.01;
+        else if (gamepad2.inner.right_bumper) change = 0.01;
 
         bot.clawRotate.setPosition(
                 Math.min(
@@ -79,13 +83,17 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         );
     }
 
-
     protected void internalRun() {
         int counter = 0;
 
         KeybindPattern.GamepadBinder x = keybinder.bind("x");
 
         x.of(gamepad1).to(() -> showExtraInfo = !showExtraInfo);
+
+        // hang bind release
+        x.of(gamepad2).to(() -> {
+            bot.arm.maxPos = bot.ARM_HANG_MAX_TICKS;
+        });
 
         while (opModeIsActive()) {
             testWheels();
@@ -96,19 +104,23 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             moveLift();
             moveClawRotate();
             moveActuator();
-
             moveSpinningIntake();
 
-            if (counter % 100 == 0) keybinder.executeActions();
-
-            telemetry.addData(
-                    "intake", "power (%.2f)",
-                    bot.spinningIntake.getPower()
-            );
+            if (counter % 50 == 0) keybinder.executeActions();
 
             telemetry.addData(
                     "claw rotate", "pos (%.2f)",
                     bot.clawRotate.getPosition()
+            );
+
+            telemetry.addData(
+                    "intake (small)", "power (%.2f)",
+                    bot.intakeSmall.getPower()
+            );
+
+            telemetry.addData(
+                    "intake (large)", "power (%.2f)",
+                    bot.intakeLarge.getPower()
             );
 
             telemetry.addData(
@@ -118,9 +130,9 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             );
 
             telemetry.addData(
-                    "arm", "pos (%d), target (%d), power (%.2f)",
+                    "arm", "pos (%d), target (%d), power (%.2f) max pos (%d)",
                     bot.arm.getPosition(), bot.arm.getTargetPosition(),
-                    bot.arm.getPower()
+                    bot.arm.getPower(), bot.arm.maxPos
             );
 
             telemetry.addData(
