@@ -23,7 +23,7 @@ public class TeleOpUtils {
 
     public static double fineTuneInput(double input) { return fineTuneInput(input, DEFAULT_FINE_TUNE_THRESH); }
 
-    protected static CompletableFuture<Integer> setTimeout(Runnable runnable, int delay) {
+    public static CompletableFuture<Integer> setTimeout(Runnable runnable, int delay) {
         return CompletableFuture.supplyAsync(() -> {
             try { TimeUnit.MILLISECONDS.sleep(delay); }
             catch (InterruptedException e) {

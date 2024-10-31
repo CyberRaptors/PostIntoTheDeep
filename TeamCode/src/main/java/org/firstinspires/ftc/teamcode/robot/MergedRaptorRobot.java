@@ -29,6 +29,11 @@ public class MergedRaptorRobot extends IDriveableRobot {
 
     public final double INTAKE_SMALL_TO_LARGE_RADIUS_RATIO = INTAKE_SMALL_RADIUS/INTAKE_LARGE_RADIUS;
 
+    public final int INTAKE_SMALL_IN_DIRECTION = 1;
+    public final int INTAKE_SMALL_OUT_DIRECTION = -INTAKE_SMALL_IN_DIRECTION;
+    public final int INTAKE_LARGE_IN_DIRECTION = INTAKE_SMALL_OUT_DIRECTION;
+    public final int INTAKE_LARGE_OUT_DIRECTION = INTAKE_SMALL_IN_DIRECTION;
+
     /* Hardware Devices */
 
     public DcMotor actuator;

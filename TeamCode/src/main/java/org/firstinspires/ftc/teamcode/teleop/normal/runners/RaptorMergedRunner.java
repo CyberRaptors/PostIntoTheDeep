@@ -14,6 +14,9 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     private final WheelPowers wheelWeights = new WheelPowers(1, 1, 1, 1);
     boolean showExtraInfo = false;
 
+    boolean LOCK_INTAKES = false;
+    boolean LOCK_ARM = false;
+
     protected IDriveableRobot getBot() { return bot; }
 
     void testWheels() {
@@ -83,6 +86,68 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         );
     }
 
+    /* MACROS */
+
+    void macroArmOut() {
+        bot.arm.setPosition(bot.arm.maxPos);
+    }
+
+    void macroArmIn() {
+        bot.arm.setPosition(bot.arm.minPos);
+    }
+
+    void macroSpecimenClutch(Runnable cancellationDelegate) {
+        if (LOCK_INTAKES) return;
+
+        LOCK_INTAKES = true;
+        bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
+        bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
+
+        cancellationDelegate.run();
+    }
+
+    void macroHangSpecimen() {
+        if (LOCK_ARM) return;
+
+        LOCK_ARM = true;
+
+        bot.arm.setPosition(bot.arm.getPosition()+100);
+
+        macroSpecimenClutch(() -> {
+            TeleOpUtils.setTimeout(() -> {
+                bot.intakeSmall.setPower(0);
+                bot.intakeLarge.setPower(0);
+
+                LOCK_INTAKES = false;
+                LOCK_ARM = false;
+            }, 750); // 0.75 ms
+        });
+    }
+
+    void macroBasketDropTop(int numInchingCycles) {
+        if (numInchingCycles == 0) return;
+
+        if (LOCK_INTAKES) return;
+
+        LOCK_INTAKES = true;
+
+        bot.intakeSmall.setPower(bot.INTAKE_SMALL_OUT_DIRECTION*0.2);
+        bot.intakeLarge.setPower(bot.INTAKE_LARGE_OUT_DIRECTION*0.2);
+
+        TeleOpUtils.setTimeout(() -> {
+            bot.intakeSmall.setPower(0);
+            bot.intakeLarge.setPower(0);
+
+            LOCK_INTAKES = false;
+
+            macroBasketDropTop(numInchingCycles-1);
+        }, 500);
+    }
+
+    void macroBasketDropTop() { macroBasketDropTop(2); }
+
+    /* END MACROS */
+
     protected void internalRun() {
         int counter = 0;
 
@@ -100,11 +165,11 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();
 
-            moveArm();
+            if (!LOCK_ARM) moveArm();
             moveLift();
             moveClawRotate();
             moveActuator();
-            moveSpinningIntake();
+            if (!LOCK_INTAKES) moveSpinningIntake();
 
             if (counter % 50 == 0) keybinder.executeActions();
 
@@ -114,12 +179,12 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             );
 
             telemetry.addData(
-                    "intake (small)", "power (%.2f)",
+                    "intake (small)", "power (%.2f)"+(LOCK_INTAKES ? " locked" : ""),
                     bot.intakeSmall.getPower()
             );
 
             telemetry.addData(
-                    "intake (large)", "power (%.2f)",
+                    "intake (large)", "power (%.2f)"+(LOCK_INTAKES ? " locked" : ""),
                     bot.intakeLarge.getPower()
             );
 
@@ -130,7 +195,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             );
 
             telemetry.addData(
-                    "arm", "pos (%d), target (%d), power (%.2f) max pos (%d)",
+                    "arm", "pos (%d), target (%d), power (%.2f) max pos (%d)"+(LOCK_ARM ? " locked" : ""),
                     bot.arm.getPosition(), bot.arm.getTargetPosition(),
                     bot.arm.getPower(), bot.arm.maxPos
             );
