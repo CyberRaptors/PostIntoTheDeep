@@ -16,10 +16,12 @@ import com.acmerobotics.roadrunner.ftc.LateralPushTest;
 import com.acmerobotics.roadrunner.ftc.LateralRampLogger;
 import com.acmerobotics.roadrunner.ftc.ManualFeedforwardTuner;
 import com.acmerobotics.roadrunner.ftc.MecanumMotorDirectionDebugger;
+import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 
@@ -27,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import lib8812.common.robot.hardwarewrappers.MockMotor;
 import lib8812.common.rr.MecanumDrive;
 import lib8812.common.rr.OTOSLocalizer;
 import lib8812.common.rr.TankDrive;
@@ -78,6 +81,23 @@ public final class TuningOpModes {
                     perpEncs.add(dl.perp);
                 } else if (md.localizer instanceof OTOSLocalizer) {
                     OTOSLocalizer localizer = (OTOSLocalizer) md.localizer;
+
+                    MockMotor mockForRawEncPar = new MockMotor();
+
+                    mockForRawEncPar.getVelocity = () -> localizer.otos.getVelocity().x;
+                    mockForRawEncPar.getCurrentPosition = () -> (int) Math.floor(localizer.otos.getPosition().x*MecanumDrive.PARAMS.tickPerIn);
+                    mockForRawEncPar.getDirection = () -> DcMotorSimple.Direction.FORWARD;
+
+                    parEncs.add(new RawEncoder(mockForRawEncPar));
+
+
+                    MockMotor mockForRawEncPerp = new MockMotor();
+
+                    mockForRawEncPerp.getVelocity = () -> localizer.otos.getVelocity().y;
+                    mockForRawEncPerp.getCurrentPosition = () -> (int) Math.floor(localizer.otos.getPosition().y*MecanumDrive.PARAMS.tickPerIn);
+                    mockForRawEncPerp.getDirection = () -> DcMotorSimple.Direction.FORWARD;
+
+                    perpEncs.add(new RawEncoder(mockForRawEncPerp));
 
                     return new DriveView(
                             DriveType.MECANUM,

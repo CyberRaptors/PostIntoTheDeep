@@ -12,9 +12,15 @@ import lib8812.common.robot.hardwarewrappers.ServoLikeMotor;
 public class MergedRaptorRobot extends IDriveableRobot {
     public final int ARM_HANG_MAX_TICKS = 4820;
     public final int ARM_MAX_TICKS = 4530;
+    public final double ARM_MAX_ROTATION_DEG = 230d;
+
     static final int ARM_MIN_TICKS = 0;
-    static final int LIFT_MAX_TICKS = 2000;
-    static final int LIFT_MIN_TICKS = 0;
+    public final int LIFT_MAX_TICKS = 2000;
+    public final int LIFT_MIN_TICKS = 0;
+    static final double LIFT_MAX_INCHES = 25.7;
+    static final double LIFT_MIN_INCHES = 0;
+
+    public final double LIFT_TICKS_PER_INCHES = ((double) LIFT_MAX_TICKS-LIFT_MIN_TICKS)/(LIFT_MAX_INCHES-LIFT_MIN_INCHES);
 
     public final double CLAW_ROTATE_MIN_POS = 0.3;
     public final double CLAW_ROTATE_MAX_POS = 1;
