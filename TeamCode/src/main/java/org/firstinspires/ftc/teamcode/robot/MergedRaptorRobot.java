@@ -1,12 +1,15 @@
 package org.firstinspires.ftc.teamcode.robot;
 
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.hardwarewrappers.DegreeInchesOTOS;
 import lib8812.common.robot.hardwarewrappers.ServoLikeMotor;
 
 public class MergedRaptorRobot extends IDriveableRobot {
@@ -51,11 +54,26 @@ public class MergedRaptorRobot extends IDriveableRobot {
     public CRServo intakeSmall;
     public CRServo intakeLarge;
 
+    public DegreeInchesOTOS otos;
+    final DegreeInchesOTOS.Configuration otosConfig =
+            new DegreeInchesOTOS.Configuration()
+                    .withOffset(
+                            0, 0, 0
+                    )
+                    .withStartingPoint(
+                            0, 0, 0
+                    )
+                    .withLinearMultiplier(1)
+                    .withAngularMultiplier(1);
+
     public void init(HardwareMap hardwareMap) {
         rightFront = loadDevice(hardwareMap, DcMotor.class, "rightFront");
         leftFront = loadDevice(hardwareMap, DcMotor.class, "leftFront");
         rightBack = loadDevice(hardwareMap, DcMotor.class, "rightBack");
         leftBack = loadDevice(hardwareMap, DcMotor.class, "leftBack");
+
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         arm = new ServoLikeMotor(
                 loadDevice(hardwareMap, DcMotorEx.class, "arm0"),
@@ -76,5 +94,10 @@ public class MergedRaptorRobot extends IDriveableRobot {
         clawRotate.setPosition(CLAW_ROTATE_MAX_POS);
 
         actuator = loadDevice(hardwareMap, DcMotor.class, "actuator0");
+
+        otos = new DegreeInchesOTOS(
+                loadDevice(hardwareMap, SparkFunOTOS.class, "otos"),
+                otosConfig
+        );
     }
 }
