@@ -1,33 +1,22 @@
 
-package org.firstinspires.ftc.teamcode.teleop.normal.runners;
-
-import com.qualcomm.robotcore.hardware.DcMotor;
+package org.firstinspires.ftc.teamcode.teleop.odom.runners;
 
 import org.firstinspires.ftc.teamcode.robot.MergedRaptorRobot;
 
 import lib8812.common.robot.IDriveableRobot;
 import lib8812.common.robot.WheelPowers;
+import lib8812.common.robot.poses.SimpleDegreePose;
 import lib8812.common.teleop.ITeleOpRunner;
 import lib8812.common.teleop.KeybindPattern;
 import lib8812.common.teleop.TeleOpUtils;
 
-public class RaptorMergedRunner extends ITeleOpRunner {
+public class MergedLocalizationTestRunner extends ITeleOpRunner {
     MergedRaptorRobot bot = new MergedRaptorRobot();
     private final WheelPowers wheelWeights = new WheelPowers(1, 1, 1, 1);
     boolean showExtraInfo = false;
 
-    boolean USER_LOCK_ARM = false;
-
     boolean LOCK_INTAKES = false;
     boolean LOCK_ARM = false;
-    boolean LOCK_LIFT = false;
-
-    final static int FROG_MACRO_ARM_POS = 4326;
-    final static int REVERSE_DROP_MACRO_ARM_POS = 1562;
-    final static int REVERSE_DROP_MACRO_LIFT_POS = 1585;
-
-    Runnable onArmResolved = () -> {};
-    Runnable onLiftResolved = () -> {};
 
     protected IDriveableRobot getBot() { return bot; }
 
@@ -80,8 +69,8 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     void moveClawRotate() {
         double change = 0;
 
-        if (gamepad2.inner.dpad_left) change = -0.01;
-        else if (gamepad2.inner.dpad_right) change = 0.01;
+        if (gamepad2.inner.left_bumper) change = -0.01;
+        else if (gamepad2.inner.right_bumper) change = 0.01;
 
         bot.clawRotate.setPosition(
                 Math.min(
@@ -100,12 +89,12 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
     void limitLiftExtension() {
         double alphaDeg = bot.ARM_MAX_ROTATION_DEG*bot.arm.getPosition()/bot.arm.maxPos;
-        double theta = Math.toRadians(180-alphaDeg);
+        double theta = Math.toRadians(alphaDeg < 90 ? alphaDeg : 180-alphaDeg);
 
         bot.extensionLift.maxPos = Math.min(
                 (int) Math.floor(
                     (
-                            (25/Math.abs(Math.cos(theta)))-14
+                            (27/Math.cos(theta))-14
                     )*bot.LIFT_TICKS_PER_INCHES
                 ), bot.LIFT_MAX_TICKS
         );
@@ -182,7 +171,6 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         }
 
         macroLiftFullRetract();
-
     }
 
     void macroArmXXXToggle() {
@@ -190,87 +178,22 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
         LOCK_ARM = true;
 
-        if (bot.arm.getPosition() < 500) {
+        if (bot.arm.getPosition() < 200) {
             macroArmOut();
         }
         else macroArmIn();
 
-        onArmResolved = () -> LOCK_ARM = false;
-    }
-
-    void macroFrog() {
-        if (LOCK_ARM || LOCK_LIFT || LOCK_INTAKES) return;
-
-        LOCK_ARM = true;
-        LOCK_LIFT = true;
-        LOCK_INTAKES = true;
-
-        bot.arm.setPosition(FROG_MACRO_ARM_POS);
-
         TeleOpUtils.setTimeout(() -> {
             bot.arm.waitForPosition();
-
-            bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
-            bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
-
-            bot.extensionLift.setPosition(bot.extensionLift.maxPos);
-            bot.extensionLift.waitForPosition();
-
-            TeleOpUtils.setTimeout(() -> {
-                bot.extensionLift.setPosition(bot.extensionLift.minPos);
-
-                bot.extensionLift.waitForPosition();
-
-                bot.intakeLarge.setPower(0);
-                bot.intakeSmall.setPower(0);
-
-                LOCK_LIFT = false;
-                LOCK_INTAKES = false;
-            }, 100);
-
             LOCK_ARM = false;
         }, 10);
-    }
-
-    void macroPrepareForReverseDrop() {
-        if (LOCK_ARM || LOCK_LIFT) return;
-
-        LOCK_ARM = true;
-        LOCK_LIFT = true;
-
-        bot.arm.setPosition(REVERSE_DROP_MACRO_ARM_POS);
-
-        TeleOpUtils.setTimeout(() -> {
-            bot.arm.waitForPosition();
-            bot.extensionLift.setPosition(REVERSE_DROP_MACRO_LIFT_POS);
-
-            TeleOpUtils.setTimeout(() -> {
-                bot.extensionLift.waitForPosition();
-
-                LOCK_LIFT = false;
-            }, 10);
-
-            LOCK_ARM = false;
-        }, 10);
-    }
-
-    void applyBrakes(DcMotor wheel) {
-        wheel.setPower(0);
-        wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
-
-    void releaseBrakes(DcMotor wheel) {
-        wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-    }
-
-    void applyBrakesBasedOnInput(float input, DcMotor motor) {
-        if (input > 0.3) applyBrakes(motor);
-        else releaseBrakes(motor);
     }
 
     /* END MACROS */
 
     protected void internalRun() {
+        int counter = 0;
+
         KeybindPattern.GamepadBinder x = keybinder.bind("x");
 
         x.of(gamepad1).to(() -> showExtraInfo = !showExtraInfo);
@@ -280,24 +203,11 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             bot.arm.maxPos = bot.ARM_HANG_MAX_TICKS;
         });
 
-        keybinder.bind("y").of(gamepad2).to(() -> USER_LOCK_ARM = !USER_LOCK_ARM);
+        keybinder.bind("y").of(gamepad2).to(() -> LOCK_ARM = !LOCK_ARM);
 
         keybinder.bind("left_stick_button").of(gamepad2).to(this::macroArmXXXToggle);
         keybinder.bind("right_stick_button").of(gamepad2).to(this::macroLiftFullXXXToggle);
         keybinder.bind("a").of(gamepad2).to(this::macroHangSpecimen);
-
-        keybinder.bind("right_bumper").of(gamepad2).to(this::macroFrog);
-        keybinder.bind("left_bumper").of(gamepad2).to(this::macroPrepareForReverseDrop);
-
-        keybinder.bind("left_trigger").of(gamepad1).to((inp) -> {
-            applyBrakesBasedOnInput(inp, bot.leftFront);
-            applyBrakesBasedOnInput(inp, bot.leftBack);
-        });
-
-        keybinder.bind("right_trigger").of(gamepad1).to((inp) -> {
-            applyBrakesBasedOnInput(inp, bot.rightFront);
-            applyBrakesBasedOnInput(inp, bot.rightBack);
-        });
 
         long keyBinderLastMs = System.currentTimeMillis();
 
@@ -308,20 +218,24 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();
 
-            if (LOCK_ARM && !bot.arm.isBusy()) onArmResolved.run(); // arm-based macro resolver
-            if (LOCK_LIFT && !bot.extensionLift.isBusy()) onLiftResolved.run(); // lift-based macro resolver
-
-            if (!(LOCK_ARM || USER_LOCK_ARM)) moveArm();
+            if (!LOCK_ARM) moveArm();
             limitLiftExtension();
-            if (!LOCK_LIFT) moveLift();
+            moveLift();
             moveClawRotate();
             moveActuator();
             if (!LOCK_INTAKES) moveSpinningIntake();
 
-            if (keyBinderDelta > 150) {
+            if (keyBinderDelta > 100) {
                 keybinder.executeActions();
                 keyBinderLastMs = System.currentTimeMillis();
             }
+
+            SimpleDegreePose otosPos = bot.otos.getPosition();
+
+            telemetry.addData(
+                    "otos", "x (%.4f) y (%.4f) heading (%.2f)",
+                    otosPos.x, otosPos.y, otosPos.h
+            );
 
             telemetry.addData(
                     "claw rotate", "pos (%.2f)",
@@ -345,11 +259,9 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             );
 
             telemetry.addData(
-                    "arm", "pos (%d), target (%d), power (%.2f) max pos (%d) approx. alpha (%.3f deg) max alpha (%.3f deg)"+(LOCK_ARM ? " locked" : ""),
+                    "arm", "pos (%d), target (%d), power (%.2f) max pos (%d)"+(LOCK_ARM ? " locked" : ""),
                     bot.arm.getPosition(), bot.arm.getTargetPosition(),
-                    bot.arm.getPower(), bot.arm.maxPos,
-                    bot.ARM_MAX_ROTATION_DEG*bot.arm.getPosition()/bot.arm.maxPos, // approx. alpha
-                    bot.ARM_MAX_ROTATION_DEG // max alpha
+                    bot.arm.getPower(), bot.arm.maxPos
             );
 
             telemetry.addData(

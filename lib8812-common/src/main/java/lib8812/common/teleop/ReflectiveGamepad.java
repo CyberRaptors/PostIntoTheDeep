@@ -12,7 +12,7 @@ public class ReflectiveGamepad {
             this.key = key;
         }
 
-        public MapExtender to(Function<Double, Integer> action) {
+        public MapExtender to(Function<Float, Integer> action) {
             action.apply(getValue(key));
 
             return new MapExtender();
@@ -121,7 +121,7 @@ public class ReflectiveGamepad {
         throw new IllegalArgumentException(name);
     }
 
-    public double getValue(String name) {
+    public float getValue(String name) {
         switch (name) {
             case "dpad_up":
                 return inner.dpad_up ? 1 : 0;

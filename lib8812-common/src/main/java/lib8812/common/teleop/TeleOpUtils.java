@@ -1,11 +1,17 @@
 package lib8812.common.teleop;
 
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class TeleOpUtils {
     public static final double DEFAULT_FINE_TUNE_THRESH = 0.2;
+
+    final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
 
     public static boolean isBetweenInclusive(double val, double low, double high)
     {
@@ -23,16 +29,7 @@ public class TeleOpUtils {
 
     public static double fineTuneInput(double input) { return fineTuneInput(input, DEFAULT_FINE_TUNE_THRESH); }
 
-    public static CompletableFuture<Integer> setTimeout(Runnable runnable, int delay) {
-        return CompletableFuture.supplyAsync(() -> {
-            try { TimeUnit.MILLISECONDS.sleep(delay); }
-            catch (InterruptedException e) {
-                throw new IllegalStateException(e);
-            }
-
-            runnable.run();
-
-            return 0;
-        });
+    public static void setTimeout(Runnable runnable, long delay) {
+        scheduler.schedule(runnable, delay, TimeUnit.MILLISECONDS);
     }
 }

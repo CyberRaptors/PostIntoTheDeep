@@ -4,9 +4,12 @@ import java.util.HashMap;
 import java.util.function.Function;
 
 public class KeybindPattern {
-    @FunctionalInterface
     interface BindingFunction<TBindFunctionType> {
         void apply(String key, TBindFunctionType action);
+    }
+
+    public interface ValueBoundFunction {
+        void apply(float inp);
     }
 
     public class GamepadBinder {
@@ -27,9 +30,9 @@ public class KeybindPattern {
     public static class FunctionBinder {
         String key;
         BindingFunction<Runnable> registerPress;
-        BindingFunction<Function<Double, Void>> registerValue;
+        BindingFunction<ValueBoundFunction> registerValue;
 
-        FunctionBinder(String key, BindingFunction<Runnable> registerPress, BindingFunction<Function<Double, Void>> registerValue) {
+        FunctionBinder(String key, BindingFunction<Runnable> registerPress, BindingFunction<ValueBoundFunction> registerValue) {
             this.registerPress = registerPress;
             this.registerValue = registerValue;
             this.key = key;
@@ -39,7 +42,7 @@ public class KeybindPattern {
             registerPress.apply(key, action);
         }
 
-        public void to(Function<Double, Void> action) {
+        public void to(ValueBoundFunction action) {
             registerValue.apply(key, action);
         }
     }
@@ -47,10 +50,10 @@ public class KeybindPattern {
     ReflectiveGamepad gamepad1, gamepad2;
 
     HashMap<String, Runnable> onePressBinds = new HashMap<>();
-    HashMap<String, Function<Double, Void>> oneValueBinds = new HashMap<>();
+    HashMap<String, ValueBoundFunction> oneValueBinds = new HashMap<>();
 
     HashMap<String, Runnable> twoPressBinds = new HashMap<>();
-    HashMap<String, Function<Double, Void>> twoValueBinds = new HashMap<>();
+    HashMap<String, ValueBoundFunction> twoValueBinds = new HashMap<>();
 
     public KeybindPattern(ReflectiveGamepad gamepad1, ReflectiveGamepad gamepad2) {
         this.gamepad1 = gamepad1;
@@ -65,7 +68,7 @@ public class KeybindPattern {
         onePressBinds.put(key, action);
     }
 
-    public void registerOnGamepad1(String key, Function<Double, Void> action) {
+    public void registerOnGamepad1(String key, ValueBoundFunction action) {
         oneValueBinds.put(key, action);
     }
 
@@ -73,7 +76,7 @@ public class KeybindPattern {
         twoPressBinds.put(key, action);
     }
 
-    public void registerOnGamepad2(String key, Function<Double, Void> action) {
+    public void registerOnGamepad2(String key, ValueBoundFunction action) {
         twoValueBinds.put(key, action);
     }
 
