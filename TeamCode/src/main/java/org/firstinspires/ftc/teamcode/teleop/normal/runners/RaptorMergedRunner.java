@@ -86,8 +86,8 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         bot.clawRotate.setPosition(
                 Math.min(
                         Math.max(
-                            bot.clawRotate.getPosition()+change, bot.CLAW_ROTATE_MIN_POS
-                    ), bot.CLAW_ROTATE_MAX_POS
+                                bot.clawRotate.getPosition()+change, bot.CLAW_ROTATE_MIN_POS
+                        ), bot.CLAW_ROTATE_MAX_POS
                 )
         );
     }
@@ -104,14 +104,43 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
         bot.extensionLift.maxPos = Math.min(
                 (int) Math.floor(
-                    (
-                            (25/Math.abs(Math.cos(theta)))-14
-                    )*bot.LIFT_TICKS_PER_INCHES
+                        (
+                                (25/Math.abs(Math.cos(theta)))-14
+                        )*bot.LIFT_TICKS_PER_INCHES
                 ), bot.LIFT_MAX_TICKS
         );
     }
 
     /* MACROS */
+
+    // TODO: make below synchronous
+//    void macroSpecimenClutch(Runnable cancellationDelegate) {
+//        if (LOCK_INTAKES) return;
+//
+//        LOCK_INTAKES = true;
+//        bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
+//        bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
+//
+//        cancellationDelegate.run();
+//    }
+//
+//    void macroHangSpecimen() {
+//        if (LOCK_ARM) return;
+//
+//        LOCK_ARM = true;
+//
+//        bot.arm.setPosition(bot.arm.getPosition()+100);
+//
+//        macroSpecimenClutch(() -> {
+//            TeleOpUtils.setTimeout(() -> {
+//                bot.intakeSmall.setPower(0);
+//                bot.intakeLarge.setPower(0);
+//
+//                LOCK_INTAKES = false;
+//                LOCK_ARM = false;
+//            }, 750); // 0.75 ms
+//        });
+//    }
 
     void macroArmOut() {
         bot.arm.setPosition(bot.arm.maxPos);
@@ -121,61 +150,15 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         bot.arm.setPosition(bot.arm.minPos);
     }
 
-    void macroSpecimenClutch(Runnable cancellationDelegate) {
-        if (LOCK_INTAKES) return;
-
-        LOCK_INTAKES = true;
-        bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
-        bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
-
-        cancellationDelegate.run();
-    }
-
-    void macroHangSpecimen() {
-        if (LOCK_ARM) return;
-
-        LOCK_ARM = true;
-
-        bot.arm.setPosition(bot.arm.getPosition()+100);
-
-        macroSpecimenClutch(() -> {
-            TeleOpUtils.setTimeout(() -> {
-                bot.intakeSmall.setPower(0);
-                bot.intakeLarge.setPower(0);
-
-                LOCK_INTAKES = false;
-                LOCK_ARM = false;
-            }, 750); // 0.75 ms
-        });
-    }
-
-    void macroBasketDropTop(int numInchingCycles) {
-        if (numInchingCycles == 0) return;
-
-        if (LOCK_INTAKES) return;
-
-        LOCK_INTAKES = true;
-
-        bot.intakeSmall.setPower(bot.INTAKE_SMALL_OUT_DIRECTION*0.2);
-        bot.intakeLarge.setPower(bot.INTAKE_LARGE_OUT_DIRECTION*0.2);
-
-        TeleOpUtils.setTimeout(() -> {
-            bot.intakeSmall.setPower(0);
-            bot.intakeLarge.setPower(0);
-
-            LOCK_INTAKES = false;
-
-            macroBasketDropTop(numInchingCycles-1);
-        }, 500);
-    }
-
-    void macroBasketDropTop() { macroBasketDropTop(2); }
-
     void macroLiftFullExtension() { bot.extensionLift.setPosition(bot.extensionLift.maxPos); }
 
     void macroLiftFullRetract() { bot.extensionLift.setPosition(bot.extensionLift.minPos); }
 
     void macroLiftFullXXXToggle() {
+        if (LOCK_LIFT) return;
+
+        LOCK_LIFT = true;
+
         if (bot.extensionLift.getPosition() < 100) {
             macroLiftFullExtension();
             return;
@@ -183,10 +166,11 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
         macroLiftFullRetract();
 
+        onLiftResolved = () -> LOCK_LIFT = false;
     }
 
     void macroArmXXXToggle() {
-        if (LOCK_ARM) return;
+        if (LOCK_ARM || USER_LOCK_ARM) return;
 
         LOCK_ARM = true;
 
@@ -199,7 +183,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     }
 
     void macroFrog() {
-        if (LOCK_ARM || LOCK_LIFT || LOCK_INTAKES) return;
+        if (LOCK_ARM || LOCK_LIFT || LOCK_INTAKES || USER_LOCK_ARM) return;
 
         LOCK_ARM = true;
         LOCK_LIFT = true;
@@ -207,51 +191,47 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
         bot.arm.setPosition(FROG_MACRO_ARM_POS);
 
-        TeleOpUtils.setTimeout(() -> {
-            bot.arm.waitForPosition();
 
+
+        onArmResolved = () -> {
             bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
             bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
 
             bot.extensionLift.setPosition(bot.extensionLift.maxPos);
-            bot.extensionLift.waitForPosition();
 
-            TeleOpUtils.setTimeout(() -> {
+            onLiftResolved = () -> {
+                sleep(100); // technically this breaks the synchronous promise but it is kept here for now because it is a small delay
+
                 bot.extensionLift.setPosition(bot.extensionLift.minPos);
 
-                bot.extensionLift.waitForPosition();
+                onLiftResolved = () -> {
+                    bot.intakeLarge.setPower(0);
+                    bot.intakeSmall.setPower(0);
 
-                bot.intakeLarge.setPower(0);
-                bot.intakeSmall.setPower(0);
-
-                LOCK_LIFT = false;
-                LOCK_INTAKES = false;
-            }, 100);
+                    LOCK_LIFT = false;
+                    LOCK_INTAKES = false;
+                };
+            };
 
             LOCK_ARM = false;
-        }, 10);
+        };
     }
 
     void macroPrepareForReverseDrop() {
-        if (LOCK_ARM || LOCK_LIFT) return;
+        if (LOCK_ARM || LOCK_LIFT || USER_LOCK_ARM) return;
 
         LOCK_ARM = true;
         LOCK_LIFT = true;
 
         bot.arm.setPosition(REVERSE_DROP_MACRO_ARM_POS);
 
-        TeleOpUtils.setTimeout(() -> {
-            bot.arm.waitForPosition();
+        onArmResolved =  () -> {
             bot.extensionLift.setPosition(REVERSE_DROP_MACRO_LIFT_POS);
 
-            TeleOpUtils.setTimeout(() -> {
-                bot.extensionLift.waitForPosition();
-
-                LOCK_LIFT = false;
-            }, 10);
+            onLiftResolved = () -> LOCK_LIFT = false;
 
             LOCK_ARM = false;
-        }, 10);
+        };
     }
 
     void applyBrakes(DcMotor wheel) {
@@ -284,7 +264,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
         keybinder.bind("left_stick_button").of(gamepad2).to(this::macroArmXXXToggle);
         keybinder.bind("right_stick_button").of(gamepad2).to(this::macroLiftFullXXXToggle);
-        keybinder.bind("a").of(gamepad2).to(this::macroHangSpecimen);
+//        keybinder.bind("a").of(gamepad2).to(this::macroHangSpecimen);
 
         keybinder.bind("right_bumper").of(gamepad2).to(this::macroFrog);
         keybinder.bind("left_bumper").of(gamepad2).to(this::macroPrepareForReverseDrop);
@@ -389,8 +369,6 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             }
 
             telemetry.update();
-
-            counter++;
         }
     }
 }
