@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
     IDriveableRobot bot;
-    ElapsedTime runtime = new ElapsedTime();
+    final ElapsedTime runtime = new ElapsedTime();
     protected LinearOpMode opMode;
     protected IObjectDetector<TLabelEnum> objectDetector;
 

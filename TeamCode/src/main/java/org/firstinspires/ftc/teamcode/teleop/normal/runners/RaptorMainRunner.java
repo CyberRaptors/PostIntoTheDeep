@@ -8,7 +8,7 @@ import lib8812.common.teleop.ITeleOpRunner;
 import lib8812.common.teleop.TeleOpUtils;
 
 public class RaptorMainRunner extends ITeleOpRunner {
-    RaptorRobot bot = new RaptorRobot();
+    final RaptorRobot bot = new RaptorRobot();
     private final WheelPowers wheelWeights = new WheelPowers(1, 1, 1, 1);
     boolean showExtraInfo = false;
 

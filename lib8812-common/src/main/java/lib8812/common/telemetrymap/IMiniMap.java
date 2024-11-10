@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 public abstract class IMiniMap<TFieldComponentEnum> {
     protected TFieldComponentEnum[][] map;
-    protected LinearOpMode opMode;
+    protected final LinearOpMode opMode;
 
     public IMiniMap(LinearOpMode opMode) {
         this.opMode = opMode;

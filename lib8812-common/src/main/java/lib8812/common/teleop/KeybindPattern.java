@@ -1,7 +1,7 @@
 package lib8812.common.teleop;
 
 import java.util.HashMap;
-import java.util.function.Function;
+import java.util.Map;
 
 public class KeybindPattern {
     interface BindingFunction<TBindFunctionType> {
@@ -13,7 +13,7 @@ public class KeybindPattern {
     }
 
     public class GamepadBinder {
-        String key;
+        final String key;
         
         GamepadBinder(String key) {
             this.key = key;
@@ -28,9 +28,9 @@ public class KeybindPattern {
     }
 
     public static class FunctionBinder {
-        String key;
-        BindingFunction<Runnable> registerPress;
-        BindingFunction<ValueBoundFunction> registerValue;
+        final String key;
+        final BindingFunction<Runnable> registerPress;
+        final BindingFunction<ValueBoundFunction> registerValue;
 
         FunctionBinder(String key, BindingFunction<Runnable> registerPress, BindingFunction<ValueBoundFunction> registerValue) {
             this.registerPress = registerPress;
@@ -47,13 +47,14 @@ public class KeybindPattern {
         }
     }
     
-    ReflectiveGamepad gamepad1, gamepad2;
+    final ReflectiveGamepad gamepad1;
+	final ReflectiveGamepad gamepad2;
 
-    HashMap<String, Runnable> onePressBinds = new HashMap<>();
-    HashMap<String, ValueBoundFunction> oneValueBinds = new HashMap<>();
+    final HashMap<String, Runnable> onePressBinds = new HashMap<>();
+    final HashMap<String, ValueBoundFunction> oneValueBinds = new HashMap<>();
 
-    HashMap<String, Runnable> twoPressBinds = new HashMap<>();
-    HashMap<String, ValueBoundFunction> twoValueBinds = new HashMap<>();
+    final HashMap<String, Runnable> twoPressBinds = new HashMap<>();
+    final HashMap<String, ValueBoundFunction> twoValueBinds = new HashMap<>();
 
     public KeybindPattern(ReflectiveGamepad gamepad1, ReflectiveGamepad gamepad2) {
         this.gamepad1 = gamepad1;
@@ -81,25 +82,25 @@ public class KeybindPattern {
     }
 
     public void executeActions() {
-        for (String key : onePressBinds.keySet()) {
-            if (gamepad1.getPressed(key)) {
-                onePressBinds.get(key).run();
+        for (Map.Entry<String, Runnable> entry : onePressBinds.entrySet()) {
+            if (gamepad1.getPressed(entry.getKey())) {
+                entry.getValue().run();
             }
         }
 
-        for (String key : oneValueBinds.keySet()) {
-            oneValueBinds.get(key).apply(gamepad1.getValue(key));
+        for (Map.Entry<String, ValueBoundFunction> entry : oneValueBinds.entrySet()) {
+            entry.getValue().apply(gamepad1.getValue(entry.getKey()));
         }
 
 
-        for (String key : twoPressBinds.keySet()) {
-            if (gamepad2.getPressed(key)) {
-                twoPressBinds.get(key).run();
+        for (Map.Entry<String, Runnable> entry : twoPressBinds.entrySet()) {
+            if (gamepad2.getPressed(entry.getKey())) {
+                entry.getValue().run();
             }
         }
 
-        for (String key : twoValueBinds.keySet()) {
-            twoValueBinds.get(key).apply(gamepad2.getValue(key));
+        for (Map.Entry<String, ValueBoundFunction> entry : twoValueBinds.entrySet()) {
+            entry.getValue().apply(gamepad2.getValue(entry.getKey()));
         }
     }
 }

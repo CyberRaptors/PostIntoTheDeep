@@ -10,7 +10,7 @@ import lib8812.common.robot.IDriveableRobot;
 
 public abstract class ITeleOpRunner {
     public LinearOpMode opMode;
-    public ElapsedTime runtime = new ElapsedTime();
+    public final ElapsedTime runtime = new ElapsedTime();
 
     // synonyms
     protected ReflectiveGamepad gamepad1;

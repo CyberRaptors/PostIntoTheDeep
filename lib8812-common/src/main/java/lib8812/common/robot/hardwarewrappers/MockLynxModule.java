@@ -4,9 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.lynx.LynxModuleIntf;
 import com.qualcomm.hardware.lynx.LynxNackException;
-import com.qualcomm.hardware.lynx.LynxUnsupportedCommandException;
 import com.qualcomm.hardware.lynx.LynxUsbDevice;
 import com.qualcomm.hardware.lynx.LynxUsbDeviceImpl;
 import com.qualcomm.hardware.lynx.Supplier;
@@ -25,7 +23,6 @@ import org.firstinspires.ftc.robotcore.internal.network.RobotCoreCommandList;
 import org.firstinspires.ftc.robotcore.internal.ui.ProgressParameters;
 
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class MockLynxModule extends LynxModule
 {
@@ -60,7 +57,7 @@ public class MockLynxModule extends LynxModule
 					}
 
 					@Override
-					public LynxModule getOrAddModule(LynxModuleDescription moduleDescription) throws RobotCoreException, InterruptedException {
+					public LynxModule getOrAddModule(LynxModuleDescription moduleDescription) {
 						return null;
 					}
 
@@ -75,42 +72,42 @@ public class MockLynxModule extends LynxModule
 					}
 
 					@Override
-					public void performSystemOperationOnParentModule(int parentAddress, @Nullable Consumer<LynxModule> operation, int timeout, TimeUnit timeoutUnit) throws RobotCoreException, InterruptedException, TimeoutException {
+					public void performSystemOperationOnParentModule(int parentAddress, @Nullable Consumer<LynxModule> operation, int timeout, TimeUnit timeoutUnit) {
 
 					}
 
 					@Override
-					public void performSystemOperationOnConnectedModule(int moduleAddress, int parentAddress, @Nullable Consumer<LynxModule> operation, int timeout, TimeUnit timeoutUnit) throws RobotCoreException, InterruptedException, TimeoutException {
+					public void performSystemOperationOnConnectedModule(int moduleAddress, int parentAddress, @Nullable Consumer<LynxModule> operation, int timeout, TimeUnit timeoutUnit) {
 
 					}
 
 					@Override
-					public SystemOperationHandle keepConnectedModuleAliveForSystemOperations(int moduleAddress, int parentAddress) throws RobotCoreException, InterruptedException {
+					public SystemOperationHandle keepConnectedModuleAliveForSystemOperations(int moduleAddress, int parentAddress) {
 						return null;
 					}
 
 					@Override
-					public LynxModuleMetaList discoverModules(boolean checkForImus) throws RobotCoreException, InterruptedException {
+					public LynxModuleMetaList discoverModules(boolean checkForImus) {
 						return null;
 					}
 
 					@Override
-					public void acquireNetworkTransmissionLock(@NonNull LynxMessage message) throws InterruptedException {
+					public void acquireNetworkTransmissionLock(@NonNull LynxMessage message) {
 
 					}
 
 					@Override
-					public void releaseNetworkTransmissionLock(@NonNull LynxMessage message) throws InterruptedException {
+					public void releaseNetworkTransmissionLock(@NonNull LynxMessage message) {
 
 					}
 
 					@Override
-					public void transmit(LynxMessage message) throws InterruptedException {
+					public void transmit(LynxMessage message) {
 
 					}
 
 					@Override
-					public boolean setupControlHubEmbeddedModule() throws InterruptedException, RobotCoreException {
+					public boolean setupControlHubEmbeddedModule() {
 						return false;
 					}
 
@@ -190,22 +187,22 @@ public class MockLynxModule extends LynxModule
 					}
 
 					@Override
-					public void arm() throws RobotCoreException, InterruptedException {
+					public void arm() {
 
 					}
 
 					@Override
-					public void pretend() throws RobotCoreException, InterruptedException {
+					public void pretend() {
 
 					}
 
 					@Override
-					public void armOrPretend() throws RobotCoreException, InterruptedException {
+					public void armOrPretend() {
 
 					}
 
 					@Override
-					public void disarm() throws RobotCoreException, InterruptedException {
+					public void disarm() {
 
 					}
 
@@ -234,7 +231,7 @@ public class MockLynxModule extends LynxModule
 
 					}
 
-					@Nullable
+					@NonNull
 					@Override
 					public String getGlobalWarning() {
 						return "";
@@ -266,11 +263,6 @@ public class MockLynxModule extends LynxModule
 
 	boolean isEngaged = true;
 
-	@Override public Manufacturer getManufacturer()
-	{
-		return Manufacturer.Lynx;
-	}
-
 	@Override
 	public String getFirmwareVersionString()
 	{
@@ -296,12 +288,6 @@ public class MockLynxModule extends LynxModule
 	}
 
 	@Override
-	public int getVersion()
-	{
-		return 1;
-	}
-
-	@Override
 	public void resetDeviceConfigurationForOpMode()
 	{
 	}
@@ -323,26 +309,22 @@ public class MockLynxModule extends LynxModule
 	}
 
 	@Override
-	public void acquireNetworkTransmissionLock(LynxMessage message) throws InterruptedException
-	{
+	public void acquireNetworkTransmissionLock(@NonNull LynxMessage message) {
 		// do nothing
 	}
 
 	@Override
-	public void releaseNetworkTransmissionLock(LynxMessage message) throws InterruptedException
-	{
+	public void releaseNetworkTransmissionLock(@NonNull LynxMessage message) {
 		// do nothing
 	}
 
 	@Override
-	public void sendCommand(LynxMessage command) throws InterruptedException, LynxUnsupportedCommandException
-	{
+	public void sendCommand(LynxMessage command) {
 		// do nothing
 	}
 
 	@Override
-	public void retransmit(LynxMessage message) throws InterruptedException
-	{
+	public void retransmit(LynxMessage message) {
 		// do nothing
 	}
 
@@ -382,8 +364,7 @@ public class MockLynxModule extends LynxModule
 	}
 
 	@Override
-	public void validateCommand(LynxMessage lynxMessage) throws LynxUnsupportedCommandException
-	{
+	public void validateCommand(LynxMessage lynxMessage) {
 	}
 
 	@Override public boolean isCommandSupported(Class<? extends LynxCommand> command)
