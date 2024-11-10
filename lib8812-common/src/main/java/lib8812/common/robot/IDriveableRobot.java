@@ -7,6 +7,7 @@ import lib8812.common.robot.hardwarewrappers.VirtualCRServo;
 import lib8812.common.robot.hardwarewrappers.VirtualMotor;
 import lib8812.common.robot.hardwarewrappers.VirtualServo;
 
+/** @noinspection unchecked*/
 public abstract class IDriveableRobot {
     public DcMotor rightFront;
     public DcMotor leftFront;

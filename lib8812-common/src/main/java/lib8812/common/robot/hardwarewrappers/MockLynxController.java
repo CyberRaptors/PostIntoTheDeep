@@ -1,7 +1,5 @@
 package lib8812.common.robot.hardwarewrappers;
 
-import android.content.Context;
-
 import com.qualcomm.hardware.lynx.LynxDcMotorController;
 import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.util.SerialNumber;

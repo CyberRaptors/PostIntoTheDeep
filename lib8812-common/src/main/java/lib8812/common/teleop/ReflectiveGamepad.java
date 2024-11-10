@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 public class ReflectiveGamepad {
     public class Mapper {
-        String key;
+        final String key;
 
         Mapper(String key) {
             this.key = key;
@@ -28,7 +28,7 @@ public class ReflectiveGamepad {
     }
 
     public class BooleanMapper {
-        boolean condition;
+        final boolean condition;
 
         BooleanMapper(boolean condition) {
             this.condition = condition;
@@ -55,7 +55,7 @@ public class ReflectiveGamepad {
         }
     }
 
-    public String[] commonKeyList = {
+    public final String[] commonKeyList = {
             "dpad_up", "dpad_down", "dpad_left", "dpad_right",
             "right_bumper", "left_bumper", "right_trigger", "left_trigger",
             "right_stick_button", "left_stick_button",
@@ -63,7 +63,7 @@ public class ReflectiveGamepad {
             "x", "y", "a", "b"
     };
 
-    public Gamepad inner;
+    public final Gamepad inner;
 
     public ReflectiveGamepad(Gamepad inner) {
         this.inner = inner;

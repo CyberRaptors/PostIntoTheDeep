@@ -199,9 +199,7 @@ public class MergedLocalizationTestRunner extends ITeleOpRunner {
         x.of(gamepad1).to(() -> showExtraInfo = !showExtraInfo);
 
         // hang bind release
-        x.of(gamepad2).to(() -> {
-            bot.arm.maxPos = bot.ARM_HANG_MAX_TICKS;
-        });
+        x.of(gamepad2).to(() -> bot.arm.maxPos = bot.ARM_HANG_MAX_TICKS);
 
         keybinder.bind("y").of(gamepad2).to(() -> LOCK_ARM = !LOCK_ARM);
 

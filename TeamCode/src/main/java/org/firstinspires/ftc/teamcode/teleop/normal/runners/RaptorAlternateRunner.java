@@ -10,7 +10,7 @@ import lib8812.common.teleop.KeybindPattern;
 import lib8812.common.teleop.TeleOpUtils;
 
 public class RaptorAlternateRunner extends ITeleOpRunner {
-    AlternateRaptorRobot bot = new AlternateRaptorRobot();
+    final AlternateRaptorRobot bot = new AlternateRaptorRobot();
     private final WheelPowers wheelWeights = new WheelPowers(1, 1, 1, 1);
     boolean showExtraInfo = false;
 

@@ -7,8 +7,8 @@ import lib8812.common.robot.IDriveableRobot;
 import lib8812.common.teleop.ITeleOpRunner;
 
 public class BlueRightParkOnlyRunner extends ITeleOpRunner {
-	MergedRaptorRobot bot = new MergedRaptorRobot();
-	OdomlessUtil util = new OdomlessUtil(bot, this::sleep);
+	final MergedRaptorRobot bot = new MergedRaptorRobot();
+	final OdomlessUtil util = new OdomlessUtil(bot, this::sleep);
 
 	@Override
 	protected IDriveableRobot getBot() {
@@ -17,6 +17,7 @@ public class BlueRightParkOnlyRunner extends ITeleOpRunner {
 
 	@Override
 	protected void internalRun() {
+		util.init();
 		util.moveSync(500, -0.25);
 		util.strafeSync(750, -1);
 	}

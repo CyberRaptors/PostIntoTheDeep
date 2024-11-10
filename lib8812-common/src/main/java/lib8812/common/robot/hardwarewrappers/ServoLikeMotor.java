@@ -12,8 +12,8 @@ import java.util.concurrent.TimeUnit;
 public class ServoLikeMotor implements DcMotor, ICustomHardwareDevice {
     int targetPosition = 0;
     CompletableFuture<Boolean> currentAntiStressWatcher;
-    DcMotorEx inner;
-    public int minPos;
+    final DcMotorEx inner;
+    public final int minPos;
     public int maxPos;
     public boolean antiStressAutomatic = false;
 
@@ -130,6 +130,8 @@ public class ServoLikeMotor implements DcMotor, ICustomHardwareDevice {
 
         return false;
     }
+
+    public int getInternalTargetPosition() { return targetPosition; }
 
     @Override
     public MotorConfigurationType getMotorType() {

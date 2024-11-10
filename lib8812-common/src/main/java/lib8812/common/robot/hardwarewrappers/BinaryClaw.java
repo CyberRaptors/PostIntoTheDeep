@@ -3,7 +3,7 @@ package lib8812.common.robot.hardwarewrappers;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class BinaryClaw implements ICustomHardwareDevice {
-    public LabeledPositionServo inner;
+    public final LabeledPositionServo inner;
 
     public boolean isVirtualDevice() { return false; }
 

@@ -12,7 +12,7 @@ import lib8812.common.teleop.KeybindPattern;
 import lib8812.common.teleop.TeleOpUtils;
 
 public class RaptorMergedRunner extends ITeleOpRunner {
-    MergedRaptorRobot bot = new MergedRaptorRobot();
+    final MergedRaptorRobot bot = new MergedRaptorRobot();
     private final WheelPowers wheelWeights = new WheelPowers(1, 1, 1, 1);
     boolean showExtraInfo = false;
 
@@ -26,8 +26,10 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     final static int REVERSE_DROP_MACRO_ARM_POS = 1562;
     final static int REVERSE_DROP_MACRO_LIFT_POS = 1585;
 
-    Runnable onArmResolved = () -> {};
-    Runnable onLiftResolved = () -> {};
+    final static Runnable defaultResolver = () -> {};
+
+    Runnable onArmResolved = defaultResolver;
+    Runnable onLiftResolved = defaultResolver;
 
     protected IDriveableRobot getBot() { return bot; }
 
@@ -109,6 +111,22 @@ public class RaptorMergedRunner extends ITeleOpRunner {
                         )*bot.LIFT_TICKS_PER_INCHES
                 ), bot.LIFT_MAX_TICKS
         );
+
+        bot.extensionLift.setPosition(bot.extensionLift.getInternalTargetPosition());
+    }
+
+    void applyBrakes(DcMotor wheel) {
+        wheel.setPower(0);
+        wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    void releaseBrakes(DcMotor wheel) {
+        wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    void applyBrakesBasedOnInput(float input, DcMotor motor) {
+        if (input > 0.3) applyBrakes(motor);
+        else releaseBrakes(motor);
     }
 
     /* MACROS */
@@ -161,10 +179,9 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
         if (bot.extensionLift.getPosition() < 100) {
             macroLiftFullExtension();
-            return;
+        } else {
+            macroLiftFullRetract();
         }
-
-        macroLiftFullRetract();
 
         onLiftResolved = () -> LOCK_LIFT = false;
     }
@@ -177,7 +194,9 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         if (bot.arm.getPosition() < 500) {
             macroArmOut();
         }
-        else macroArmIn();
+        else {
+            macroArmIn();
+        }
 
         onArmResolved = () -> LOCK_ARM = false;
     }
@@ -191,18 +210,18 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
         bot.arm.setPosition(FROG_MACRO_ARM_POS);
 
-
-
         onArmResolved = () -> {
             bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
             bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
 
-            bot.extensionLift.setPosition(bot.extensionLift.maxPos);
+            bot.extensionLift.setPosition(bot.extensionLift.maxPos-100); // be safe to not violate the extension limit (since lift limiting is not enabled during locking)
+
+            LOCK_ARM = false;
 
             onLiftResolved = () -> {
-                sleep(100); // technically this breaks the synchronous promise but it is kept here for now because it is a small delay
+//                sleep(100); // technically this breaks the synchronous promise but it is kept here for now because it is a small delay
 
-                bot.extensionLift.setPosition(bot.extensionLift.minPos);
+                bot.extensionLift.setPosition(bot.extensionLift.minPos+50); // maybe we do 0+50 position to reduce risk of causing a macro deadlock
 
                 onLiftResolved = () -> {
                     bot.intakeLarge.setPower(0);
@@ -212,8 +231,6 @@ public class RaptorMergedRunner extends ITeleOpRunner {
                     LOCK_INTAKES = false;
                 };
             };
-
-            LOCK_ARM = false;
         };
     }
 
@@ -226,26 +243,20 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         bot.arm.setPosition(REVERSE_DROP_MACRO_ARM_POS);
 
         onArmResolved =  () -> {
+            LOCK_ARM = false;
             bot.extensionLift.setPosition(REVERSE_DROP_MACRO_LIFT_POS);
 
             onLiftResolved = () -> LOCK_LIFT = false;
-
-            LOCK_ARM = false;
         };
     }
 
-    void applyBrakes(DcMotor wheel) {
-        wheel.setPower(0);
-        wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
 
-    void releaseBrakes(DcMotor wheel) {
-        wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-    }
 
-    void applyBrakesBasedOnInput(float input, DcMotor motor) {
-        if (input > 0.3) applyBrakes(motor);
-        else releaseBrakes(motor);
+    // macro utility
+    void tryClearResolvers() {
+        if (!LOCK_ARM) onArmResolved = defaultResolver;
+
+        if (!LOCK_LIFT) onLiftResolved = defaultResolver;
     }
 
     /* END MACROS */
@@ -256,9 +267,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         x.of(gamepad1).to(() -> showExtraInfo = !showExtraInfo);
 
         // hang bind release
-        x.of(gamepad2).to(() -> {
-            bot.arm.maxPos = bot.ARM_HANG_MAX_TICKS;
-        });
+        x.of(gamepad2).to(() -> bot.arm.maxPos = bot.ARM_HANG_MAX_TICKS);
 
         keybinder.bind("y").of(gamepad2).to(() -> USER_LOCK_ARM = !USER_LOCK_ARM);
 
@@ -288,8 +297,11 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();
 
+            tryClearResolvers();
+
             if (LOCK_ARM && !bot.arm.isBusy()) onArmResolved.run(); // arm-based macro resolver
             if (LOCK_LIFT && !bot.extensionLift.isBusy()) onLiftResolved.run(); // lift-based macro resolver
+
 
             if (!(LOCK_ARM || USER_LOCK_ARM)) moveArm();
             limitLiftExtension();
@@ -309,27 +321,31 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             );
 
             telemetry.addData(
-                    "intake (small)", "power (%.2f)"+(LOCK_INTAKES ? " locked" : ""),
-                    bot.intakeSmall.getPower()
+                    "intake (small)", "power (%.2f)%s",
+                    bot.intakeSmall.getPower(),
+                    (LOCK_INTAKES ? " locked" : "")
             );
 
             telemetry.addData(
-                    "intake (large)", "power (%.2f)"+(LOCK_INTAKES ? " locked" : ""),
-                    bot.intakeLarge.getPower()
+                    "intake (large)", "power (%.2f)%s",
+                    bot.intakeLarge.getPower(),
+                    (LOCK_INTAKES ? " locked" : "")
             );
 
             telemetry.addData(
-                    "extension lift", "pos (%d), target (%d) power (%.2f) max pos (%d)",
+                    "extension lift", "pos (%d), target (%d) power (%.2f) max pos (%d)%s",
                     bot.extensionLift.getPosition(), bot.extensionLift.getTargetPosition(),
-                    bot.extensionLift.getPower(), bot.extensionLift.maxPos
+                    bot.extensionLift.getPower(), bot.extensionLift.maxPos,
+                    (LOCK_LIFT ? " locked" : "")
             );
 
             telemetry.addData(
-                    "arm", "pos (%d), target (%d), power (%.2f) max pos (%d) approx. alpha (%.3f deg) max alpha (%.3f deg)"+(LOCK_ARM ? " locked" : ""),
+                    "arm", "pos (%d), target (%d), power (%.2f) max pos (%d) approx. alpha (%.3f deg) max alpha (%.3f deg)%s",
                     bot.arm.getPosition(), bot.arm.getTargetPosition(),
                     bot.arm.getPower(), bot.arm.maxPos,
                     bot.ARM_MAX_ROTATION_DEG*bot.arm.getPosition()/bot.arm.maxPos, // approx. alpha
-                    bot.ARM_MAX_ROTATION_DEG // max alpha
+                    bot.ARM_MAX_ROTATION_DEG, // max alpha
+                    (LOCK_ARM || USER_LOCK_ARM ? " locked" : "")
             );
 
             telemetry.addData(

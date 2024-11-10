@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class LabeledPositionServo implements Servo, ICustomHardwareDevice {
-    Servo inner;
+    final Servo inner;
     List<String> labels;
     List<Double> positions;
 

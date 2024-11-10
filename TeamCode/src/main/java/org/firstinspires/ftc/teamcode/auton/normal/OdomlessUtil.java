@@ -9,14 +9,16 @@ public class OdomlessUtil {
 		void run(long ms);
 	}
 
-	SleepFunction sleep;
-	IDriveableRobot bot;
+	final SleepFunction sleep;
+	final IDriveableRobot bot;
 
 
 	public OdomlessUtil(IDriveableRobot robot, SleepFunction sleepFunc) {
 		sleep = sleepFunc;
 		bot = robot;
+	}
 
+	public void init() {
 		bot.leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		bot.leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 		bot.rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
