@@ -25,6 +25,10 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     final static int FROG_MACRO_ARM_POS = 4326;
     final static int REVERSE_DROP_MACRO_ARM_POS = 1562;
     final static int REVERSE_DROP_MACRO_LIFT_POS = 1585;
+    final static int BACKWARDS_HIGH_CHAMBER_ARM_POS = 1258;
+    final static int FORWARDS_HIGH_BASKET_ARM_POS = 2215;
+
+    final static int FORWARDS_HIGH_BASKET_LIFT_POS = 1538;
 
     final static Runnable defaultResolver = () -> {};
 
@@ -102,12 +106,26 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
     void limitLiftExtension() {
         double alphaDeg = bot.ARM_MAX_ROTATION_DEG*bot.arm.getPosition()/bot.arm.maxPos;
+
+        if (alphaDeg < 90) {
+            bot.extensionLift.maxPos = Math.min(
+                    (int) Math.floor(
+                            (
+                                    (11/Math.cos(Math.toRadians(alphaDeg)))-14
+                            )*bot.LIFT_TICKS_PER_INCHES
+                    ),
+                    bot.LIFT_MAX_TICKS
+            );
+
+            return;
+        }
+
         double theta = Math.toRadians(180-alphaDeg);
 
         bot.extensionLift.maxPos = Math.min(
                 (int) Math.floor(
                         (
-                                (25/Math.abs(Math.cos(theta)))-14
+                                (19.5/Math.abs(Math.cos(theta)))-14
                         )*bot.LIFT_TICKS_PER_INCHES
                 ), bot.LIFT_MAX_TICKS
         );
@@ -214,7 +232,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
             bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
 
-            bot.extensionLift.setPosition(bot.extensionLift.maxPos-100); // be safe to not violate the extension limit (since lift limiting is not enabled during locking)
+            bot.extensionLift.setPosition(bot.extensionLift.maxPos); // be safe to not violate the extension limit (since lift limiting is not enabled during locking)
 
             LOCK_ARM = false;
 
@@ -234,7 +252,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         };
     }
 
-    void macroPrepareForReverseDrop() {
+    void macroPrepareForReverseHighDrop() {
         if (LOCK_ARM || LOCK_LIFT || USER_LOCK_ARM) return;
 
         LOCK_ARM = true;
@@ -250,7 +268,31 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         };
     }
 
+    void macroArmBackForHighChamber() {
+        if (LOCK_ARM || USER_LOCK_ARM) return;
 
+        LOCK_ARM = true;
+
+        bot.arm.setPosition(BACKWARDS_HIGH_CHAMBER_ARM_POS);
+
+        onArmResolved = () -> LOCK_ARM = false;
+    }
+
+    void macroPrepareForForwardHighDrop() {
+        if (LOCK_ARM || LOCK_LIFT || USER_LOCK_ARM) return;
+
+        LOCK_ARM = true;
+        LOCK_LIFT = true;
+
+        bot.arm.setPosition(FORWARDS_HIGH_BASKET_ARM_POS);
+
+        onArmResolved =  () -> {
+            LOCK_ARM = false;
+            bot.extensionLift.setPosition(FORWARDS_HIGH_BASKET_LIFT_POS);
+
+            onLiftResolved = () -> LOCK_LIFT = false;
+        };
+    }
 
     // macro utility
     void tryClearResolvers() {
@@ -273,10 +315,13 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
         keybinder.bind("left_stick_button").of(gamepad2).to(this::macroArmXXXToggle);
         keybinder.bind("right_stick_button").of(gamepad2).to(this::macroLiftFullXXXToggle);
+
+        keybinder.bind("dpad_up").of(gamepad2).to(this::macroPrepareForForwardHighDrop);
+        keybinder.bind("b").of(gamepad2).to(this::macroArmBackForHighChamber) ;
 //        keybinder.bind("a").of(gamepad2).to(this::macroHangSpecimen);
 
         keybinder.bind("right_bumper").of(gamepad2).to(this::macroFrog);
-        keybinder.bind("left_bumper").of(gamepad2).to(this::macroPrepareForReverseDrop);
+        keybinder.bind("left_bumper").of(gamepad2).to(this::macroPrepareForReverseHighDrop);
 
         keybinder.bind("left_trigger").of(gamepad1).to((inp) -> {
             applyBrakesBasedOnInput(inp, bot.leftFront);
@@ -288,11 +333,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             applyBrakesBasedOnInput(inp, bot.rightBack);
         });
 
-        long keyBinderLastMs = System.currentTimeMillis();
-
         while (opModeIsActive()) {
-            long keyBinderDelta = System.currentTimeMillis()-keyBinderLastMs;
-
             testWheels();
 
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();
@@ -310,10 +351,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             moveActuator();
             if (!LOCK_INTAKES) moveSpinningIntake();
 
-            if (keyBinderDelta > 150) {
-                keybinder.executeActions();
-                keyBinderLastMs = System.currentTimeMillis();
-            }
+            keybinder.executeActions();
 
             telemetry.addData(
                     "claw rotate", "pos (%.2f)",
