@@ -294,6 +294,41 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         };
     }
 
+    void macroBackwardsHangSpecimenHighChamber() {
+        if (LOCK_ARM || USER_LOCK_ARM) return;
+
+        LOCK_ARM = true;
+
+        bot.arm.setPosition(BACKWARDS_HIGH_CHAMBER_ARM_POS+75);
+
+        onArmResolved = () -> {
+            bot.arm.setPosition(BACKWARDS_HIGH_CHAMBER_ARM_POS);
+
+            bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
+            bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
+
+            onArmResolved = () -> {
+                bot.arm.setPosition(BACKWARDS_HIGH_CHAMBER_ARM_POS-30);
+
+                onArmResolved = () -> {
+                    bot.intakeSmall.setPower(bot.INTAKE_LARGE_OUT_DIRECTION);
+                    bot.intakeLarge.setPower(bot.INTAKE_LARGE_OUT_DIRECTION);
+
+                    bot.arm.setPosition(BACKWARDS_HIGH_CHAMBER_ARM_POS+75);
+
+                    onArmResolved = () -> {
+                        bot.intakeLarge.setPower(0);
+                        bot.intakeSmall.setPower(0);
+
+                        bot.arm.setPosition(bot.arm.minPos);
+
+                        onArmResolved = () -> LOCK_ARM = false;
+                    };
+                };
+            };
+        };
+    }
+
     // macro utility
     void tryClearResolvers() {
         if (!LOCK_ARM) onArmResolved = defaultResolver;
@@ -317,7 +352,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         keybinder.bind("right_stick_button").of(gamepad2).to(this::macroLiftFullXXXToggle);
 
         keybinder.bind("dpad_up").of(gamepad2).to(this::macroPrepareForForwardHighDrop);
-        keybinder.bind("b").of(gamepad2).to(this::macroArmBackForHighChamber) ;
+        keybinder.bind("b").of(gamepad2).to(this::macroBackwardsHangSpecimenHighChamber) ;
 //        keybinder.bind("a").of(gamepad2).to(this::macroHangSpecimen);
 
         keybinder.bind("right_bumper").of(gamepad2).to(this::macroFrog);
