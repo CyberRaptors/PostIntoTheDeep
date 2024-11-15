@@ -16,6 +16,8 @@ public class MergedRaptorRobot extends IDriveableRobot {
     public final int ARM_HANG_MAX_TICKS = 4820;
     public final int ARM_MAX_TICKS = 4530;
     public final double ARM_MAX_ROTATION_DEG = 230d;
+    public final double ARM_APPROX_LEN_IN = 14;
+    public final double ARM_JOINT_MOUNT_HEIGHT_IN = 16;
 
     static final int ARM_MIN_TICKS = 0;
     public final int LIFT_MAX_TICKS = 2000;
