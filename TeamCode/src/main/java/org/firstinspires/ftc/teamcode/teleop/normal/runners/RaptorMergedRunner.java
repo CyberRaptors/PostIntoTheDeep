@@ -199,7 +199,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     }
 
     void macroArmXXXToggle() {
-        if (LOCK_ARM return;
+        if (LOCK_ARM) return;
 
         LOCK_ARM = true;
 
