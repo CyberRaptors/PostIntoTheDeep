@@ -16,8 +16,6 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     private final WheelPowers wheelWeights = new WheelPowers(1, 1, 1, 1);
     boolean showExtraInfo = false;
 
-    boolean USER_LOCK_ARM = false;
-
     boolean LOCK_INTAKES = false;
     boolean LOCK_ARM = false;
     boolean LOCK_LIFT = false;
@@ -110,9 +108,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         if (alphaDeg < 90) {
             bot.extensionLift.maxPos = Math.min(
                     (int) Math.floor(
-                            (
-                                    (11/Math.cos(Math.toRadians(alphaDeg)))-14
-                            )*bot.LIFT_TICKS_PER_INCHES
+                            ((11/Math.cos(Math.toRadians(alphaDeg)))-bot.ARM_APPROX_LEN_IN)*bot.LIFT_TICKS_PER_INCHES
                     ),
                     bot.LIFT_MAX_TICKS
             );
@@ -124,9 +120,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
         bot.extensionLift.maxPos = Math.min(
                 (int) Math.floor(
-                        (
-                                (19.5/Math.abs(Math.cos(theta)))-14
-                        )*bot.LIFT_TICKS_PER_INCHES
+                        ((19.5/Math.abs(Math.cos(theta)))-bot.ARM_APPROX_LEN_IN)*bot.LIFT_TICKS_PER_INCHES
                 ), bot.LIFT_MAX_TICKS
         );
 
@@ -205,7 +199,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     }
 
     void macroArmXXXToggle() {
-        if (LOCK_ARM || USER_LOCK_ARM) return;
+        if (LOCK_ARM return;
 
         LOCK_ARM = true;
 
@@ -220,40 +214,42 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     }
 
     void macroFrog() {
-        if (LOCK_ARM || LOCK_LIFT || LOCK_INTAKES || USER_LOCK_ARM) return;
+        if (LOCK_ARM || LOCK_LIFT || LOCK_INTAKES) return;
 
         LOCK_ARM = true;
         LOCK_LIFT = true;
         LOCK_INTAKES = true;
 
-        bot.arm.setPosition(FROG_MACRO_ARM_POS);
+        double alphaDeg = bot.ARM_MAX_ROTATION_DEG*bot.arm.getPosition()/bot.arm.maxPos;
+        double thetaDeg = 270-alphaDeg;
+        double theta = Math.toRadians(thetaDeg);
 
-        onArmResolved = () -> {
-            bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
-            bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
 
-            bot.extensionLift.setPosition(bot.extensionLift.maxPos); // be safe to not violate the extension limit (since lift limiting is not enabled during locking)
+        double liftToGroundExtIn = (bot.ARM_JOINT_MOUNT_HEIGHT_IN/Math.cos(theta))-bot.ARM_APPROX_LEN_IN;
 
-            LOCK_ARM = false;
+        int liftToGroundExtTicks = (int) Math.floor(liftToGroundExtIn*bot.LIFT_TICKS_PER_INCHES);
+
+        bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
+        bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
+
+        bot.extensionLift.setPosition(liftToGroundExtTicks); // be safe to not violate the extension limit (since lift limiting is not enabled during locking)
+
+        onLiftResolved = () -> {
+            bot.extensionLift.setPosition(bot.extensionLift.minPos+50); // maybe we do 0+50 position to reduce risk of causing a macro deadlock
 
             onLiftResolved = () -> {
-//                sleep(100); // technically this breaks the synchronous promise but it is kept here for now because it is a small delay
+                bot.intakeLarge.setPower(0);
+                bot.intakeSmall.setPower(0);
 
-                bot.extensionLift.setPosition(bot.extensionLift.minPos+50); // maybe we do 0+50 position to reduce risk of causing a macro deadlock
-
-                onLiftResolved = () -> {
-                    bot.intakeLarge.setPower(0);
-                    bot.intakeSmall.setPower(0);
-
-                    LOCK_LIFT = false;
-                    LOCK_INTAKES = false;
-                };
+                LOCK_LIFT = false;
+                LOCK_INTAKES = false;
+                LOCK_ARM = false;
             };
         };
     }
 
     void macroPrepareForReverseHighDrop() {
-        if (LOCK_ARM || LOCK_LIFT || USER_LOCK_ARM) return;
+        if (LOCK_ARM || LOCK_LIFT) return;
 
         LOCK_ARM = true;
         LOCK_LIFT = true;
@@ -269,7 +265,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     }
 
     void macroArmBackForHighChamber() {
-        if (LOCK_ARM || USER_LOCK_ARM) return;
+        if (LOCK_ARM) return;
 
         LOCK_ARM = true;
 
@@ -279,7 +275,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     }
 
     void macroPrepareForForwardHighDrop() {
-        if (LOCK_ARM || LOCK_LIFT || USER_LOCK_ARM) return;
+        if (LOCK_ARM || LOCK_LIFT) return;
 
         LOCK_ARM = true;
         LOCK_LIFT = true;
@@ -295,7 +291,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     }
 
     void macroBackwardsHangSpecimenHighChamber() {
-        if (LOCK_ARM || USER_LOCK_ARM) return;
+        if (LOCK_ARM) return;
 
         LOCK_ARM = true;
 
@@ -344,9 +340,13 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         x.of(gamepad1).to(() -> showExtraInfo = !showExtraInfo);
 
         // hang bind release
-        x.of(gamepad2).to(() -> bot.arm.maxPos = bot.ARM_HANG_MAX_TICKS);
+        x.of(gamepad2).to(() -> {
+            if (bot.arm.maxPos == bot.ARM_HANG_MAX_TICKS) {
+                bot.arm.maxPos = bot.ARM_MAX_TICKS;
+            } else bot.arm.maxPos = bot.ARM_HANG_MAX_TICKS;
+        });
 
-        keybinder.bind("y").of(gamepad2).to(() -> USER_LOCK_ARM = !USER_LOCK_ARM);
+        keybinder.bind("y").of(gamepad2).to(() -> LOCK_ARM = !LOCK_ARM);
 
         keybinder.bind("left_stick_button").of(gamepad2).to(this::macroArmXXXToggle);
         keybinder.bind("right_stick_button").of(gamepad2).to(this::macroLiftFullXXXToggle);
@@ -379,7 +379,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
             if (LOCK_LIFT && !bot.extensionLift.isBusy()) onLiftResolved.run(); // lift-based macro resolver
 
 
-            if (!(LOCK_ARM || USER_LOCK_ARM)) moveArm();
+            if (!LOCK_ARM) moveArm();
             limitLiftExtension();
             if (!LOCK_LIFT) moveLift();
             moveClawRotate();
@@ -418,7 +418,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
                     bot.arm.getPower(), bot.arm.maxPos,
                     bot.ARM_MAX_ROTATION_DEG*bot.arm.getPosition()/bot.arm.maxPos, // approx. alpha
                     bot.ARM_MAX_ROTATION_DEG, // max alpha
-                    (LOCK_ARM || USER_LOCK_ARM ? " locked" : "")
+                    (LOCK_ARM ? " locked" : "")
             );
 
             telemetry.addData(
