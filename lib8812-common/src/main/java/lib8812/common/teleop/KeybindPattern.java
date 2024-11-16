@@ -56,8 +56,8 @@ public class KeybindPattern {
     final HashMap<String, Runnable> twoPressBinds = new HashMap<>();
     final HashMap<String, ValueBoundFunction> twoValueBinds = new HashMap<>();
 
-    HashMap<String, Boolean> wasDownLastOnOne = new HashMap<>();
-    HashMap<String, Boolean> wasDownLastOnTwo = new HashMap<>();
+    final HashMap<String, Boolean> wasDownLastOnOne = new HashMap<>();
+    final HashMap<String, Boolean> wasDownLastOnTwo = new HashMap<>();
 
     public KeybindPattern(ReflectiveGamepad gamepad1, ReflectiveGamepad gamepad2) {
         this.gamepad1 = gamepad1;
@@ -83,9 +83,9 @@ public class KeybindPattern {
     public void executeActions() {
         for (Map.Entry<String, Runnable> entry : onePressBinds.entrySet()) {
             if (gamepad1.getPressed(entry.getKey())) {
-                wasDownLastOnOne.replace(entry.getKey(), true);
+                wasDownLastOnOne.put(entry.getKey(), true);
             } else if (Boolean.TRUE.equals(wasDownLastOnOne.get(entry.getKey()))) {
-                wasDownLastOnOne.replace(entry.getKey(), false);
+                wasDownLastOnOne.put(entry.getKey(), false);
                 entry.getValue().run(); // run the callback, a push down and release constitutes a full button press/click
             }
         }
@@ -94,12 +94,11 @@ public class KeybindPattern {
             entry.getValue().apply(gamepad1.getValue(entry.getKey()));
         }
 
-
         for (Map.Entry<String, Runnable> entry : twoPressBinds.entrySet()) {
             if (gamepad2.getPressed(entry.getKey())) {
-                wasDownLastOnTwo.replace(entry.getKey(), true);
+                wasDownLastOnTwo.put(entry.getKey(), true);
             } else if (Boolean.TRUE.equals(wasDownLastOnTwo.get(entry.getKey()))) {
-                wasDownLastOnTwo.replace(entry.getKey(), false);
+                wasDownLastOnTwo.put(entry.getKey(), false);
                 entry.getValue().run(); // run the callback, a push down and release constitutes a full button press/click
             }
         }
