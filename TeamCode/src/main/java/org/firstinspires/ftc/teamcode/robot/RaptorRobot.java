@@ -8,10 +8,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import lib8812.common.robot.hardwarewrappers.BinaryClaw;
 import lib8812.common.robot.hardwarewrappers.DegreeInchesOTOS;
-import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.IMecanumRobot;
 import lib8812.common.robot.hardwarewrappers.ServoLikeMotor;
 
-public class RaptorRobot extends IDriveableRobot {
+public class RaptorRobot extends IMecanumRobot {
     static final int LIFT_MAX_TICKS = 3100;
     static final int LIFT_MIN_TICKS = 0;
     static final double CLAW_OPEN_POS = 0.5;

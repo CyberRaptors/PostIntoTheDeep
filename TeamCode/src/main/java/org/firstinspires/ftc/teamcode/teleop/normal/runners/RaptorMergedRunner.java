@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.robot.MergedRaptorRobot;
 
-import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.IMecanumRobot;
 import lib8812.common.robot.WheelPowers;
 import lib8812.common.teleop.ITeleOpRunner;
 import lib8812.common.teleop.KeybindPattern;
@@ -20,20 +20,12 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     boolean LOCK_ARM = false;
     boolean LOCK_LIFT = false;
 
-    final static int FROG_MACRO_ARM_POS = 4326;
-    final static int REVERSE_DROP_MACRO_ARM_POS = 1562;
-    final static int REVERSE_DROP_MACRO_LIFT_POS = 1585;
-    final static int BACKWARDS_HIGH_CHAMBER_ARM_POS = 1258;
-    final static int FORWARDS_HIGH_BASKET_ARM_POS = 2215;
-
-    final static int FORWARDS_HIGH_BASKET_LIFT_POS = 1538;
-
     final static Runnable defaultResolver = () -> {};
 
     Runnable onArmResolved = defaultResolver;
     Runnable onLiftResolved = defaultResolver;
 
-    protected IDriveableRobot getBot() { return bot; }
+    protected IMecanumRobot getBot() { return bot; }
 
     void testWheels() {
         double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_y);
@@ -233,9 +225,13 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
         bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
 
+        bot.lilRaptor.setPosition(bot.LIL_RAPTOR_OUT_POS);
+
         bot.extensionLift.setPosition(liftToGroundExtTicksEnsure); // be safe to not violate the extension limit (since lift limiting is not enabled during locking)
 
         onLiftResolved = () -> {
+            bot.lilRaptor.setPosition(bot.LIL_RAPTOR_REST_POS);
+
             bot.extensionLift.setPosition(bot.extensionLift.minPos+50); // maybe we do 0+50 position to reduce risk of causing a macro deadlock
 
             onLiftResolved = () -> {
@@ -255,11 +251,11 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         LOCK_ARM = true;
         LOCK_LIFT = true;
 
-        bot.arm.setPosition(REVERSE_DROP_MACRO_ARM_POS);
+        bot.arm.setPosition(bot.REVERSE_DROP_MACRO_ARM_POS);
 
         onArmResolved =  () -> {
             LOCK_ARM = false;
-            bot.extensionLift.setPosition(REVERSE_DROP_MACRO_LIFT_POS);
+            bot.extensionLift.setPosition(bot.REVERSE_DROP_MACRO_LIFT_POS);
 
             onLiftResolved = () -> LOCK_LIFT = false;
         };
@@ -270,7 +266,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
         LOCK_ARM = true;
 
-        bot.arm.setPosition(BACKWARDS_HIGH_CHAMBER_ARM_POS);
+        bot.arm.setPosition(bot.BACKWARDS_HIGH_CHAMBER_ARM_POS);
 
         onArmResolved = () -> LOCK_ARM = false;
     }
@@ -281,11 +277,11 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         LOCK_ARM = true;
         LOCK_LIFT = true;
 
-        bot.arm.setPosition(FORWARDS_HIGH_BASKET_ARM_POS);
+        bot.arm.setPosition(bot.FORWARDS_HIGH_BASKET_ARM_POS);
 
         onArmResolved =  () -> {
             LOCK_ARM = false;
-            bot.extensionLift.setPosition(FORWARDS_HIGH_BASKET_LIFT_POS);
+            bot.extensionLift.setPosition(bot.FORWARDS_HIGH_BASKET_LIFT_POS);
 
             onLiftResolved = () -> LOCK_LIFT = false;
         };
