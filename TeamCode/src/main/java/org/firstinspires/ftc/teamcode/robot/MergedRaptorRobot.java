@@ -8,11 +8,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.IMecanumRobot;
 import lib8812.common.robot.hardwarewrappers.DegreeInchesOTOS;
 import lib8812.common.robot.hardwarewrappers.ServoLikeMotor;
 
-public class MergedRaptorRobot extends IDriveableRobot {
+public class MergedRaptorRobot extends IMecanumRobot {
     public final int ARM_HANG_MAX_TICKS = 4820;
     public final int ARM_MAX_TICKS = 4530;
     public final double ARM_MAX_ROTATION_DEG = 230d;
@@ -30,6 +30,9 @@ public class MergedRaptorRobot extends IDriveableRobot {
     public final double CLAW_ROTATE_MIN_POS = 0.3;
     public final double CLAW_ROTATE_MAX_POS = 1;
 
+    public final double LIL_RAPTOR_REST_POS = 0;
+    public final double LIL_RAPTOR_OUT_POS = 0.3;
+
     final double INTAKE_SMALL_DIAMETER = 3.75;
     final double INTAKE_LARGE_DIAMETER = 4.75;
 
@@ -37,13 +40,15 @@ public class MergedRaptorRobot extends IDriveableRobot {
     /* MATH - DO NOT TOUCH */
     final double INTAKE_SMALL_RADIUS = INTAKE_SMALL_DIAMETER/2;
     final double INTAKE_LARGE_RADIUS = INTAKE_LARGE_DIAMETER/2;
-
     public final double INTAKE_SMALL_TO_LARGE_RADIUS_RATIO = INTAKE_SMALL_RADIUS/INTAKE_LARGE_RADIUS;
 
+
+    /* INTAKE DIRECTIONS */
     public final int INTAKE_SMALL_IN_DIRECTION = 1;
     public final int INTAKE_SMALL_OUT_DIRECTION = -INTAKE_SMALL_IN_DIRECTION;
     public final int INTAKE_LARGE_IN_DIRECTION = INTAKE_SMALL_OUT_DIRECTION;
     public final int INTAKE_LARGE_OUT_DIRECTION = INTAKE_SMALL_IN_DIRECTION;
+
 
     /* Hardware Devices */
 
@@ -55,6 +60,7 @@ public class MergedRaptorRobot extends IDriveableRobot {
     public Servo clawRotate;
     public CRServo intakeSmall;
     public CRServo intakeLarge;
+    public Servo lilRaptor;
 
     public DegreeInchesOTOS otos;
     final DegreeInchesOTOS.Configuration otosConfig =
@@ -92,8 +98,10 @@ public class MergedRaptorRobot extends IDriveableRobot {
         clawRotate = loadDevice(hardwareMap, Servo.class, "clawRotate");
         intakeSmall = loadDevice(hardwareMap, CRServo.class, "intake0");
         intakeLarge = loadDevice(hardwareMap, CRServo.class, "intake1");
+        lilRaptor = loadDevice(hardwareMap, Servo.class, "lilRaptor");
 
         clawRotate.setPosition(CLAW_ROTATE_MAX_POS);
+        lilRaptor.setPosition(LIL_RAPTOR_REST_POS);
 
         actuator = loadDevice(hardwareMap, DcMotor.class, "actuator0");
 

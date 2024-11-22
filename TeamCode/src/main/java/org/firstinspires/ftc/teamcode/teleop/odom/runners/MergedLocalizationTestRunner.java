@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop.odom.runners;
 
 import org.firstinspires.ftc.teamcode.robot.MergedRaptorRobot;
 
-import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.IMecanumRobot;
 import lib8812.common.robot.WheelPowers;
 import lib8812.common.robot.poses.SimpleDegreePose;
 import lib8812.common.teleop.ITeleOpRunner;
@@ -18,7 +18,7 @@ public class MergedLocalizationTestRunner extends ITeleOpRunner {
     boolean LOCK_INTAKES = false;
     boolean LOCK_ARM = false;
 
-    protected IDriveableRobot getBot() { return bot; }
+    protected IMecanumRobot getBot() { return bot; }
 
     void testWheels() {
         double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_y);

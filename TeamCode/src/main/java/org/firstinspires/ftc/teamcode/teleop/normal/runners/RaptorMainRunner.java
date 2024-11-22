@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.teleop.normal.runners;
 
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
-import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.IMecanumRobot;
 import lib8812.common.robot.WheelPowers;
 import lib8812.common.teleop.ITeleOpRunner;
 import lib8812.common.teleop.TeleOpUtils;
@@ -12,7 +12,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
     private final WheelPowers wheelWeights = new WheelPowers(1, 1, 1, 1);
     boolean showExtraInfo = false;
 
-    protected IDriveableRobot getBot() { return bot; }
+    protected IMecanumRobot getBot() { return bot; }
 
     void moveWheels() {
         double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_y);

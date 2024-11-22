@@ -6,11 +6,11 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.IMecanumRobot;
 import lib8812.common.robot.hardwarewrappers.BoundedServo;
 import lib8812.common.robot.hardwarewrappers.ServoLikeMotor;
 
-public class AlternateRaptorRobot extends IDriveableRobot {
+public class AlternateRaptorRobot extends IMecanumRobot {
     static final int ARM_MAX_TICKS = 4530;
     static final int ARM_MIN_TICKS = 0;
 

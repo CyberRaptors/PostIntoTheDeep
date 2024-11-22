@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.robot.MergedRaptorRobot;
 
-import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.IMecanumRobot;
 import lib8812.common.robot.WheelPowers;
 import lib8812.common.teleop.ITeleOpRunner;
 import lib8812.common.teleop.KeybindPattern;
@@ -33,7 +33,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     Runnable onArmResolved = defaultResolver;
     Runnable onLiftResolved = defaultResolver;
 
-    protected IDriveableRobot getBot() { return bot; }
+    protected IMecanumRobot getBot() { return bot; }
 
     void testWheels() {
         double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_y);
@@ -233,9 +233,13 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
         bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
 
+        bot.lilRaptor.setPosition(bot.LIL_RAPTOR_OUT_POS);
+
         bot.extensionLift.setPosition(liftToGroundExtTicksEnsure); // be safe to not violate the extension limit (since lift limiting is not enabled during locking)
 
         onLiftResolved = () -> {
+            bot.lilRaptor.setPosition(bot.LIL_RAPTOR_REST_POS);
+
             bot.extensionLift.setPosition(bot.extensionLift.minPos+50); // maybe we do 0+50 position to reduce risk of causing a macro deadlock
 
             onLiftResolved = () -> {

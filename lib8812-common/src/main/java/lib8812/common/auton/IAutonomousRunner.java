@@ -7,14 +7,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.IMecanumRobot;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
-    IDriveableRobot bot;
+    IMecanumRobot bot;
     final ElapsedTime runtime = new ElapsedTime();
     protected LinearOpMode opMode;
     protected IObjectDetector<TLabelEnum> objectDetector;
@@ -102,5 +102,5 @@ public abstract class IAutonomousRunner<TLabelEnum extends IModelLabel> {
     }
 
     protected abstract void internalRun(TLabelEnum result);
-    protected abstract IDriveableRobot getBot();
+    protected abstract IMecanumRobot getBot();
 }

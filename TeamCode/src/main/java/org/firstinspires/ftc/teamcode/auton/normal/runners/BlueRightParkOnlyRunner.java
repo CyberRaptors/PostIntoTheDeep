@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.auton.normal.runners;
 import org.firstinspires.ftc.teamcode.auton.normal.OdomlessUtil;
 import org.firstinspires.ftc.teamcode.robot.MergedRaptorRobot;
 
-import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.IMecanumRobot;
 import lib8812.common.teleop.ITeleOpRunner;
 
 public class BlueRightParkOnlyRunner extends ITeleOpRunner {
@@ -11,7 +11,7 @@ public class BlueRightParkOnlyRunner extends ITeleOpRunner {
 	final OdomlessUtil util = new OdomlessUtil(bot, this::sleep);
 
 	@Override
-	protected IDriveableRobot getBot() {
+	protected IMecanumRobot getBot() {
 		return bot;
 	}
 

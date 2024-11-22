@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.auton.normal;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import lib8812.common.robot.IDriveableRobot;
+import lib8812.common.robot.IMecanumRobot;
 
 public class OdomlessUtil {
 	public interface SleepFunction {
@@ -10,10 +10,10 @@ public class OdomlessUtil {
 	}
 
 	final SleepFunction sleep;
-	final IDriveableRobot bot;
+	final IMecanumRobot bot;
 
 
-	public OdomlessUtil(IDriveableRobot robot, SleepFunction sleepFunc) {
+	public OdomlessUtil(IMecanumRobot robot, SleepFunction sleepFunc) {
 		sleep = sleepFunc;
 		bot = robot;
 	}
