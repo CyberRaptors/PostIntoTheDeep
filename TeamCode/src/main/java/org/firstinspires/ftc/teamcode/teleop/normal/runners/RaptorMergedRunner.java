@@ -20,14 +20,6 @@ public class RaptorMergedRunner extends ITeleOpRunner {
     boolean LOCK_ARM = false;
     boolean LOCK_LIFT = false;
 
-    final static int FROG_MACRO_ARM_POS = 4326;
-    final static int REVERSE_DROP_MACRO_ARM_POS = 1562;
-    final static int REVERSE_DROP_MACRO_LIFT_POS = 1585;
-    final static int BACKWARDS_HIGH_CHAMBER_ARM_POS = 1258;
-    final static int FORWARDS_HIGH_BASKET_ARM_POS = 2215;
-
-    final static int FORWARDS_HIGH_BASKET_LIFT_POS = 1538;
-
     final static Runnable defaultResolver = () -> {};
 
     Runnable onArmResolved = defaultResolver;
@@ -259,11 +251,11 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         LOCK_ARM = true;
         LOCK_LIFT = true;
 
-        bot.arm.setPosition(REVERSE_DROP_MACRO_ARM_POS);
+        bot.arm.setPosition(bot.REVERSE_DROP_MACRO_ARM_POS);
 
         onArmResolved =  () -> {
             LOCK_ARM = false;
-            bot.extensionLift.setPosition(REVERSE_DROP_MACRO_LIFT_POS);
+            bot.extensionLift.setPosition(bot.REVERSE_DROP_MACRO_LIFT_POS);
 
             onLiftResolved = () -> LOCK_LIFT = false;
         };
@@ -274,7 +266,7 @@ public class RaptorMergedRunner extends ITeleOpRunner {
 
         LOCK_ARM = true;
 
-        bot.arm.setPosition(BACKWARDS_HIGH_CHAMBER_ARM_POS);
+        bot.arm.setPosition(bot.BACKWARDS_HIGH_CHAMBER_ARM_POS);
 
         onArmResolved = () -> LOCK_ARM = false;
     }
@@ -285,11 +277,11 @@ public class RaptorMergedRunner extends ITeleOpRunner {
         LOCK_ARM = true;
         LOCK_LIFT = true;
 
-        bot.arm.setPosition(FORWARDS_HIGH_BASKET_ARM_POS);
+        bot.arm.setPosition(bot.FORWARDS_HIGH_BASKET_ARM_POS);
 
         onArmResolved =  () -> {
             LOCK_ARM = false;
-            bot.extensionLift.setPosition(FORWARDS_HIGH_BASKET_LIFT_POS);
+            bot.extensionLift.setPosition(bot.FORWARDS_HIGH_BASKET_LIFT_POS);
 
             onLiftResolved = () -> LOCK_LIFT = false;
         };

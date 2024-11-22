@@ -49,6 +49,14 @@ public class MergedRaptorRobot extends IMecanumRobot {
     public final int INTAKE_LARGE_IN_DIRECTION = INTAKE_SMALL_OUT_DIRECTION;
     public final int INTAKE_LARGE_OUT_DIRECTION = INTAKE_SMALL_IN_DIRECTION;
 
+    /* MACRO CONSTANTS [specified here to allow use in auton] */
+
+    public final int REVERSE_DROP_MACRO_ARM_POS = 1562;
+    public final int REVERSE_DROP_MACRO_LIFT_POS = 1585;
+    public final int BACKWARDS_HIGH_CHAMBER_ARM_POS = 1258;
+    public final int FORWARDS_HIGH_BASKET_ARM_POS = 2215;
+    public final int FORWARDS_HIGH_BASKET_LIFT_POS = 1538;
+
 
     /* Hardware Devices */
 
