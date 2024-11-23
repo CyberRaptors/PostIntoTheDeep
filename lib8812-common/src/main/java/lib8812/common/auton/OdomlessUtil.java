@@ -53,7 +53,7 @@ public class OdomlessUtil {
 		bot.rightBack.setPower(0);
 	}
 
-	public void turn(long ms, double power) { // positive power turns clockwise
-
+	public void turnSync(long ms, double power) { // positive power turns clockwise
+		throw new UnsupportedOperationException();
 	}
 }
