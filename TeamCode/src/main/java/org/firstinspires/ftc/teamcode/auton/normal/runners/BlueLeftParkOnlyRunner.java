@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.auton.normal.runners;
 
-import org.firstinspires.ftc.teamcode.auton.normal.OdomlessUtil;
-import org.firstinspires.ftc.teamcode.robot.MergedRaptorRobot;
+import lib8812.common.auton.OdomlessUtil;
+import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.robot.IMecanumRobot;
 import lib8812.common.teleop.ITeleOpRunner;
 
 public class BlueLeftParkOnlyRunner extends ITeleOpRunner {
-	final MergedRaptorRobot bot = new MergedRaptorRobot();
+	final RaptorRobot bot = new RaptorRobot();
 	final OdomlessUtil util = new OdomlessUtil(bot, this::sleep);
 
 	@Override

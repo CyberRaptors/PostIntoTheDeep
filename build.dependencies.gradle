@@ -2,8 +2,8 @@ repositories {
     mavenCentral()
     google() // Needed for androidx
 
-    maven { url = 'https://maven.brott.dev/' }
-    maven { url = 'https://jitpack.io' }
+            maven { url = 'https://maven.brott.dev/' }
+    maven { url = 'https://repo.dairy.foundation/releases' }
 
     flatDir {
         dirs rootProject.file('libs')
@@ -19,9 +19,10 @@ dependencies {
     implementation 'org.firstinspires.ftc:Hardware:10.1.0'
     implementation 'org.firstinspires.ftc:FtcCommon:10.1.0'
     implementation 'org.firstinspires.ftc:Vision:10.1.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
 
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.16'
     implementation "com.acmerobotics.roadrunner:actions:1.0.0"
     implementation 'com.acmerobotics.roadrunner:core:1.0.0'
-    implementation "com.github.jdhs-ftc:road-runner-ftc-otos:a425f97d46"
+    implementation "page.j5155.roadrunner:ftc-otos:0.1.0+0.1.14"
 }

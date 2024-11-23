@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auton.normal;
+package lib8812.common.auton;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 

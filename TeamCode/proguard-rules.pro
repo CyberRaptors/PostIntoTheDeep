@@ -2,8 +2,8 @@
 -keep class com.qualcomm.** {*;}
 -keep class org.firstinspires.** {*;}
 -keep class com.google.** {*;}
--keep class com.vuforia.** {*;}
--keep class org.tensorflow.** {*;}
+#-keep class com.vuforia.** {*;}
+#-keep class org.tensorflow.** {*;}
 -keep class javax.** {*;} # this is apparently required
 
 -dontwarn com.qualcomm.**
