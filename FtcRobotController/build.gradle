@@ -36,4 +36,3 @@ dependencies {
 }
 
 apply from: '../build.dependencies.gradle'
-apply plugin: 'org.jetbrains.kotlin.android'

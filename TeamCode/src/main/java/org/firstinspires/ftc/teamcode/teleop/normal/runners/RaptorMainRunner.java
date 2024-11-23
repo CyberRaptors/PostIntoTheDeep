@@ -135,35 +135,6 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
     /* MACROS */
 
-    // TODO: make below synchronous
-//    void macroSpecimenClutch(Runnable cancellationDelegate) {
-//        if (LOCK_INTAKES) return;
-//
-//        LOCK_INTAKES = true;
-//        bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
-//        bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
-//
-//        cancellationDelegate.run();
-//    }
-//
-//    void macroHangSpecimen() {
-//        if (LOCK_ARM) return;
-//
-//        LOCK_ARM = true;
-//
-//        bot.arm.setPosition(bot.arm.getPosition()+100);
-//
-//        macroSpecimenClutch(() -> {
-//            TeleOpUtils.setTimeout(() -> {
-//                bot.intakeSmall.setPower(0);
-//                bot.intakeLarge.setPower(0);
-//
-//                LOCK_INTAKES = false;
-//                LOCK_ARM = false;
-//            }, 750); // 0.75 ms
-//        });
-//    }
-
     void macroArmOut() {
         bot.arm.setPosition(bot.arm.maxPos);
     }
