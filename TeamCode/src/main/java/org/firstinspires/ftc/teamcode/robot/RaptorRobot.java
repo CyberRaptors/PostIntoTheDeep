@@ -29,6 +29,7 @@ public class RaptorRobot extends IMecanumRobot {
 
     public final double CLAW_ROTATE_MIN_POS = 0.3;
     public final double CLAW_ROTATE_MAX_POS = 1;
+    public final double CLAW_ROTATE_FORWARDS = (CLAW_ROTATE_MIN_POS+CLAW_ROTATE_MAX_POS)/2;
 
     public final double LIL_RAPTOR_REST_POS = 0;
     public final double LIL_RAPTOR_OUT_POS = 0.3;
@@ -56,6 +57,7 @@ public class RaptorRobot extends IMecanumRobot {
     public final int BACKWARDS_HIGH_CHAMBER_ARM_POS = 1258;
     public final int FORWARDS_HIGH_BASKET_ARM_POS = 2215;
     public final int FORWARDS_HIGH_BASKET_LIFT_POS = 1538;
+    public final int AUTON_ASCENT_ARM_POS = 0;
 
 
     /* Hardware Devices */
