@@ -5,6 +5,9 @@ import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.DriveShim;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
+import java.awt.Image;
+import java.awt.Toolkit;
+
 public class MeepMeepMain {
 	public static void main(String[] args) {
 		MeepMeep meepMeep = new MeepMeep(800);
@@ -16,9 +19,13 @@ public class MeepMeepMain {
 
 		DriveShim drive = myBot.getDrive();
 
-		myBot.runAction(MeepMeepBlueLeft.run(drive));
+		myBot.runAction(MeepMeepRight.run(drive));
 
-		meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_OFFICIAL)
+		Image img = Toolkit.getDefaultToolkit().getImage("C:\\Users\\carlf\\programs\\Robotics\\IntoTheDeep\\MeepMeepTests\\src\\main\\java\\lib8812\\meepmeeptests\\intothedeepfieldrot.png");
+
+		meepMeep
+				.setBackground(img)
+//				.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_OFFICIAL)
 				.setDarkMode(true)
 				.setBackgroundAlpha(0.95f)
 				.addEntity(myBot)

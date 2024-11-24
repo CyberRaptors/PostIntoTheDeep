@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop.normal.runners;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.auton.InteropFields;
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.robot.IMecanumRobot;
@@ -13,12 +14,13 @@ import lib8812.common.teleop.TeleOpUtils;
 
 public class RaptorMainRunner extends ITeleOpRunner {
     final RaptorRobot bot = new RaptorRobot();
-    private final WheelPowers wheelWeights = new WheelPowers(1, 1, 1, 1);
+    private final WheelPowers wheelWeights = new WheelPowers(0.92, 0.92, 0.92, 0.92);
     boolean showExtraInfo = false;
 
     boolean LOCK_INTAKES = false;
     boolean LOCK_ARM = false;
     boolean LOCK_LIFT = false;
+    boolean CHANNEL_POWER = false;
 
     final static Runnable defaultResolver = () -> {};
 
@@ -27,7 +29,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
     protected IMecanumRobot getBot() { return bot; }
 
-    void testWheels() {
+    void moveWheels() {
         double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_y);
         double correctedRightX = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_x);
         double correctedLeftY = TeleOpUtils.fineTuneInput(gamepad1.inner.left_stick_y);
@@ -88,12 +90,6 @@ public class RaptorMainRunner extends ITeleOpRunner {
         );
     }
 
-    void moveActuator() {
-        bot.actuator.setPower(
-                gamepad1.inner.left_trigger-gamepad1.inner.right_trigger
-        );
-    }
-
     void limitLiftExtension() {
         double alphaDeg = bot.ARM_MAX_ROTATION_DEG*bot.arm.getPosition()/bot.arm.maxPos;
 
@@ -148,7 +144,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
     void macroLiftFullRetract() { bot.extensionLift.setPosition(bot.extensionLift.minPos); }
 
     void macroLiftFullXXXToggle() {
-        if (LOCK_LIFT) return;
+        if (LOCK_LIFT || CHANNEL_POWER) return;
 
         LOCK_LIFT = true;
 
@@ -162,7 +158,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
     }
 
     void macroArmXXXToggle() {
-        if (LOCK_ARM) return;
+        if (LOCK_ARM || CHANNEL_POWER) return;
 
         LOCK_ARM = true;
 
@@ -177,7 +173,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
     }
 
     void macroFrog() {
-        if (LOCK_ARM || LOCK_LIFT || LOCK_INTAKES) return;
+        if (LOCK_ARM || LOCK_LIFT || LOCK_INTAKES || CHANNEL_POWER) return;
 
         LOCK_ARM = true;
         LOCK_LIFT = true;
@@ -217,7 +213,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
     }
 
     void macroPrepareForReverseHighDrop() {
-        if (LOCK_ARM || LOCK_LIFT) return;
+        if (LOCK_ARM || LOCK_LIFT || CHANNEL_POWER) return;
 
         LOCK_ARM = true;
         LOCK_LIFT = true;
@@ -233,7 +229,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
     }
 
     void macroArmBackForHighChamber() {
-        if (LOCK_ARM) return;
+        if (LOCK_ARM || CHANNEL_POWER) return;
 
         LOCK_ARM = true;
 
@@ -243,7 +239,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
     }
 
     void macroPrepareForForwardHighDrop() {
-        if (LOCK_ARM || LOCK_LIFT) return;
+        if (LOCK_ARM || LOCK_LIFT || CHANNEL_POWER) return;
 
         LOCK_ARM = true;
         LOCK_LIFT = true;
@@ -260,9 +256,9 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
     // macro utility
     void tryClearResolvers() {
-        if (!LOCK_ARM) onArmResolved = defaultResolver;
+        if (!LOCK_ARM || CHANNEL_POWER) onArmResolved = defaultResolver;
 
-        if (!LOCK_LIFT) onLiftResolved = defaultResolver;
+        if (!LOCK_LIFT || CHANNEL_POWER) onLiftResolved = defaultResolver;
     }
 
     /* END MACROS */
@@ -276,6 +272,16 @@ public class RaptorMainRunner extends ITeleOpRunner {
         x.of(gamepad2).to(() -> {
             if (bot.arm.maxPos == bot.ARM_HANG_MAX_TICKS) {
                 bot.arm.maxPos = bot.ARM_MAX_TICKS;
+
+                CHANNEL_POWER = true;
+                bot.extensionLift.setPower(0);
+                bot.extensionLift.close();
+                bot.clawRotate.close();
+                bot.intakeSmall.close();
+                bot.intakeLarge.close();
+
+                telemetry.addData("no telemetry data", "arm power channel mode");
+                telemetry.update();
             } else bot.arm.maxPos = bot.ARM_HANG_MAX_TICKS;
         });
 
@@ -300,8 +306,27 @@ public class RaptorMainRunner extends ITeleOpRunner {
             applyBrakesBasedOnInput(inp, bot.rightBack);
         });
 
+        while (!gamepad1.inner.b) {
+            moveWheels();
+        }
+
+        bot.arm.reverse();
+        bot.extensionLift.reverse();
+
+        bot.arm.setPosition(InteropFields.ARM_END_POS);
+        bot.extensionLift.setPosition(InteropFields.LIFT_END_POS);
+
+        bot.arm.waitForPosition();
+        bot.extensionLift.waitForPosition();
+
+        bot.arm.resetEncoder();
+        bot.extensionLift.resetEncoder();
+
+        bot.arm.reverse();
+        bot.extensionLift.reverse();
+
         while (opModeIsActive()) {
-            testWheels();
+            moveWheels();
 
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();
 
@@ -310,15 +335,15 @@ public class RaptorMainRunner extends ITeleOpRunner {
             if (LOCK_ARM && !bot.arm.isBusy()) onArmResolved.run(); // arm-based macro resolver
             if (LOCK_LIFT && !bot.extensionLift.isBusy()) onLiftResolved.run(); // lift-based macro resolver
 
-
             if (!LOCK_ARM) moveArm();
             limitLiftExtension();
-            if (!LOCK_LIFT) moveLift();
-            moveClawRotate();
-            moveActuator();
-            if (!LOCK_INTAKES) moveSpinningIntake();
+            if (!LOCK_LIFT && !CHANNEL_POWER) moveLift();
+            if (!CHANNEL_POWER) moveClawRotate();
+            if (!LOCK_INTAKES && !CHANNEL_POWER) moveSpinningIntake();
 
             keybinder.executeActions();
+
+            if (CHANNEL_POWER) continue;
 
             telemetry.addData(
                     "claw rotate", "pos (%.2f)",
@@ -351,11 +376,6 @@ public class RaptorMainRunner extends ITeleOpRunner {
                     bot.ARM_MAX_ROTATION_DEG*bot.arm.getPosition()/bot.arm.maxPos, // approx. alpha
                     bot.ARM_MAX_ROTATION_DEG, // max alpha
                     (LOCK_ARM ? " locked" : "")
-            );
-
-            telemetry.addData(
-                    "actuator", "power (%.2f)",
-                    bot.actuator.getPower()
             );
 
             if (showExtraInfo) {

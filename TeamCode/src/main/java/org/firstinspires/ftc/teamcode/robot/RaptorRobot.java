@@ -57,12 +57,10 @@ public class RaptorRobot extends IMecanumRobot {
     public final int BACKWARDS_HIGH_CHAMBER_ARM_POS = 1258;
     public final int FORWARDS_HIGH_BASKET_ARM_POS = 2215;
     public final int FORWARDS_HIGH_BASKET_LIFT_POS = 1538;
-    public final int AUTON_ASCENT_ARM_POS = 0;
+    public final int AUTON_ASCENT_ARM_POS = 1000;
 
 
     /* Hardware Devices */
-
-    public DcMotor actuator;
 
     public ServoLikeMotor arm;
     public ServoLikeMotor extensionLift;
@@ -112,8 +110,6 @@ public class RaptorRobot extends IMecanumRobot {
 
         clawRotate.setPosition(CLAW_ROTATE_MAX_POS);
         lilRaptor.setPosition(LIL_RAPTOR_REST_POS);
-
-        actuator = loadDevice(hardwareMap, DcMotor.class, "actuator0");
 
         otos = new DegreeInchesOTOS(
                 loadDevice(hardwareMap, SparkFunOTOS.class, "otos"),

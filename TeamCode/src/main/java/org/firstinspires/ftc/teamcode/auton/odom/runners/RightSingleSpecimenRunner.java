@@ -17,15 +17,12 @@ import lib8812.common.rr.SparkFunOTOSDrive;
 import lib8812.common.telemetrymap.FieldConstants;
 import lib8812.common.teleop.ITeleOpRunner;
 
-public class LeftSingleSpecimenRunner extends ITeleOpRunner { // this can impl ITeleOpRunner because no object detection is needed
+public class RightSingleSpecimenRunner extends ITeleOpRunner { // this can impl ITeleOpRunner because no object detection is needed
 	static final double STANDARD_TANGENT = Math.PI / 2;
 
-	final static Pose2d initialLeftPose = new Pose2d(1.5*FieldConstants.BLOCK_LENGTH_IN, (2.5*FieldConstants.BLOCK_LENGTH_IN+3.5), STANDARD_TANGENT);
-	final static Pose2d posForSpecimenDrop = new Pose2d(0.457*FieldConstants.BLOCK_LENGTH_IN, 1.5*FieldConstants.BLOCK_LENGTH_IN, STANDARD_TANGENT);
-	final static Pose2d backupFromChamber = new Pose2d(1.5*FieldConstants.BLOCK_LENGTH_IN, 1.5*FieldConstants.BLOCK_LENGTH_IN, STANDARD_TANGENT);
-	final static Pose2d netZone = new Pose2d(2.4*FieldConstants.BLOCK_LENGTH_IN, 2.4*FieldConstants.BLOCK_LENGTH_IN, 5*Math.PI/4);
-	final static Pose2d posForAscent = new Pose2d(FieldConstants.BLOCK_LENGTH_IN+2,0.43*FieldConstants.BLOCK_LENGTH_IN, 0);
-
+	final static Pose2d initialRightPose = new Pose2d(0.5*FieldConstants.BLOCK_LENGTH_IN, -(2.5*FieldConstants.BLOCK_LENGTH_IN+3.5), STANDARD_TANGENT);
+	final static Pose2d posForSpecimenDrop = new Pose2d(0.457*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN), STANDARD_TANGENT);
+	final static Pose2d backupFromChamber = new Pose2d(1.5*FieldConstants.BLOCK_LENGTH_IN, -1.5*FieldConstants.BLOCK_LENGTH_IN-3, STANDARD_TANGENT);
 
 	final ActionableRaptorRobot bot = new ActionableRaptorRobot();
 	SparkFunOTOSDrive drive;
@@ -52,10 +49,8 @@ public class LeftSingleSpecimenRunner extends ITeleOpRunner { // this can impl I
 					bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
 				}),
 				/* hook the specimen onto the high chamber and wait for at least 0.5 sec */
-				bot.setExtensionLiftPos(700),
-				new SleepAction(0.3),
-				bot.setArmPos(bot.BACKWARDS_HIGH_CHAMBER_ARM_POS-300),
-				new SleepAction(0.3),
+				bot.setExtensionLiftPos(400),
+				bot.setArmPos(bot.BACKWARDS_HIGH_CHAMBER_ARM_POS-150),
 				bot.setExtensionLiftPos(bot.extensionLift.minPos),
 				new InstantAction(() -> {
 					/* once the specimen is secured to the high chamber, forcefully release it and raise the arm */
@@ -68,10 +63,6 @@ public class LeftSingleSpecimenRunner extends ITeleOpRunner { // this can impl I
 					bot.intakeLarge.setPower(0);
 				})
 		);
-	}
-
-	Action ascend() {
-		return bot.setArmPos(bot.AUTON_ASCENT_ARM_POS);
 	}
 
 	Action clutchPreload() {
@@ -90,49 +81,42 @@ public class LeftSingleSpecimenRunner extends ITeleOpRunner { // this can impl I
 	}
 
 	protected void internalRun() {
-		drive = new SparkFunOTOSDrive(hardwareMap, initialLeftPose);
+		drive = new SparkFunOTOSDrive(hardwareMap, initialRightPose);
 		util = new MecanumUtil(drive);
 
+
 		Action prepForPreloadHang = new ParallelAction(
-				drive.actionBuilder(initialLeftPose)
+				drive.actionBuilder(initialRightPose)
 						.setTangent(STANDARD_TANGENT)
-						.lineToY(2.6*FieldConstants.BLOCK_LENGTH_IN)
-						.splineToSplineHeading(posForSpecimenDrop, 0)
+						.lineToY(posForSpecimenDrop.position.y)
 						.build(),
 				prepareArmForHang()
 		);
 
-		Pose2d endOfNetting = new Pose2d(2.5*FieldConstants.BLOCK_LENGTH_IN, FieldConstants.BLOCK_LENGTH_IN, STANDARD_TANGENT);
-
-		Action netAndAscend = new SequentialAction(
+		Action netAndPark = new SequentialAction(
 				new ParallelAction(
 						drive.actionBuilder(posForSpecimenDrop)
 								.setTangent(Math.PI/2)
-								.splineToSplineHeading(backupFromChamber, 0)
+								.lineToY(backupFromChamber.position.y)
+								.setTangent(0)
+								.lineToX(backupFromChamber.position.x)
 								.build(),
 						retractArm()
 				),
 
 				drive.actionBuilder(backupFromChamber)
 						.setTangent(STANDARD_TANGENT)
-						.lineToY(0.4*FieldConstants.BLOCK_LENGTH_IN)
+						.lineToY(-0.4*FieldConstants.BLOCK_LENGTH_IN)
 						.setTangent(0)
 						.lineToX(2.05*FieldConstants.BLOCK_LENGTH_IN)
 						.setTangent(STANDARD_TANGENT)
-						.lineToY(2.6*FieldConstants.BLOCK_LENGTH_IN)
-						.lineToY(0.4*FieldConstants.BLOCK_LENGTH_IN)
+						.lineToY(-2.6*FieldConstants.BLOCK_LENGTH_IN)
+						.lineToY(-0.4*FieldConstants.BLOCK_LENGTH_IN)
 						.setTangent(0)
-						.lineToX(endOfNetting.position.x)
+						.lineToX(2.5*FieldConstants.BLOCK_LENGTH_IN)
 						.setTangent(STANDARD_TANGENT)
-						.lineToY(2.6*FieldConstants.BLOCK_LENGTH_IN)
-						.lineToY(endOfNetting.position.y)
-						.build(),
-				new ParallelAction(
-						ascend(),
-						drive.actionBuilder(endOfNetting)
-								.splineToSplineHeading(posForAscent, Math.PI)
-								.build()
-				)
+						.lineToY(-2.6*FieldConstants.BLOCK_LENGTH_IN)
+						.build()
 
 		);
 
@@ -140,8 +124,9 @@ public class LeftSingleSpecimenRunner extends ITeleOpRunner { // this can impl I
 				clutchPreload(),
 				prepForPreloadHang,
 				hangPreloadStationary(),
-				netAndAscend
+				netAndPark
 		);
+
 
 		Actions.runBlocking(main);
 

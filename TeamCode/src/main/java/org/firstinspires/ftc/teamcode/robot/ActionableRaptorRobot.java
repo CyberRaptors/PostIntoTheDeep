@@ -10,6 +10,10 @@ public class ActionableRaptorRobot extends RaptorRobot {
         return new MotorSetPositionAction(arm, pos);
     }
 
+    public Action setExtensionLiftPos(int pos) {
+        return new MotorSetPositionAction(extensionLift, pos);
+    }
+
     public Action setClawRotatePos(double pos) {
         return new ServoSetPositionAction(clawRotate, pos);
     }
