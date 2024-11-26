@@ -5,7 +5,6 @@ import android.util.Pair;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import lib8812.common.util.ZeroArgPredicate;
 
@@ -16,7 +15,7 @@ public class AsyncCallbackDelegator {
             passedPredicate = predicate;
         }
 
-        public void thenCall(Runnable callback) {
+        public void then(Runnable callback) {
             callbacks.add(new Pair<>(passedPredicate, callback));
         }
     }

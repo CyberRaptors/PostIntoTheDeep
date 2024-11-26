@@ -22,11 +22,6 @@ public class RaptorMainRunner extends ITeleOpRunner {
     boolean LOCK_LIFT = false;
     boolean CHANNEL_POWER = false;
 
-    final static Runnable defaultResolver = () -> {};
-
-    Runnable onArmResolved = defaultResolver;
-    Runnable onLiftResolved = defaultResolver;
-
     protected IMecanumRobot getBot() { return bot; }
 
     void moveWheels() {
@@ -131,6 +126,12 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
     /* MACROS */
 
+
+    // locking utils
+    void unlockLift() { LOCK_LIFT = false; }
+    void unlockArm() { LOCK_ARM = false; }
+    void unlockIntakes() { LOCK_INTAKES = false; }
+
     void macroArmOut() {
         bot.arm.setPosition(bot.arm.maxPos);
     }
@@ -154,7 +155,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
             macroLiftFullRetract();
         }
 
-        onLiftResolved = () -> LOCK_LIFT = false;
+        callbacks.waitFor(bot.extensionLift).then(this::unlockLift);
     }
 
     void macroArmXXXToggle() {
@@ -169,7 +170,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
             macroArmIn();
         }
 
-        onArmResolved = () -> LOCK_ARM = false;
+        callbacks.waitFor(bot.arm).then(this::unlockArm);
     }
 
     void macroFrog() {
@@ -193,21 +194,21 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         bot.lilRaptor.setPosition(bot.LIL_RAPTOR_OUT_POS);
 
-        bot.extensionLift.setPosition(liftToGroundExtTicksEnsure); // be safe to not violate the extension limit (since lift limiting is not enabled during locking)
+        bot.extensionLift.setPosition(liftToGroundExtTicksEnsure); // be safe to not violate the extension limit
 
-        onLiftResolved = () -> {
+        callbacks.waitFor(bot.extensionLift).then(() -> {
             bot.lilRaptor.setPosition(bot.LIL_RAPTOR_REST_POS);
 
-            bot.extensionLift.setPosition(bot.extensionLift.minPos+50); // maybe we do 0+50 position to reduce risk of causing a macro deadlock
+            bot.extensionLift.setPosition(bot.extensionLift.minPos + 50); // maybe we do 0+50 position to reduce risk of causing a macro deadlock
 
-            onLiftResolved = () -> {
+            callbacks.waitFor(bot.extensionLift).then(() -> {
                 bot.intakeLarge.setPower(0);
                 bot.intakeSmall.setPower(0);
 
-                LOCK_LIFT = false;
-                LOCK_INTAKES = false;
-            };
-        };
+                unlockLift();
+                unlockIntakes();
+            });
+        });
     }
 
     void macroPrepareForReverseHighDrop() {
@@ -218,12 +219,14 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         bot.arm.setPosition(bot.REVERSE_DROP_MACRO_ARM_POS);
 
-        onArmResolved =  () -> {
-            LOCK_ARM = false;
-            bot.extensionLift.setPosition(bot.REVERSE_DROP_MACRO_LIFT_POS);
+        callbacks
+                .waitFor(() -> bot.extensionLift.maxPos >= bot.REVERSE_DROP_MACRO_LIFT_POS)
+                .then(() -> {
+                    bot.extensionLift.setPosition(bot.REVERSE_DROP_MACRO_LIFT_POS);
 
-            onLiftResolved = () -> LOCK_LIFT = false;
-        };
+                    callbacks.waitFor(bot.arm).then(this::unlockArm);
+                    callbacks.waitFor(bot.extensionLift).then(this::unlockLift);
+                });
     }
 
     void macroArmBackForHighChamber() {
@@ -233,7 +236,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         bot.arm.setPosition(bot.BACKWARDS_HIGH_CHAMBER_ARM_POS);
 
-        onArmResolved = () -> LOCK_ARM = false;
+        callbacks.waitFor(bot.arm).then(this::unlockArm);
     }
 
     void macroPrepareForForwardHighDrop() {
@@ -244,22 +247,38 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         bot.arm.setPosition(bot.FORWARDS_HIGH_BASKET_ARM_POS);
 
-        onArmResolved =  () -> {
-            LOCK_ARM = false;
-            bot.extensionLift.setPosition(bot.FORWARDS_HIGH_BASKET_LIFT_POS);
+        callbacks
+                .waitFor(() -> bot.extensionLift.maxPos >= bot.FORWARDS_HIGH_BASKET_LIFT_POS)
+                .then(() -> {
+                    bot.extensionLift.setPosition(bot.FORWARDS_HIGH_BASKET_LIFT_POS);
 
-            onLiftResolved = () -> LOCK_LIFT = false;
-        };
-    }
-
-    // macro utility
-    void tryClearResolvers() {
-        if (!LOCK_ARM || CHANNEL_POWER) onArmResolved = defaultResolver;
-
-        if (!LOCK_LIFT || CHANNEL_POWER) onLiftResolved = defaultResolver;
+                    callbacks.waitFor(bot.arm).then(this::unlockArm);
+                    callbacks.waitFor(bot.extensionLift).then(this::unlockLift);
+                });
     }
 
     /* END MACROS */
+
+    void tryRecoverFromAuton() {
+        while (!gamepad1.inner.b) {
+            moveWheels();
+        }
+
+        bot.arm.reverse();
+        bot.extensionLift.reverse();
+
+        bot.arm.setPosition(InteropFields.ARM_END_POS);
+        bot.extensionLift.setPosition(InteropFields.LIFT_END_POS);
+
+        bot.arm.waitForPosition();
+        bot.extensionLift.waitForPosition();
+
+        bot.arm.resetEncoder();
+        bot.extensionLift.resetEncoder();
+
+        bot.arm.reverse();
+        bot.extensionLift.reverse();
+    }
 
     protected void internalRun() {
         KeybindPattern.GamepadBinder x = keybinder.bind("x");
@@ -303,34 +322,12 @@ public class RaptorMainRunner extends ITeleOpRunner {
             applyBrakesBasedOnInput(inp, bot.rightBack);
         });
 
-        while (!gamepad1.inner.b) {
-            moveWheels();
-        }
-
-        bot.arm.reverse();
-        bot.extensionLift.reverse();
-
-        bot.arm.setPosition(InteropFields.ARM_END_POS);
-        bot.extensionLift.setPosition(InteropFields.LIFT_END_POS);
-
-        bot.arm.waitForPosition();
-        bot.extensionLift.waitForPosition();
-
-        bot.arm.resetEncoder();
-        bot.extensionLift.resetEncoder();
-
-        bot.arm.reverse();
-        bot.extensionLift.reverse();
+        tryRecoverFromAuton();
 
         while (opModeIsActive()) {
             moveWheels();
 
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();
-
-            tryClearResolvers();
-
-            if (LOCK_ARM && !bot.arm.isBusy()) onArmResolved.run(); // arm-based macro resolver
-            if (LOCK_LIFT && !bot.extensionLift.isBusy()) onLiftResolved.run(); // lift-based macro resolver
 
             if (!LOCK_ARM) moveArm();
             limitLiftExtension();
@@ -339,6 +336,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
             if (!LOCK_INTAKES && !CHANNEL_POWER) moveSpinningIntake();
 
             keybinder.executeActions();
+            callbacks.delegate();
 
             if (CHANNEL_POWER) continue;
 
