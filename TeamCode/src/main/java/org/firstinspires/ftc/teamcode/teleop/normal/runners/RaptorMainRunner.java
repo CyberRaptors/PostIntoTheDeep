@@ -173,9 +173,8 @@ public class RaptorMainRunner extends ITeleOpRunner {
     }
 
     void macroFrog() {
-        if (LOCK_ARM || LOCK_LIFT || LOCK_INTAKES || CHANNEL_POWER) return;
+        if (LOCK_LIFT || LOCK_INTAKES || CHANNEL_POWER) return;
 
-        LOCK_ARM = true;
         LOCK_LIFT = true;
         LOCK_INTAKES = true;
 
@@ -207,7 +206,6 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
                 LOCK_LIFT = false;
                 LOCK_INTAKES = false;
-                LOCK_ARM = false;
             };
         };
     }
@@ -270,19 +268,18 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         // hang bind release
         x.of(gamepad2).to(() -> {
-            if (bot.arm.maxPos == bot.ARM_HANG_MAX_TICKS) {
-                bot.arm.maxPos = bot.ARM_MAX_TICKS;
+            bot.arm.maxPos = bot.ARM_MAX_TICKS;
 
-                CHANNEL_POWER = true;
-                bot.extensionLift.setPower(0);
-                bot.extensionLift.close();
-                bot.clawRotate.close();
-                bot.intakeSmall.close();
-                bot.intakeLarge.close();
+            CHANNEL_POWER = true;
+            bot.extensionLift.setPower(0);
+            bot.extensionLift.close();
+            bot.clawRotate.close();
+            bot.intakeSmall.close();
+            bot.intakeLarge.close();
 
-                telemetry.addData("no telemetry data", "arm power channel mode");
-                telemetry.update();
-            } else bot.arm.maxPos = bot.ARM_HANG_MAX_TICKS;
+            telemetry.addData("no telemetry data", "arm power channel mode");
+            telemetry.addData("note", "to recover, bring arm back to resting position and restart opmode");
+            telemetry.update();
         });
 
         keybinder.bind("y").of(gamepad2).to(() -> LOCK_ARM = !LOCK_ARM);

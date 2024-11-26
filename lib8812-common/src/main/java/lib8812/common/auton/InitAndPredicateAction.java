@@ -5,11 +5,9 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 
-public class InitAndPredicateAction implements Action {
-	public interface ZeroArgPredicate {
-		boolean run();
-	}
+import lib8812.common.util.ZeroArgPredicate;
 
+public class InitAndPredicateAction implements Action {
 	final Runnable init;
 	final ZeroArgPredicate isComplete;
 	boolean initialized = false;
