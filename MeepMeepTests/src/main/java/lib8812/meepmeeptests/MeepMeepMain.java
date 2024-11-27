@@ -5,9 +5,6 @@ import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.DriveShim;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
-import java.awt.Image;
-import java.awt.Toolkit;
-
 public class MeepMeepMain {
 	public static void main(String[] args) {
 		MeepMeep meepMeep = new MeepMeep(600);
@@ -19,7 +16,7 @@ public class MeepMeepMain {
 
 		DriveShim drive = myBot.getDrive();
 
-		myBot.runAction(MeepMeepLeft.run(drive));
+		myBot.runAction(MeepMeepLeftBasketCycle.run(drive));
 
 		meepMeep
 				.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_OFFICIAL)

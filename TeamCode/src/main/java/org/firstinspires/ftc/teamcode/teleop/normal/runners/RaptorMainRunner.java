@@ -199,7 +199,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
         callbacks.waitFor(bot.extensionLift).then(() -> {
             bot.lilRaptor.setPosition(bot.LIL_RAPTOR_REST_POS);
 
-            bot.extensionLift.setPosition(bot.extensionLift.minPos + 50); // maybe we do 0+50 position to reduce risk of causing a macro deadlock
+            bot.extensionLift.setPosition(bot.extensionLift.minPos + 50); // we do 0+50 position to reduce risk of causing a macro deadlock
 
             callbacks.waitFor(bot.extensionLift).then(() -> {
                 bot.intakeLarge.setPower(0);
