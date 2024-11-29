@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.auton.odom.runners.RightSingleSpecimenRunner;
 
 
-@Autonomous(name="Right/SingleSpecimen [***   ]", group="Blue")
+@Autonomous(name="Right [s+oo/p]", group="Blue")
 public class RightSingleSpecimen extends LinearOpMode {
 	@Override
 	public void runOpMode() {

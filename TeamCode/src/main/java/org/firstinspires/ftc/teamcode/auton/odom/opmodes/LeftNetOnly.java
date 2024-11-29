@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.auton.odom.runners.LeftNetOnlyRunner;
 
 
-@Autonomous(name="Left/NetOnly [**   ]", group="Blue")
+@Autonomous(name="Left [0+nn/a]", group="Blue")
 public class LeftNetOnly extends LinearOpMode {
 	@Override
 	public void runOpMode() {

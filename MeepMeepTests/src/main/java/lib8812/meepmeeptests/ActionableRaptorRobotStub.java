@@ -36,4 +36,24 @@ public class ActionableRaptorRobotStub {
     public Action spitSample() {
         return new EmptyAction();
     }
+
+    public Action ascend() {
+        return new EmptyAction();
+    }
+
+    public Action clutchPreload() {
+        return new EmptyAction();
+    }
+
+    public Action hangPreloadStationary() {
+        return new EmptyAction();
+    }
+
+    public Action prepareArmForSpecimenHang() {
+        return new EmptyAction();
+    }
+
+    public Action retractArm() {
+        return new EmptyAction();
+    }
 }

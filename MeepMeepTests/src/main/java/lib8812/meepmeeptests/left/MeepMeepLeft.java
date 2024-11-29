@@ -1,4 +1,4 @@
-package lib8812.meepmeeptests;
+package lib8812.meepmeeptests.left;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
@@ -7,10 +7,12 @@ import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.noahbres.meepmeep.roadrunner.DriveShim;
 
+import lib8812.meepmeeptests.FieldConstants;
+
 public class MeepMeepLeft {
 	static final double STANDARD_TANGENT = Math.PI / 2;
 
-	final static Pose2d initialLeftPose = new Pose2d(1.5*FieldConstants.BLOCK_LENGTH_IN, (2.5*FieldConstants.BLOCK_LENGTH_IN+3.5), STANDARD_TANGENT);
+	final static Pose2d initialLeftPose = new Pose2d(1.5* FieldConstants.BLOCK_LENGTH_IN, (2.5*FieldConstants.BLOCK_LENGTH_IN+3.5), STANDARD_TANGENT);
 	final static Pose2d posForSpecimenDrop = new Pose2d(0.457*FieldConstants.BLOCK_LENGTH_IN, 1.5*FieldConstants.BLOCK_LENGTH_IN, STANDARD_TANGENT);
 	final static Pose2d backupFromChamber = new Pose2d(1.5*FieldConstants.BLOCK_LENGTH_IN, 1.5*FieldConstants.BLOCK_LENGTH_IN, STANDARD_TANGENT);
 	final static Pose2d netZone = new Pose2d(2.4*FieldConstants.BLOCK_LENGTH_IN, 2.4*FieldConstants.BLOCK_LENGTH_IN, 5*Math.PI/4);
@@ -24,7 +26,7 @@ public class MeepMeepLeft {
 				drive.actionBuilder(initialLeftPose)
 						.setTangent(STANDARD_TANGENT)
 						.lineToY(2.6*FieldConstants.BLOCK_LENGTH_IN)
-						.splineToSplineHeading(posForSpecimenDrop, 0)
+						.strafeToSplineHeading(posForSpecimenDrop.position, posForSpecimenDrop.heading)
 						.build(),
 				prepareArmForHang()
 		);
@@ -35,7 +37,7 @@ public class MeepMeepLeft {
 				new ParallelAction(
 						drive.actionBuilder(posForSpecimenDrop)
 								.setTangent(Math.PI/2)
-								.splineToSplineHeading(backupFromChamber, 0)
+								.strafeToSplineHeading(backupFromChamber.position, backupFromChamber.heading)
 								.build(),
 						retractArm()
 				),
@@ -57,10 +59,9 @@ public class MeepMeepLeft {
 				new ParallelAction(
 						ascend(),
 						drive.actionBuilder(endOfNetting)
-								.splineToSplineHeading(posForAscent, Math.PI)
+								.strafeToSplineHeading(posForAscent.position, posForAscent.heading)
 								.build()
 				)
-
 		);
 
 		Action main = new SequentialAction(

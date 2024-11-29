@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.robot;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 
@@ -72,5 +73,61 @@ public class ActionableRaptorRobot extends RaptorRobot {
                     intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
                 })
         );
+    }
+
+    public Action ascend() {
+        return setArmPos(AUTON_ASCENT_ARM_POS);
+    }
+
+    public Action clutchPreload() {
+        return new SequentialAction(
+                new InstantAction(() -> {
+                    intakeSmall.setPower(INTAKE_SMALL_IN_DIRECTION);
+                    intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
+
+                }),
+                new SleepAction(1.5),
+                new InstantAction(() -> {
+                    intakeSmall.setPower(0);
+                    intakeLarge.setPower(0);
+                })
+        );
+    }
+
+    public Action hangPreloadStationary() {
+        return new SequentialAction(
+                new InstantAction(() -> {
+                    /*  clutch the specimen */
+                    intakeSmall.setPower(INTAKE_SMALL_IN_DIRECTION);
+                    intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
+                }),
+                /* hook the specimen onto the high chamber and wait for at least 0.5 sec */
+                setExtensionLiftPos(700),
+                new SleepAction(0.3),
+                setArmPos(BACKWARDS_HIGH_CHAMBER_ARM_POS-300),
+                new SleepAction(0.3),
+                setExtensionLiftPos(extensionLift.minPos),
+                new InstantAction(() -> {
+                    /* once the specimen is secured to the high chamber, forcefully release it and raise the arm */
+                    intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
+                    intakeLarge.setPower(INTAKE_LARGE_OUT_DIRECTION);
+                }),
+                setArmPos(BACKWARDS_HIGH_CHAMBER_ARM_POS),
+                new InstantAction(() -> {
+                    intakeSmall.setPower(0);
+                    intakeLarge.setPower(0);
+                })
+        );
+    }
+
+    public Action prepareArmForSpecimenHang() {
+        return new ParallelAction(
+                setArmPos(BACKWARDS_HIGH_CHAMBER_ARM_POS),
+                setClawRotatePos(CLAW_ROTATE_FORWARDS)
+        );
+    }
+
+    public Action retractArm() {
+        return setArmPos(arm.minPos);
     }
 }

@@ -97,7 +97,7 @@ public class LeftSingleSpecimenRunner extends ITeleOpRunner { // this can impl I
 				drive.actionBuilder(initialLeftPose)
 						.setTangent(STANDARD_TANGENT)
 						.lineToY(2.6*FieldConstants.BLOCK_LENGTH_IN)
-						.splineToSplineHeading(posForSpecimenDrop, 0)
+						.strafeToSplineHeading(posForSpecimenDrop.position, posForSpecimenDrop.heading)
 						.build(),
 				prepareArmForHang()
 		);
@@ -108,7 +108,7 @@ public class LeftSingleSpecimenRunner extends ITeleOpRunner { // this can impl I
 				new ParallelAction(
 						drive.actionBuilder(posForSpecimenDrop)
 								.setTangent(Math.PI/2)
-								.splineToSplineHeading(backupFromChamber, 0)
+								.strafeToSplineHeading(backupFromChamber.position, backupFromChamber.heading)
 								.build(),
 						retractArm()
 				),
@@ -130,10 +130,9 @@ public class LeftSingleSpecimenRunner extends ITeleOpRunner { // this can impl I
 				new ParallelAction(
 						ascend(),
 						drive.actionBuilder(endOfNetting)
-								.splineToSplineHeading(posForAscent, Math.PI)
+								.strafeToSplineHeading(posForAscent.position, posForAscent.heading)
 								.build()
 				)
-
 		);
 
 		Action main = new SequentialAction(

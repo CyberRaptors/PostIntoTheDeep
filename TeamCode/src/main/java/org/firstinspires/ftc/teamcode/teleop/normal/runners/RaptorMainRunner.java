@@ -249,14 +249,42 @@ public class RaptorMainRunner extends ITeleOpRunner {
         );
     }
 
-    void macroArmBackForHighChamber() {
-        if (LOCK_ARM || CHANNEL_POWER) return;
+    Action hangSpecimenBackHighChamberInternal() {
+        return new SequentialAction(
+                new InstantAction(() -> {
+                    /*  clutch the specimen */
+                    bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
+                    bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
+                }),
+                /* hook the specimen onto the high chamber and wait for at least 0.5 sec */
+                new MotorSetPositionAction(bot.extensionLift, 400),
+                new MotorSetPositionAction(bot.arm, bot.BACKWARDS_HIGH_CHAMBER_ARM_POS-150),
+                new MotorSetPositionAction(bot.extensionLift, bot.extensionLift.minPos),
+                new InstantAction(() -> {
+                    /* once the specimen is secured to the high chamber, forcefully release it and raise the arm */
+                    bot.intakeSmall.setPower(bot.INTAKE_SMALL_OUT_DIRECTION);
+                    bot.intakeLarge.setPower(bot.INTAKE_LARGE_OUT_DIRECTION);
+                }),
+                new MotorSetPositionAction(bot.arm, bot.BACKWARDS_HIGH_CHAMBER_ARM_POS),
+                new InstantAction(() -> {
+                    bot.intakeSmall.setPower(0);
+                    bot.intakeLarge.setPower(0);
+                })
+        );
+    }
 
-        LOCK_ARM = true;
+    void macroHangSpecimenBackHighChamber() {
+        if (LOCK_ARM || LOCK_INTAKES || LOCK_LIFT || CHANNEL_POWER) return;
+
+        LOCK_ARM = LOCK_INTAKES = LOCK_LIFT = true;
 
         actions.schedule(
-                new MotorSetPositionAction(bot.arm, bot.BACKWARDS_HIGH_CHAMBER_ARM_POS),
-                unlockArm()
+                hangSpecimenBackHighChamberInternal(),
+                new InstantAction(
+                        () -> {
+                            LOCK_ARM = LOCK_INTAKES = LOCK_LIFT = false;
+                        }
+                )
         );
     }
 
@@ -303,27 +331,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         Action macro = new SequentialAction(
                 prepForHang,
-                new SequentialAction(
-                        new InstantAction(() -> {
-                            /*  clutch the specimen */
-                            bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
-                            bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
-                        }),
-                        /* hook the specimen onto the high chamber and wait for at least 0.5 sec */
-                        new MotorSetPositionAction(bot.extensionLift, 400),
-                        new MotorSetPositionAction(bot.arm, bot.BACKWARDS_HIGH_CHAMBER_ARM_POS-150),
-                        new MotorSetPositionAction(bot.extensionLift, bot.extensionLift.minPos),
-                        new InstantAction(() -> {
-                            /* once the specimen is secured to the high chamber, forcefully release it and raise the arm */
-                            bot.intakeSmall.setPower(bot.INTAKE_SMALL_OUT_DIRECTION);
-                            bot.intakeLarge.setPower(bot.INTAKE_LARGE_OUT_DIRECTION);
-                        }),
-                        new MotorSetPositionAction(bot.arm, bot.BACKWARDS_HIGH_CHAMBER_ARM_POS),
-                        new InstantAction(() -> {
-                            bot.intakeSmall.setPower(0);
-                            bot.intakeLarge.setPower(0);
-                        })
-                ),
+                hangSpecimenBackHighChamberInternal(),
                 returnToOZ,
                 new InstantAction(() -> LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = false)
         );
@@ -386,7 +394,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
         keybinder.bind("right_stick_button").of(gamepad2).to(this::macroLiftFullXXXToggle);
 
         keybinder.bind("dpad_up").of(gamepad2).to(this::macroPrepareForForwardHighDrop);
-        keybinder.bind("a").of(gamepad2).to(this::macroArmBackForHighChamber);
+        keybinder.bind("a").of(gamepad2).to(this::macroHangSpecimenBackHighChamber);
 
         keybinder.bind("right_bumper").of(gamepad2).to(this::macroFrog);
         keybinder.bind("left_bumper").of(gamepad2).to(this::macroPrepareForReverseHighDrop);
