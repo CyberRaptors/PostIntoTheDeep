@@ -25,6 +25,7 @@ public class ServoLikeMotor implements DcMotor, ICustomHardwareDevice {
         this.minPos = minPos;
         this.maxPos = maxPos;
 
+        inner.resetDeviceConfigurationForOpMode();
         inner.setMode(RunMode.RUN_USING_ENCODER);
         inner.setMode(RunMode.STOP_AND_RESET_ENCODER);
         inner.setTargetPosition(minPos);

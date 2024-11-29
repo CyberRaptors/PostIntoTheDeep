@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.robot;
 
-import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -9,8 +9,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import lib8812.common.robot.IMecanumRobot;
-import lib8812.common.robot.hardwarewrappers.DegreeInchesOTOS;
 import lib8812.common.robot.hardwarewrappers.ServoLikeMotor;
+import lib8812.common.rr.SparkFunOTOSDrive;
 
 public class RaptorRobot extends IMecanumRobot {
     public final int ARM_HANG_MAX_TICKS = 4820;
@@ -70,23 +70,18 @@ public class RaptorRobot extends IMecanumRobot {
     public CRServo intakeLarge;
     public Servo lilRaptor;
 
-    public DegreeInchesOTOS otos;
-    final DegreeInchesOTOS.Configuration otosConfig =
-            new DegreeInchesOTOS.Configuration()
-                    .withOffset(
-                            0, 0, 0
-                    )
-                    .withStartingPoint(
-                            0, 0, 0
-                    )
-                    .withLinearMultiplier(1)
-                    .withAngularMultiplier(1);
+    public SparkFunOTOSDrive drive;
 
     public void init(HardwareMap hardwareMap) {
         rightFront = loadDevice(hardwareMap, DcMotor.class, "rightFront");
         leftFront = loadDevice(hardwareMap, DcMotor.class, "leftFront");
         rightBack = loadDevice(hardwareMap, DcMotor.class, "rightBack");
         leftBack = loadDevice(hardwareMap, DcMotor.class, "leftBack");
+
+        rightFront.resetDeviceConfigurationForOpMode();
+        leftFront.resetDeviceConfigurationForOpMode();
+        rightBack.resetDeviceConfigurationForOpMode();
+        leftBack.resetDeviceConfigurationForOpMode();
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -104,16 +99,25 @@ public class RaptorRobot extends IMecanumRobot {
         extensionLift.reverse();
 
         clawRotate = loadDevice(hardwareMap, Servo.class, "clawRotate");
+        clawRotate.resetDeviceConfigurationForOpMode();
+
         intakeSmall = loadDevice(hardwareMap, CRServo.class, "intake0");
+        intakeSmall.resetDeviceConfigurationForOpMode();
+
         intakeLarge = loadDevice(hardwareMap, CRServo.class, "intake1");
+        intakeLarge.resetDeviceConfigurationForOpMode();
+
         lilRaptor = loadDevice(hardwareMap, Servo.class, "lilRaptor");
+        lilRaptor.resetDeviceConfigurationForOpMode();
 
         clawRotate.setPosition(CLAW_ROTATE_MAX_POS);
         lilRaptor.setPosition(LIL_RAPTOR_REST_POS);
 
-        otos = new DegreeInchesOTOS(
-                loadDevice(hardwareMap, SparkFunOTOS.class, "otos"),
-                otosConfig
-        );
+        drive = new SparkFunOTOSDrive(hardwareMap, new Pose2d(0, 0, 0));
+    }
+
+    public void setRRDrivePose(Pose2d pose) {
+        drive.updatePoseEstimate();
+        drive.pose = pose;
     }
 }

@@ -16,7 +16,7 @@ public abstract class ITeleOpRunner {
     protected ReflectiveGamepad gamepad1;
     protected ReflectiveGamepad gamepad2;
     protected KeybindPattern keybinder;
-    protected AsyncCallbackDelegator callbacks;
+    protected RRActionsDelegator actions = new RRActionsDelegator();
     protected Telemetry telemetry;
     protected HardwareMap hardwareMap;
 
@@ -59,6 +59,6 @@ public abstract class ITeleOpRunner {
     }
 
     protected abstract void internalRun();
-    protected void customInit() { };
+    protected void customInit() { }
     protected abstract IMecanumRobot getBot();
 }

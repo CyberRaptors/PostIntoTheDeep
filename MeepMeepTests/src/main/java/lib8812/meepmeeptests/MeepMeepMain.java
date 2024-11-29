@@ -16,7 +16,7 @@ public class MeepMeepMain {
 
 		DriveShim drive = myBot.getDrive();
 
-		myBot.runAction(MeepMeepLeftBasketCycle.run(drive));
+		myBot.runAction(MeepMeepTeleOpSpecimenCycle.run(drive));
 
 		meepMeep
 				.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_OFFICIAL)
