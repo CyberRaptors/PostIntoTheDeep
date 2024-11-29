@@ -145,7 +145,6 @@ public class RaptorMainRunner extends ITeleOpRunner {
             LOCK_LIFT = false;
         });
     }
-    Action unlockIntakes() { return new InstantAction(() -> LOCK_INTAKES = false); }
 
     Action armOut() {
         return new MotorSetPositionAction(bot.arm, bot.arm.maxPos);
@@ -186,7 +185,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         Action moveArm;
 
-        if (bot.arm.getPosition() < 500) {
+        if (bot.arm.getPosition() < (bot.arm.maxPos-bot.arm.minPos)/2) {
             moveArm = armOut();
         }
         else {
@@ -296,8 +295,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
                 new MotorSetPositionAction(bot.arm, bot.BACKWARDS_HIGH_CHAMBER_ARM_POS)
         );
 
-        Action returnToOZ = new ParallelAction(
-                new MotorSetPositionAction(bot.arm, bot.arm.minPos),
+        Action returnToOZ = new ParallelAction( // keep the arm at bot.BACKWARDS_HIGH_CHAMBER_ARM_POS so that drivers don't waste too much time bringing the arm back out for a frog
                 bot.drive.actionBuilder(posForSpecimenDrop)
                         .strafeToSplineHeading(initialSpecimenPickupPose.position, posForSpecimenDrop.heading)
                         .build()
@@ -363,7 +361,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         // hang bind release
         x.of(gamepad2).to(() -> {
-            bot.arm.maxPos = bot.ARM_MAX_TICKS;
+            bot.arm.maxPos = bot.ARM_HANG_MAX_TICKS;
 
             CHANNEL_POWER = true;
 
