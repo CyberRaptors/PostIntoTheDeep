@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auton.odom.runners;
+package org.firstinspires.ftc.teamcode.auton.odom.runners.right;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
@@ -18,11 +18,11 @@ import lib8812.common.telemetrymap.FieldConstants;
 import lib8812.common.teleop.ITeleOpRunner;
 
 public class RightSingleSpecimenRunner extends ITeleOpRunner { // this can impl ITeleOpRunner because no object detection is needed
-	static final double STANDARD_TANGENT = Math.PI / 2;
+	static final double STANDARD_TANGENT = 3 * Math.PI / 2;
 
-	final static Pose2d initialRightPose = new Pose2d(0.5*FieldConstants.BLOCK_LENGTH_IN, -(2.5*FieldConstants.BLOCK_LENGTH_IN+3.5), STANDARD_TANGENT);
+	final static Pose2d initialRightPose = new Pose2d(0.5* FieldConstants.BLOCK_LENGTH_IN, -(2.5*FieldConstants.BLOCK_LENGTH_IN+3.5), STANDARD_TANGENT);
 	final static Pose2d posForSpecimenDrop = new Pose2d(0.457*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN), STANDARD_TANGENT);
-	final static Pose2d backupFromChamber = new Pose2d(1.5*FieldConstants.BLOCK_LENGTH_IN, -1.5*FieldConstants.BLOCK_LENGTH_IN-3, STANDARD_TANGENT);
+	final static Pose2d backupFromChamber = new Pose2d(1.5*FieldConstants.BLOCK_LENGTH_IN, -1.5*FieldConstants.BLOCK_LENGTH_IN, STANDARD_TANGENT);
 
 	final ActionableRaptorRobot bot = new ActionableRaptorRobot();
 	SparkFunOTOSDrive drive;
@@ -84,11 +84,10 @@ public class RightSingleSpecimenRunner extends ITeleOpRunner { // this can impl 
 		drive = new SparkFunOTOSDrive(hardwareMap, initialRightPose);
 		util = new MecanumUtil(drive);
 
-
 		Action prepForPreloadHang = new ParallelAction(
 				drive.actionBuilder(initialRightPose)
 						.setTangent(STANDARD_TANGENT)
-						.lineToY(posForSpecimenDrop.position.y)
+						.strafeToSplineHeading(posForSpecimenDrop.position, posForSpecimenDrop.heading)
 						.build(),
 				prepareArmForHang()
 		);
@@ -96,8 +95,6 @@ public class RightSingleSpecimenRunner extends ITeleOpRunner { // this can impl 
 		Action netAndPark = new SequentialAction(
 				new ParallelAction(
 						drive.actionBuilder(posForSpecimenDrop)
-								.setTangent(Math.PI/2)
-								.lineToY(backupFromChamber.position.y)
 								.setTangent(0)
 								.lineToX(backupFromChamber.position.x)
 								.build(),
@@ -126,6 +123,7 @@ public class RightSingleSpecimenRunner extends ITeleOpRunner { // this can impl 
 				hangPreloadStationary(),
 				netAndPark
 		);
+
 
 
 		Actions.runBlocking(main);

@@ -17,6 +17,10 @@ public class ActionableRaptorRobotStub {
         return new EmptyAction();
     }
 
+    public Action setMaxArmPos() {
+        return new EmptyAction();
+    }
+
     public Action setExtensionLiftPos(int pos) {
         return new EmptyAction();
     }

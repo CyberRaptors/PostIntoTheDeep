@@ -311,7 +311,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = true;
 
-        final Pose2d initialSpecimenPickupPose = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN, -(2* FieldConstants.BLOCK_LENGTH_IN), 3 * Math.PI / 2);
+        final Pose2d initialSpecimenPickupPose = new Pose2d(2* FieldConstants.BLOCK_LENGTH_IN, -(2*FieldConstants.BLOCK_LENGTH_IN-5), 3 * Math.PI / 2);
         final Pose2d posForSpecimenDrop = new Pose2d(0.2*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN), 3 * Math.PI / 2);
 
         bot.setRRDrivePose(initialSpecimenPickupPose);

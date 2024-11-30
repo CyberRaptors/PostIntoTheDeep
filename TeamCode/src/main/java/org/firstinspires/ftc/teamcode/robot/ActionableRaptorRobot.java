@@ -15,6 +15,8 @@ public class ActionableRaptorRobot extends RaptorRobot {
         return new MotorSetPositionAction(arm, pos);
     }
 
+    public Action setMaxArmPos() { return setArmPos(arm.maxPos); }
+
     public Action setExtensionLiftPos(int pos) {
         return new MotorSetPositionAction(extensionLift, pos);
     }

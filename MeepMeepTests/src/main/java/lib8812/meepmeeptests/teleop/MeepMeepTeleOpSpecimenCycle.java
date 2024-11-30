@@ -12,7 +12,7 @@ import lib8812.meepmeeptests.FieldConstants;
 public class MeepMeepTeleOpSpecimenCycle {
 	static final double STANDARD_TANGENT = 3 * Math.PI / 2;
 
-	final static Pose2d initialSpecimenPickupPose = new Pose2d(2* FieldConstants.BLOCK_LENGTH_IN, -(2*FieldConstants.BLOCK_LENGTH_IN), STANDARD_TANGENT);
+	final static Pose2d initialSpecimenPickupPose = new Pose2d(2* FieldConstants.BLOCK_LENGTH_IN, -(2*FieldConstants.BLOCK_LENGTH_IN-5), STANDARD_TANGENT);
 	final static Pose2d posForSpecimenDrop = new Pose2d(0.2*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN), STANDARD_TANGENT);
 
 	public static Action run(DriveShim drive) {
