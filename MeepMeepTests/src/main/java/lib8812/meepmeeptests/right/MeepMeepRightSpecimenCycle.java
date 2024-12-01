@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.roadrunner.DriveShim;
 
 import lib8812.meepmeeptests.ActionableRaptorRobotStub;
@@ -14,8 +15,9 @@ public class MeepMeepRightSpecimenCycle {
 
 	final static Pose2d initialRightPose = new Pose2d(0.5* FieldConstants.BLOCK_LENGTH_IN, -(2.5*FieldConstants.BLOCK_LENGTH_IN+3.5), STANDARD_TANGENT);
 	final static Pose2d posForSpecimenDrop = new Pose2d(0.457*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN), STANDARD_TANGENT);
-	final static Pose2d backupFromChamber = new Pose2d(1.5*FieldConstants.BLOCK_LENGTH_IN, -1.5*FieldConstants.BLOCK_LENGTH_IN, STANDARD_TANGENT);
+	final static Pose2d backupFromChamber = new Pose2d(1.35*FieldConstants.BLOCK_LENGTH_IN, -1.5*FieldConstants.BLOCK_LENGTH_IN, STANDARD_TANGENT);
 	final static Pose2d specimenPickupPos = new Pose2d(2* FieldConstants.BLOCK_LENGTH_IN, -(2*FieldConstants.BLOCK_LENGTH_IN-5), STANDARD_TANGENT);
+	final static double pushSamplesUntil = -2.3*FieldConstants.BLOCK_LENGTH_IN;
 
 	public static Action run(DriveShim drive) {
 		drive.setPoseEstimate(initialRightPose);
@@ -30,35 +32,33 @@ public class MeepMeepRightSpecimenCycle {
 				bot.prepareArmForSpecimenHang()
 		);
 
-		Action netAll = new SequentialAction(
+		Action netFirstAndSecond = new SequentialAction(
 				new ParallelAction(
+						bot.retractArm(),
 						drive.actionBuilder(posForSpecimenDrop)
+//								.strafeToSplineHeading(backupFromChamber.position, backupFromChamber.heading)
+//								.strafeTo(new Vector2d(1.7*FieldConstants.BLOCK_LENGTH_IN, -0.4*FieldConstants.BLOCK_LENGTH_IN))
+								.lineToY(-2.2*FieldConstants.BLOCK_LENGTH_IN)
+								.splineTo(new Vector2d(2.05*FieldConstants.BLOCK_LENGTH_IN, -0.4*FieldConstants.BLOCK_LENGTH_IN), 3*Math.PI/2)
+								.setTangent(STANDARD_TANGENT)
+								.lineToY(pushSamplesUntil)
+								.lineToY(-0.4*FieldConstants.BLOCK_LENGTH_IN)
 								.setTangent(0)
-								.lineToX(backupFromChamber.position.x)
-								.build(),
-						bot.retractArm()
-				),
-
-				drive.actionBuilder(backupFromChamber)
-						.setTangent(STANDARD_TANGENT)
-						.lineToY(-0.4*FieldConstants.BLOCK_LENGTH_IN)
-						.setTangent(0)
-						.lineToX(2.05*FieldConstants.BLOCK_LENGTH_IN)
-						.setTangent(STANDARD_TANGENT)
-						.lineToY(-2.6*FieldConstants.BLOCK_LENGTH_IN)
-						.lineToY(-0.4*FieldConstants.BLOCK_LENGTH_IN)
-						.setTangent(0)
-						.lineToX(2.5*FieldConstants.BLOCK_LENGTH_IN)
-						.setTangent(STANDARD_TANGENT)
-						.lineToY(-2.6*FieldConstants.BLOCK_LENGTH_IN)
-						.lineToY(-0.4*FieldConstants.BLOCK_LENGTH_IN)
-						.setTangent(0)
-						.lineToX(2.7*FieldConstants.BLOCK_LENGTH_IN)
-						.setTangent(STANDARD_TANGENT)
-						.lineToY(-2.6*FieldConstants.BLOCK_LENGTH_IN)
-						.strafeToSplineHeading(specimenPickupPos.position, specimenPickupPos.heading)
-						.build()
+								.lineToX(2.5*FieldConstants.BLOCK_LENGTH_IN)
+								.setTangent(STANDARD_TANGENT)
+								.lineToY(pushSamplesUntil)
+								.strafeToSplineHeading(specimenPickupPos.position, specimenPickupPos.heading)
+								.build()
+				)
 		);
+
+		Action netThird = drive.actionBuilder(posForSpecimenDrop)
+				.lineToY(-1.7*FieldConstants.BLOCK_LENGTH_IN)
+				.splineTo(new Vector2d(2.7*FieldConstants.BLOCK_LENGTH_IN, -0.4*FieldConstants.BLOCK_LENGTH_IN), 3*Math.PI/2)
+				.setTangent(STANDARD_TANGENT)
+				.lineToY(pushSamplesUntil)
+				.strafeToSplineHeading(specimenPickupPos.position, specimenPickupPos.heading)
+				.build();
 
 		Action pickupSpecimen = new SequentialAction(
 				bot.setMaxArmPos(),
@@ -79,11 +79,10 @@ public class MeepMeepRightSpecimenCycle {
 						.build()
 		);
 
-		Action hangAndReturn = new SequentialAction(
+		Action pickupAndHang = new SequentialAction(
 				pickupSpecimen,
 				prepForHang,
-				bot.hangPreloadStationary(),
-				returnToOZ
+				bot.hangPreloadStationary()
 		);
 
 		Action park = drive.actionBuilder(specimenPickupPos)
@@ -95,11 +94,16 @@ public class MeepMeepRightSpecimenCycle {
 				bot.clutchPreload(),
 				prepForPreloadHang,
 				bot.hangPreloadStationary(),
-				netAll,
-				hangAndReturn,
-				hangAndReturn,
-				hangAndReturn,
-				hangAndReturn, // could do a fifth, but need teammate to allow use to use their specimen for this
+				netFirstAndSecond,
+				pickupAndHang,
+				returnToOZ,
+//				netThird, // -> replace this with a returnToOZ (above) if not going for third
+//				pickupAndHang,
+//				returnToOZ,
+				pickupAndHang,
+				returnToOZ,
+//				pickupAndHang, // could do a last one, but need teammate to allow use to use their specimen for this
+//				returnToOZ,
 				park
 		);
 
