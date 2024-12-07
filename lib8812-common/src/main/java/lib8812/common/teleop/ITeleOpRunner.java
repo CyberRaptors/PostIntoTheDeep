@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import lib8812.common.robot.IMecanumRobot;
+import lib8812.common.robot.IRobot;
 
 public abstract class ITeleOpRunner {
     public LinearOpMode opMode;
@@ -43,7 +43,7 @@ public abstract class ITeleOpRunner {
         telemetry = opMode.telemetry;
         hardwareMap = opMode.hardwareMap;
 
-        IMecanumRobot bot = getBot();
+        IRobot bot = getBot();
 
         bot.init(opMode.hardwareMap);
         customInit();
@@ -60,5 +60,5 @@ public abstract class ITeleOpRunner {
 
     protected abstract void internalRun();
     protected void customInit() { }
-    protected abstract IMecanumRobot getBot();
+    protected abstract IRobot getBot();
 }

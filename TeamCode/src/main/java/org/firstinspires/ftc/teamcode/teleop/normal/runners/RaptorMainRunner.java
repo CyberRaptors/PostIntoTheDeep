@@ -342,6 +342,10 @@ public class RaptorMainRunner extends ITeleOpRunner {
     /* END MACROS */
 
     void tryRecoverFromAuton() {
+        telemetry.addData("RAPTOR RECOVERY MODE", "enabled");
+        telemetry.addData("RAPTOR RECOVERY MODE", "PRESS B TO RECOVER");
+        telemetry.update();
+
         while (!gamepad1.inner.b) {
             moveWheels();
         }
