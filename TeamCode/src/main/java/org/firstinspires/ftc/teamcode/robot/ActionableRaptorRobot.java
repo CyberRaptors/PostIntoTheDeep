@@ -6,9 +6,8 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 
-import lib8812.common.auton.InitAndPredicateAction;
-import lib8812.common.auton.MotorSetPositionAction;
-import lib8812.common.auton.ServoSetPositionAction;
+import lib8812.common.actions.MotorSetPositionAction;
+import lib8812.common.actions.ServoSetPositionAction;
 
 public class ActionableRaptorRobot extends RaptorRobot {
     public Action setArmPos(int pos) {
@@ -26,7 +25,9 @@ public class ActionableRaptorRobot extends RaptorRobot {
     }
 
     public Action standardFrog() {
-        double alphaDeg = ARM_MAX_ROTATION_DEG * arm.getPosition() / arm.maxPos;
+        // USE ARM MAX POS ONLY FOR STD FROG
+
+        double alphaDeg = ARM_MAX_ROTATION_DEG;
         double thetaDeg = 270 - alphaDeg;
         double theta = Math.toRadians(thetaDeg);
 
@@ -37,6 +38,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
         int liftToGroundExtTicksEnsure = liftToGroundExtTicksReal + 75;
 
         return new SequentialAction(
+                setArmPos(arm.maxPos),
                 new InstantAction(() -> {
                     intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
                     intakeSmall.setPower(INTAKE_SMALL_IN_DIRECTION);
@@ -54,12 +56,8 @@ public class ActionableRaptorRobot extends RaptorRobot {
 
     public Action prepareArmForBackDrop() {
         return new SequentialAction(
-                new InitAndPredicateAction(
-                        () -> arm.setPosition(REVERSE_DROP_MACRO_ARM_POS),
-                        () -> extensionLift.maxPos >= REVERSE_DROP_MACRO_LIFT_POS
-                ),
-                new MotorSetPositionAction(extensionLift, REVERSE_DROP_MACRO_LIFT_POS),
-                new MotorSetPositionAction(arm, REVERSE_DROP_MACRO_ARM_POS) // run this setPosition again for the arm to wait for it to resolve it's position fully
+                setArmPos(REVERSE_DROP_MACRO_ARM_POS),
+                setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS)
         );
     }
 
@@ -69,10 +67,10 @@ public class ActionableRaptorRobot extends RaptorRobot {
                     intakeLarge.setPower(INTAKE_SMALL_OUT_DIRECTION);
                     intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
                 }),
-                new SleepAction(2),
+                new SleepAction(1.5),
                 new InstantAction(() -> {
-                    intakeLarge.setPower(INTAKE_SMALL_OUT_DIRECTION);
-                    intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
+                    intakeLarge.setPower(0);
+                    intakeSmall.setPower(0);
                 })
         );
     }

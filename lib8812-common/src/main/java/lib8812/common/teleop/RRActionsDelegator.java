@@ -8,10 +8,12 @@ import com.acmerobotics.roadrunner.InstantFunction;
 import com.acmerobotics.roadrunner.SequentialAction;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RRActionsDelegator {
 	final FtcDashboard dash = FtcDashboard.getInstance();
-	final ArrayList<Action> actions = new ArrayList<>();
+	List<Action> actions = new ArrayList<>();
 
 	public void schedule(Action... actionsList) {
 		actions.add(
@@ -34,19 +36,14 @@ public class RRActionsDelegator {
 	public void execute() {
 		TelemetryPacket packet = new TelemetryPacket();
 
-		ArrayList<Action> done = new ArrayList<>();
+		actions = actions
+				.stream()
+				.filter(action -> action.run(packet))
+				.collect(Collectors.toList());
 
-		for (Action action : actions) {
-			action.preview(packet.fieldOverlay());
-
-			if (!action.run(packet)) {
-				done.add(action);
-			}
-		}
-
-
-		actions.removeAll(done);
 
 		dash.sendTelemetryPacket(packet);
 	}
+
+	public int count() { return actions.size(); }
 }

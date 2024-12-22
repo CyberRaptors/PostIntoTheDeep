@@ -36,15 +36,19 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 		util = new MecanumUtil(drive);
 
 		Action dropPreloadAndPickupFirst = new SequentialAction(
-				drive.actionBuilder(initialLeftPose)
-						.setTangent(4*Math.PI/5)
-						.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
-						.build(),
+				new ParallelAction(
+						drive.actionBuilder(initialLeftPose)
+								.setTangent(4*Math.PI/5)
+								.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
+								.build(),
+						bot.setClawRotatePos(bot.CLAW_ROTATE_FORWARDS)
+				),
 				bot.prepareArmForBackDrop(),
 				bot.spitSample(),
+				bot.setExtensionLiftPos(bot.extensionLift.minPos+50),
 				drive.actionBuilder(posForHighBasketBackDrop)
-						.strafeToSplineHeading(posForFirstPickup.position, posForFirstPickup.heading)
-						.build(),
+							.strafeToSplineHeading(posForFirstPickup.position, posForFirstPickup.heading)
+							.build(),
 				bot.standardFrog()
 		);
 
@@ -55,9 +59,12 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 						.build(),
 				bot.prepareArmForBackDrop(),
 				bot.spitSample(),
-				drive.actionBuilder(posForHighBasketBackDrop)
-						.strafeToSplineHeading(posForSecondPickup.position, posForSecondPickup.heading)
-						.build(),
+				bot.setExtensionLiftPos(bot.extensionLift.minPos),
+				new ParallelAction(
+						drive.actionBuilder(posForHighBasketBackDrop)
+								.strafeToSplineHeading(posForSecondPickup.position, posForSecondPickup.heading)
+								.build()
+				),
 				bot.standardFrog()
 		);
 
@@ -68,9 +75,12 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 						.build(),
 				bot.prepareArmForBackDrop(),
 				bot.spitSample(),
-				drive.actionBuilder(posForHighBasketBackDrop)
-						.strafeToSplineHeading(posForThirdPickup.position, posForThirdPickup.heading)
-						.build(),
+				bot.setExtensionLiftPos(bot.extensionLift.minPos),
+				new ParallelAction(
+						drive.actionBuilder(posForHighBasketBackDrop)
+								.strafeToSplineHeading(posForThirdPickup.position, posForThirdPickup.heading)
+								.build()
+				),
 				bot.standardFrog()
 		);
 
@@ -81,6 +91,7 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 						.build(),
 				bot.prepareArmForBackDrop(),
 				bot.spitSample(),
+				bot.setExtensionLiftPos(bot.extensionLift.minPos),
 				new ParallelAction(
 						drive.actionBuilder(posForHighBasketBackDrop)
 								.splineToSplineHeading(posForAscent, 3*Math.PI/4) // must use a spline here to avoid hitting side of submersible

@@ -1,4 +1,4 @@
-package lib8812.common.auton;
+package lib8812.common.actions;
 
 import androidx.annotation.NonNull;
 
@@ -25,6 +25,9 @@ public class MotorSetPositionAction implements Action {
 			initialized = true;
 		}
 
-		return motor.isBusy();
+		telemetryPacket.put("target pos", targetPos);
+		telemetryPacket.put("motor pos", motor.getPosition());
+
+		return Math.abs(motor.getPosition()-targetPos) > 10;
 	}
 }

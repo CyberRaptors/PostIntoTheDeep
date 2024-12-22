@@ -45,7 +45,7 @@ public class RaptorRobot extends IMecanumRobot {
 
 
     /* INTAKE DIRECTIONS */
-    public final int INTAKE_SMALL_IN_DIRECTION = 1;
+    public final int INTAKE_SMALL_IN_DIRECTION = -1;
     public final int INTAKE_SMALL_OUT_DIRECTION = -INTAKE_SMALL_IN_DIRECTION;
     public final int INTAKE_LARGE_IN_DIRECTION = INTAKE_SMALL_OUT_DIRECTION;
     public final int INTAKE_LARGE_OUT_DIRECTION = INTAKE_SMALL_IN_DIRECTION;

@@ -21,7 +21,7 @@ apply plugin: 'com.android.application'
 
 android {
 
-    compileSdk 30
+    compileSdkVersion 30
 
     signingConfigs {
         release {
@@ -47,7 +47,6 @@ android {
         }
     }
 
-
     defaultConfig {
         signingConfig signingConfigs.debug
         applicationId 'com.qualcomm.ftcrobotcontroller'
@@ -67,7 +66,7 @@ android {
          * @see <a href="http://developer.android.com/tools/building/configuring-gradle.html">Configure Your Build</a>
          * @see <a href="http://developer.android.com/tools/publishing/versioning.html">Versioning Your App</a>
          */
-        def manifestFile = project(':FtcRobotController').file('src/main/AndroidManifest.xml')
+        def manifestFile = project(':FtcRobotController').file('src/main/AndroidManifest.xml');
         def manifestText = manifestFile.getText()
         //
         def vCodePattern = Pattern.compile("versionCode=\"(\\d+(\\.\\d+)*)\"")
@@ -76,7 +75,7 @@ android {
         def vCode = Integer.parseInt(matcher.group(1))
         //
         def vNamePattern = Pattern.compile("versionName=\"(.*)\"")
-        matcher = vNamePattern.matcher(manifestText)
+        matcher = vNamePattern.matcher(manifestText);
         matcher.find()
         def vName = matcher.group(1)
         //
@@ -90,7 +89,6 @@ android {
             signingConfig signingConfigs.release
 
             ndk {
-                //noinspection ChromeOsAbiSupport
                 abiFilters "armeabi-v7a", "arm64-v8a"
             }
         }
@@ -98,7 +96,6 @@ android {
             debuggable true
             jniDebuggable true
             ndk {
-                //noinspection ChromeOsAbiSupport
                 abiFilters "armeabi-v7a", "arm64-v8a"
             }
         }
@@ -109,17 +106,11 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
-    bundle {
-
-    }
-
-    sourceSets.main {
-        jni.srcDirs = []
-        jniLibs.srcDir rootProject.file('libs')
+    packagingOptions {
+        pickFirst '**/*.so'
     }
     ndkVersion '21.3.6528147'
 }
 
 repositories {
 }
-
