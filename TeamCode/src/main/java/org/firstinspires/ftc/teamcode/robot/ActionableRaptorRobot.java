@@ -6,7 +6,6 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 
-import lib8812.common.actions.InitAndPredicateAction;
 import lib8812.common.actions.MotorSetPositionAction;
 import lib8812.common.actions.ServoSetPositionAction;
 
@@ -51,7 +50,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                 }),
                 new MotorSetPositionAction(extensionLift, liftToGroundExtTicksEnsure), // be safe to not violate the extension limit
                 new InstantAction(() -> lilRaptor.setPosition(LIL_RAPTOR_REST_POS)),
-                new MotorSetPositionAction(extensionLift, extensionLift.minPos + 50), // we do 0+50 position to reduce risk of causing a macro deadlock
+                new MotorSetPositionAction(extensionLift, extensionLift.minPos), // we do 0+50 position to reduce risk of causing a macro deadlock
                 new InstantAction(() -> {
                     intakeLarge.setPower(0);
                     intakeSmall.setPower(0);
@@ -61,22 +60,23 @@ public class ActionableRaptorRobot extends RaptorRobot {
 
     public Action prepareArmForBackDrop() {
         return new SequentialAction(
-                new InitAndPredicateAction(
-                        () -> arm.setPosition(REVERSE_DROP_MACRO_ARM_POS),
-                        () -> extensionLift.maxPos >= REVERSE_DROP_MACRO_LIFT_POS
-                ),
-                setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS),
-                setArmPos(REVERSE_DROP_MACRO_ARM_POS) // use this action to ensure the arm has reached the target position
-        );
+                // NOTE: THE CODE BELOW WAS REMOVED SINCE IT CAUSED LOCALIZATION & BALANCE ISSUES
+//                new InitAndPredicateAction( //
+//                        () -> arm.setPosition(REVERSE_DROP_MACRO_ARM_POS),
+//                        () -> extensionLift.maxPos >= REVERSE_DROP_MACRO_LIFT_POS
+//                ),
+                setArmPos(REVERSE_DROP_MACRO_ARM_POS), // use this action to ensure the arm has reached the target position
+                setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS)
+                );
     }
 
-    public Action spitSample() {
+    public Action spitSampleShort() {
         return new SequentialAction(
                 new InstantAction(() -> {
                     intakeLarge.setPower(INTAKE_SMALL_OUT_DIRECTION);
                     intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
                 }),
-                new SleepAction(0.7),
+                new SleepAction(1.3),
                 new InstantAction(() -> {
                     intakeLarge.setPower(0);
                     intakeSmall.setPower(0);
@@ -95,7 +95,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                     intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
 
                 }),
-                new SleepAction(0.7),
+                new SleepAction(1),
                 new InstantAction(() -> {
                     intakeSmall.setPower(0);
                     intakeLarge.setPower(0);
