@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 
+import lib8812.common.actions.InitAndPredicateAction;
 import lib8812.common.actions.MotorSetPositionAction;
 import lib8812.common.actions.ServoSetPositionAction;
 
@@ -22,6 +23,10 @@ public class ActionableRaptorRobot extends RaptorRobot {
 
     public Action setClawRotatePos(double pos) {
         return new ServoSetPositionAction(clawRotate, pos);
+    }
+
+    public Action armPerpendicular() {
+        return setArmPos(ARM_STRAIGHT_UP);
     }
 
     public Action standardFrog() {
@@ -56,8 +61,12 @@ public class ActionableRaptorRobot extends RaptorRobot {
 
     public Action prepareArmForBackDrop() {
         return new SequentialAction(
-                setArmPos(REVERSE_DROP_MACRO_ARM_POS),
-                setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS)
+                new InitAndPredicateAction(
+                        () -> arm.setPosition(REVERSE_DROP_MACRO_ARM_POS),
+                        () -> extensionLift.maxPos >= REVERSE_DROP_MACRO_LIFT_POS
+                ),
+                setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS),
+                setArmPos(REVERSE_DROP_MACRO_ARM_POS) // use this action to ensure the arm has reached the target position
         );
     }
 
@@ -67,7 +76,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                     intakeLarge.setPower(INTAKE_SMALL_OUT_DIRECTION);
                     intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
                 }),
-                new SleepAction(1.5),
+                new SleepAction(0.7),
                 new InstantAction(() -> {
                     intakeLarge.setPower(0);
                     intakeSmall.setPower(0);
@@ -86,7 +95,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                     intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
 
                 }),
-                new SleepAction(1.5),
+                new SleepAction(0.7),
                 new InstantAction(() -> {
                     intakeSmall.setPower(0);
                     intakeLarge.setPower(0);

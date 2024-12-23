@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.auton.odom.runners.left;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
+
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -19,11 +20,13 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 	static final double STANDARD_TANGENT = Math.PI / 2;
 
 	final static Pose2d initialLeftPose = new Pose2d(1.5* FieldConstants.BLOCK_LENGTH_IN, (2.5*FieldConstants.BLOCK_LENGTH_IN+3.5), STANDARD_TANGENT);
-	final static Pose2d posForAscent = new Pose2d(FieldConstants.BLOCK_LENGTH_IN+2,0.45*FieldConstants.BLOCK_LENGTH_IN, 0);
+	final static Pose2d posForAscent = new Pose2d(FieldConstants.BLOCK_LENGTH_IN+2,1*FieldConstants.BLOCK_LENGTH_IN, 0);
 	final static Pose2d posForHighBasketBackDrop = new Pose2d(2.3*FieldConstants.BLOCK_LENGTH_IN, 2.3*FieldConstants.BLOCK_LENGTH_IN, 5*Math.PI/4);
-	final static Pose2d posForFirstPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN, 2*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
-	final static Pose2d posForSecondPickup = new Pose2d(2.5*FieldConstants.BLOCK_LENGTH_IN, 2*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
-	final static Pose2d posForThirdPickup = new Pose2d(2.5*FieldConstants.BLOCK_LENGTH_IN, 2*FieldConstants.BLOCK_LENGTH_IN, 5*Math.PI/3);
+	final static Pose2d posForFirstPickup = new Pose2d(2.2*FieldConstants.BLOCK_LENGTH_IN, 2*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
+	final static Pose2d posForSecondPickup = new Pose2d(2.7*FieldConstants.BLOCK_LENGTH_IN, 2*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
+	final static Pose2d posForThirdPickup = new Pose2d(2.5*FieldConstants.BLOCK_LENGTH_IN, 1.9*FieldConstants.BLOCK_LENGTH_IN, 5*Math.PI/3);
+
+	Action main;
 
 	final ActionableRaptorRobot bot = new ActionableRaptorRobot();
 	SparkFunOTOSDrive drive;
@@ -31,7 +34,7 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 
 	protected IMecanumRobot getBot() { return bot; }
 
-	protected void internalRun() {
+	protected void customInit() {
 		drive = new SparkFunOTOSDrive(hardwareMap, initialLeftPose);
 		util = new MecanumUtil(drive);
 
@@ -41,55 +44,70 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 								.setTangent(4*Math.PI/5)
 								.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
 								.build(),
-						bot.setClawRotatePos(bot.CLAW_ROTATE_FORWARDS)
+						bot.clutchPreload(),
+						bot.setClawRotatePos(bot.CLAW_ROTATE_FORWARDS),
+						bot.prepareArmForBackDrop()
 				),
-				bot.prepareArmForBackDrop(),
 				bot.spitSample(),
-				bot.setExtensionLiftPos(bot.extensionLift.minPos+50),
-				drive.actionBuilder(posForHighBasketBackDrop)
-							.strafeToSplineHeading(posForFirstPickup.position, posForFirstPickup.heading)
-							.build(),
+				new ParallelAction(
+						bot.setExtensionLiftPos(bot.extensionLift.minPos),
+						drive.actionBuilder(posForHighBasketBackDrop)
+								.strafeToSplineHeading(posForFirstPickup.position, posForFirstPickup.heading)
+								.build(),
+						bot.armPerpendicular()
+				),
 				bot.standardFrog()
 		);
 
 		Action dropFirstAndPickupSecond = new SequentialAction(
-				drive.actionBuilder(posForFirstPickup)
-						.setTangent(4*Math.PI/5)
-						.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
-						.build(),
-				bot.prepareArmForBackDrop(),
-				bot.spitSample(),
-				bot.setExtensionLiftPos(bot.extensionLift.minPos),
+				bot.armPerpendicular(),
 				new ParallelAction(
+						drive.actionBuilder(posForFirstPickup)
+								.setTangent(4*Math.PI/5)
+								.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
+								.build(),
+						bot.prepareArmForBackDrop()
+				),
+				bot.spitSample(),
+				new ParallelAction(
+						bot.setExtensionLiftPos(bot.extensionLift.minPos),
 						drive.actionBuilder(posForHighBasketBackDrop)
 								.strafeToSplineHeading(posForSecondPickup.position, posForSecondPickup.heading)
-								.build()
+								.build(),
+						bot.armPerpendicular()
 				),
 				bot.standardFrog()
 		);
 
 		Action dropSecondAndPickupThird = new SequentialAction(
-				drive.actionBuilder(posForSecondPickup)
-						.setTangent(4*Math.PI/5)
-						.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
-						.build(),
-				bot.prepareArmForBackDrop(),
-				bot.spitSample(),
-				bot.setExtensionLiftPos(bot.extensionLift.minPos),
+				bot.armPerpendicular(),
 				new ParallelAction(
+						drive.actionBuilder(posForSecondPickup)
+								.setTangent(4*Math.PI/5)
+								.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
+								.build(),
+						bot.prepareArmForBackDrop()
+				),
+				bot.spitSample(),
+				new ParallelAction(
+						bot.setExtensionLiftPos(bot.extensionLift.minPos),
 						drive.actionBuilder(posForHighBasketBackDrop)
 								.strafeToSplineHeading(posForThirdPickup.position, posForThirdPickup.heading)
-								.build()
+								.build(),
+						bot.armPerpendicular()
 				),
 				bot.standardFrog()
 		);
 
 		Action dropThirdAndAscend = new SequentialAction(
-				drive.actionBuilder(posForThirdPickup)
-						.setTangent(4*Math.PI/5)
-						.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
-						.build(),
-				bot.prepareArmForBackDrop(),
+				bot.armPerpendicular(),
+				new ParallelAction(
+						drive.actionBuilder(posForThirdPickup)
+								.setTangent(4*Math.PI/5)
+								.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
+								.build(),
+						bot.prepareArmForBackDrop()
+				),
 				bot.spitSample(),
 				bot.setExtensionLiftPos(bot.extensionLift.minPos),
 				new ParallelAction(
@@ -100,13 +118,15 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 				)
 		);
 
-		Action main = new SequentialAction(
+		main = new SequentialAction(
 				dropPreloadAndPickupFirst,
 				dropFirstAndPickupSecond,
 				dropSecondAndPickupThird,
 				dropThirdAndAscend
 		);
+	}
 
+	protected void internalRun() { // NOTE: can remove/lower sleeps for speed, also see notes below within actions
 		Actions.runBlocking(main);
 
 		InteropFields.ARM_END_POS = bot.arm.getPosition();

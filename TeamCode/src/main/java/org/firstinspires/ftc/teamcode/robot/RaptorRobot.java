@@ -58,6 +58,7 @@ public class RaptorRobot extends IMecanumRobot {
     public final int FORWARDS_HIGH_BASKET_ARM_POS = 2215;
     public final int FORWARDS_HIGH_BASKET_LIFT_POS = 1538;
     public final int AUTON_ASCENT_ARM_POS = 1000;
+    public final int ARM_STRAIGHT_UP = 1703;
 
 
     /* Hardware Devices */
