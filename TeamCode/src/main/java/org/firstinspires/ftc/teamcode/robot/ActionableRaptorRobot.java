@@ -24,8 +24,8 @@ public class ActionableRaptorRobot extends RaptorRobot {
         return new ServoSetPositionAction(clawRotate, pos);
     }
 
-    public Action armPerpendicular() {
-        return setArmPos(ARM_STRAIGHT_UP);
+    public Action armMostlyPerpendicular() {
+        return setArmPos(ARM_STRAIGHT_UP-60);
     }
 
     public Action standardFrog() {
@@ -46,10 +46,9 @@ public class ActionableRaptorRobot extends RaptorRobot {
                 new InstantAction(() -> {
                     intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
                     intakeSmall.setPower(INTAKE_SMALL_IN_DIRECTION);
-                    lilRaptor.setPosition(LIL_RAPTOR_OUT_POS);
                 }),
                 new MotorSetPositionAction(extensionLift, liftToGroundExtTicksEnsure), // be safe to not violate the extension limit
-                new InstantAction(() -> lilRaptor.setPosition(LIL_RAPTOR_REST_POS)),
+                new SleepAction(0.2),
                 new MotorSetPositionAction(extensionLift, extensionLift.minPos), // we do 0+50 position to reduce risk of causing a macro deadlock
                 new InstantAction(() -> {
                     intakeLarge.setPower(0);

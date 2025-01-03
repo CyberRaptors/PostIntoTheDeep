@@ -28,6 +28,10 @@ public class MotorSetPositionAction implements Action {
 		telemetryPacket.put("target pos", targetPos);
 		telemetryPacket.put("motor pos", motor.getPosition());
 
+//		if (!motor.isBusy()) return false;
+//
 		return Math.abs(motor.getPosition()-targetPos) > 10;
+
+//		return motor.isBusy();
 	}
 }

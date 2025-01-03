@@ -21,10 +21,10 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 
 	final static Pose2d initialLeftPose = new Pose2d(1.5* FieldConstants.BLOCK_LENGTH_IN, (2.5*FieldConstants.BLOCK_LENGTH_IN+3.5), STANDARD_TANGENT);
 	final static Pose2d posForAscent = new Pose2d(FieldConstants.BLOCK_LENGTH_IN+2,1*FieldConstants.BLOCK_LENGTH_IN, 0);
-	final static Pose2d posForHighBasketBackDrop = new Pose2d(2.3*FieldConstants.BLOCK_LENGTH_IN, 2.3*FieldConstants.BLOCK_LENGTH_IN, 5*Math.PI/4);
-	final static Pose2d posForFirstPickup = new Pose2d(2.1*FieldConstants.BLOCK_LENGTH_IN, 2*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
-	final static Pose2d posForSecondPickup = new Pose2d(2.6*FieldConstants.BLOCK_LENGTH_IN, 1.97*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
-	final static Pose2d posForThirdPickup = new Pose2d(2.5*FieldConstants.BLOCK_LENGTH_IN, 1.86*FieldConstants.BLOCK_LENGTH_IN, 5*Math.PI/3);
+	final static Pose2d posForHighBasketBackDrop = new Pose2d(2.3*FieldConstants.BLOCK_LENGTH_IN, 2.15*FieldConstants.BLOCK_LENGTH_IN, 5*Math.PI/4);
+	final static Pose2d posForFirstPickup = new Pose2d(2.14*FieldConstants.BLOCK_LENGTH_IN, 1.91*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
+	final static Pose2d posForSecondPickup = new Pose2d(2.66*FieldConstants.BLOCK_LENGTH_IN, 1.91*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
+	final static Pose2d posForThirdPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+13, 1*FieldConstants.BLOCK_LENGTH_IN+22.5, (3*Math.PI/2)+Math.toRadians(24.53772848));
 
 	Action main;
 
@@ -54,13 +54,14 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 						drive.actionBuilder(posForHighBasketBackDrop)
 								.strafeToSplineHeading(posForFirstPickup.position, posForFirstPickup.heading)
 								.build(),
-						bot.armPerpendicular()
+						bot.armMostlyPerpendicular()
 				),
 				bot.standardFrog()
 		);
 
 		Action dropFirstAndPickupSecond = new SequentialAction(
-				bot.armPerpendicular(),
+				bot.armMostlyPerpendicular(),
+				util.relocalize(),
 				new ParallelAction(
 						drive.actionBuilder(posForFirstPickup)
 								.setTangent(4*Math.PI/5)
@@ -74,13 +75,14 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 						drive.actionBuilder(posForHighBasketBackDrop)
 								.strafeToSplineHeading(posForSecondPickup.position, posForSecondPickup.heading)
 								.build(),
-						bot.armPerpendicular()
+						bot.armMostlyPerpendicular()
 				),
 				bot.standardFrog()
 		);
 
 		Action dropSecondAndPickupThird = new SequentialAction(
-				bot.armPerpendicular(),
+				bot.armMostlyPerpendicular(),
+				util.relocalize(),
 				new ParallelAction(
 						drive.actionBuilder(posForSecondPickup)
 								.setTangent(4*Math.PI/5)
@@ -94,13 +96,14 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 						drive.actionBuilder(posForHighBasketBackDrop)
 								.strafeToSplineHeading(posForThirdPickup.position, posForThirdPickup.heading)
 								.build(),
-						bot.armPerpendicular()
+						bot.armMostlyPerpendicular()
 				),
 				bot.standardFrog()
 		);
 
 		Action dropThirdAndAscend = new SequentialAction(
-				bot.armPerpendicular(),
+				bot.armMostlyPerpendicular(),
+				util.relocalize(),
 				new ParallelAction(
 						drive.actionBuilder(posForThirdPickup)
 								.setTangent(4*Math.PI/5)
