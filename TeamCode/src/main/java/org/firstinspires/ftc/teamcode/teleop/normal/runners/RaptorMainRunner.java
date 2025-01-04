@@ -151,7 +151,14 @@ public class RaptorMainRunner extends ITeleOpRunner {
     }
 
     Action armIn() {
-        return new MotorSetPositionAction(bot.arm, bot.arm.minPos);
+        return new SequentialAction(
+                new MotorSetPositionAction(bot.arm, bot.arm.minPos),
+                new InstantAction(() -> {
+                    if (bot.extensionLift.maxPos <= 0) { // recalibrate lift if it has no possible extension
+                        bot.extensionLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                        bot.extensionLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    }
+                }));
     }
 
     Action liftOut() {

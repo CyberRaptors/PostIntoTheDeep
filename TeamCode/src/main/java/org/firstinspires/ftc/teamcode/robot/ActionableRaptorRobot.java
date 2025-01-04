@@ -5,19 +5,30 @@ import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import lib8812.common.actions.MotorSetPositionAction;
 import lib8812.common.actions.ServoSetPositionAction;
 
 public class ActionableRaptorRobot extends RaptorRobot {
     public Action setArmPos(int pos) {
-        return new MotorSetPositionAction(arm, pos);
+        return new MotorSetPositionAction(arm, pos, 20, "arm"); // arm takes more torque so we set a slightly larger window
     }
 
     public Action setMaxArmPos() { return setArmPos(arm.maxPos); }
 
     public Action setExtensionLiftPos(int pos) {
-        return new MotorSetPositionAction(extensionLift, pos);
+        return new MotorSetPositionAction(extensionLift, pos, 15, "lift");
+    }
+
+    public Action forceSetExtensionLiftMinPos() {
+        return new SequentialAction(
+                setExtensionLiftPos(extensionLift.minPos),
+                new InstantAction(() -> { // force lift to accept it is at zero
+                    extensionLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    extensionLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                })
+        );
     }
 
     public Action setClawRotatePos(double pos) {
@@ -47,9 +58,9 @@ public class ActionableRaptorRobot extends RaptorRobot {
                     intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
                     intakeSmall.setPower(INTAKE_SMALL_IN_DIRECTION);
                 }),
-                new MotorSetPositionAction(extensionLift, liftToGroundExtTicksEnsure), // be safe to not violate the extension limit
+                setExtensionLiftPos(liftToGroundExtTicksEnsure), // be safe to not violate the extension limit
                 new SleepAction(0.2),
-                new MotorSetPositionAction(extensionLift, extensionLift.minPos), // we do 0+50 position to reduce risk of causing a macro deadlock
+               setExtensionLiftPos(extensionLift.minPos),
                 new InstantAction(() -> {
                     intakeLarge.setPower(0);
                     intakeSmall.setPower(0);
@@ -59,29 +70,53 @@ public class ActionableRaptorRobot extends RaptorRobot {
 
     public Action prepareArmForBackDrop() {
         return new SequentialAction(
-                // NOTE: THE CODE BELOW WAS REMOVED SINCE IT CAUSED LOCALIZATION & BALANCE ISSUES
-//                new InitAndPredicateAction( //
-//                        () -> arm.setPosition(REVERSE_DROP_MACRO_ARM_POS),
-//                        () -> extensionLift.maxPos >= REVERSE_DROP_MACRO_LIFT_POS
-//                ),
-                setArmPos(REVERSE_DROP_MACRO_ARM_POS), // use this action to ensure the arm has reached the target position
+                setArmPos(REVERSE_DROP_MACRO_ARM_POS),
                 setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS)
-                );
+        );
     }
 
-    public Action spitSampleShort() {
+    public Action asyncBackDropEnd() {
         return new SequentialAction(
-                new InstantAction(() -> {
-                    intakeLarge.setPower(INTAKE_SMALL_OUT_DIRECTION);
-                    intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
-                }),
-                new SleepAction(1.3),
+                new SleepAction(0.3),
                 new InstantAction(() -> {
                     intakeLarge.setPower(0);
                     intakeSmall.setPower(0);
                 })
         );
     }
+
+    public Action asyncBackDropBegin() {
+        return new SequentialAction(
+                setArmPos(REVERSE_DROP_MACRO_ARM_POS),
+                new ParallelAction(
+                        new SequentialAction(
+                                new SleepAction(0.9),
+                                new InstantAction(() -> {
+                                    intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
+                                    intakeLarge.setPower(INTAKE_LARGE_OUT_DIRECTION);
+                                })
+                        ),
+                        setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS)
+                )
+        );
+    }
+
+    public Action spitSample(double dt) {
+        return new SequentialAction(
+                new InstantAction(() -> {
+                    intakeLarge.setPower(INTAKE_SMALL_OUT_DIRECTION);
+                    intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
+                }),
+                new SleepAction(dt),
+                new InstantAction(() -> {
+                    intakeLarge.setPower(0);
+                    intakeSmall.setPower(0);
+                })
+        );
+    }
+
+    public Action spitSample() { return spitSample(1.3); }
+
 
     public Action ascend() {
         return setArmPos(AUTON_ASCENT_ARM_POS);

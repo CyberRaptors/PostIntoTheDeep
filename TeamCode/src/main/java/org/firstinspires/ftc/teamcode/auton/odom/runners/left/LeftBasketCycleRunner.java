@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.auton.odom.runners.left;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
-
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -20,11 +19,11 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 	static final double STANDARD_TANGENT = Math.PI / 2;
 
 	final static Pose2d initialLeftPose = new Pose2d(1.5* FieldConstants.BLOCK_LENGTH_IN, (2.5*FieldConstants.BLOCK_LENGTH_IN+3.5), STANDARD_TANGENT);
-	final static Pose2d posForAscent = new Pose2d(FieldConstants.BLOCK_LENGTH_IN+2,1*FieldConstants.BLOCK_LENGTH_IN, 0);
-	final static Pose2d posForHighBasketBackDrop = new Pose2d(2.3*FieldConstants.BLOCK_LENGTH_IN, 2.15*FieldConstants.BLOCK_LENGTH_IN, 5*Math.PI/4);
-	final static Pose2d posForFirstPickup = new Pose2d(2.14*FieldConstants.BLOCK_LENGTH_IN, 1.91*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
-	final static Pose2d posForSecondPickup = new Pose2d(2.66*FieldConstants.BLOCK_LENGTH_IN, 1.91*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
-	final static Pose2d posForThirdPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+13, 1*FieldConstants.BLOCK_LENGTH_IN+22.5, (3*Math.PI/2)+Math.toRadians(24.53772848));
+	final static Pose2d posForAscent = new Pose2d(FieldConstants.BLOCK_LENGTH_IN+2,0.5*FieldConstants.BLOCK_LENGTH_IN, 0);
+	final static Pose2d posForHighBasketBackDrop = new Pose2d(2.3*FieldConstants.BLOCK_LENGTH_IN, 2.1*FieldConstants.BLOCK_LENGTH_IN, 5*Math.PI/4);
+	final static Pose2d posForFirstPickup = new Pose2d(2.12*FieldConstants.BLOCK_LENGTH_IN, 1.89*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
+	final static Pose2d posForSecondPickup = new Pose2d(2.6*FieldConstants.BLOCK_LENGTH_IN, 1.89*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
+	final static Pose2d posForThirdPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+18, 1*FieldConstants.BLOCK_LENGTH_IN+21.8, (3*Math.PI/2)+Math.toRadians(16.92751306));
 
 	Action main;
 
@@ -48,9 +47,9 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 						bot.setClawRotatePos(bot.CLAW_ROTATE_FORWARDS),
 						bot.prepareArmForBackDrop()
 				),
-				bot.spitSampleShort(),
+				bot.spitSample(),
 				new ParallelAction(
-						bot.setExtensionLiftPos(bot.extensionLift.minPos),
+						bot.forceSetExtensionLiftMinPos(),
 						drive.actionBuilder(posForHighBasketBackDrop)
 								.strafeToSplineHeading(posForFirstPickup.position, posForFirstPickup.heading)
 								.build(),
@@ -67,11 +66,11 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 								.setTangent(4*Math.PI/5)
 								.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
 								.build(),
-						bot.prepareArmForBackDrop()
+						bot.asyncBackDropBegin()
 				),
-				bot.spitSampleShort(),
+				bot.asyncBackDropEnd(),
 				new ParallelAction(
-						bot.setExtensionLiftPos(bot.extensionLift.minPos),
+						bot.forceSetExtensionLiftMinPos(),
 						drive.actionBuilder(posForHighBasketBackDrop)
 								.strafeToSplineHeading(posForSecondPickup.position, posForSecondPickup.heading)
 								.build(),
@@ -88,11 +87,11 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 								.setTangent(4*Math.PI/5)
 								.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
 								.build(),
-						bot.prepareArmForBackDrop()
+						bot.asyncBackDropBegin()
 				),
-				bot.spitSampleShort(),
+				bot.asyncBackDropEnd(),
 				new ParallelAction(
-						bot.setExtensionLiftPos(bot.extensionLift.minPos),
+						bot.forceSetExtensionLiftMinPos(),
 						drive.actionBuilder(posForHighBasketBackDrop)
 								.strafeToSplineHeading(posForThirdPickup.position, posForThirdPickup.heading)
 								.build(),
@@ -109,10 +108,10 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 								.setTangent(4*Math.PI/5)
 								.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
 								.build(),
-						bot.prepareArmForBackDrop()
+						bot.asyncBackDropBegin()
 				),
-				bot.spitSampleShort(),
-				bot.setExtensionLiftPos(bot.extensionLift.minPos),
+				bot.asyncBackDropEnd(),
+				bot.forceSetExtensionLiftMinPos(),
 				new ParallelAction(
 						drive.actionBuilder(posForHighBasketBackDrop)
 								.splineToSplineHeading(posForAscent, 3*Math.PI/4) // must use a spline here to avoid hitting side of submersible
