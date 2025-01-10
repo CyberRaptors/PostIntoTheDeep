@@ -20,10 +20,10 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 
 	final static Pose2d initialLeftPose = new Pose2d(1.5* FieldConstants.BLOCK_LENGTH_IN, (2.5*FieldConstants.BLOCK_LENGTH_IN+3.5), STANDARD_TANGENT);
 	final static Pose2d posForAscent = new Pose2d(FieldConstants.BLOCK_LENGTH_IN+2,0.5*FieldConstants.BLOCK_LENGTH_IN, 0);
-	final static Pose2d posForHighBasketBackDrop = new Pose2d(2.3*FieldConstants.BLOCK_LENGTH_IN, 2.1*FieldConstants.BLOCK_LENGTH_IN, 5*Math.PI/4);
-	final static Pose2d posForFirstPickup = new Pose2d(2.12*FieldConstants.BLOCK_LENGTH_IN, 1.89*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
-	final static Pose2d posForSecondPickup = new Pose2d(2.6*FieldConstants.BLOCK_LENGTH_IN, 1.89*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
-	final static Pose2d posForThirdPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+18, 1*FieldConstants.BLOCK_LENGTH_IN+21.8, (3*Math.PI/2)+Math.toRadians(16.92751306));
+	final static Pose2d posForHighBasketBackDrop = new Pose2d(2.3*FieldConstants.BLOCK_LENGTH_IN-0.5, 2.1*FieldConstants.BLOCK_LENGTH_IN+4.2, 5*Math.PI/4);
+	final static Pose2d posForFirstPickup = new Pose2d(2.12*FieldConstants.BLOCK_LENGTH_IN, 2*FieldConstants.BLOCK_LENGTH_IN-2, 3*Math.PI/2);
+	final static Pose2d posForSecondPickup = new Pose2d(2.6*FieldConstants.BLOCK_LENGTH_IN, 2*FieldConstants.BLOCK_LENGTH_IN-2, 3*Math.PI/2);
+	final static Pose2d posForThirdPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+18, 1*FieldConstants.BLOCK_LENGTH_IN+23.3, (3*Math.PI/2)+Math.toRadians(16.92751306));
 
 	Action main;
 

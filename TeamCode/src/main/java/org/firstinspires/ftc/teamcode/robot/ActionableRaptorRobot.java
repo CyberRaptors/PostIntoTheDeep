@@ -77,7 +77,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
 
     public Action asyncBackDropEnd() {
         return new SequentialAction(
-                new SleepAction(0.3),
+                new SleepAction(0.2),
                 new InstantAction(() -> {
                     intakeLarge.setPower(0);
                     intakeSmall.setPower(0);
@@ -90,7 +90,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                 setArmPos(REVERSE_DROP_MACRO_ARM_POS),
                 new ParallelAction(
                         new SequentialAction(
-                                new SleepAction(0.9),
+                                new SleepAction(1),
                                 new InstantAction(() -> {
                                     intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
                                     intakeLarge.setPower(INTAKE_LARGE_OUT_DIRECTION);
