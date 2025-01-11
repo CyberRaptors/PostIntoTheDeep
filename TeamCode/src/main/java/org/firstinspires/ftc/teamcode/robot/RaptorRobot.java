@@ -117,6 +117,11 @@ public class RaptorRobot extends IMecanumRobot {
         drive = new SparkFunOTOSDrive(hardwareMap, new Pose2d(0, 0, 0));
     }
 
+    public void deInit() {
+        arm.setPower(0); // prevent locking
+        extensionLift.setPower(0); // prevent locking
+    }
+
     public void setRRDrivePose(Pose2d pose) {
         drive.updatePoseEstimate();
         drive.pose = pose;

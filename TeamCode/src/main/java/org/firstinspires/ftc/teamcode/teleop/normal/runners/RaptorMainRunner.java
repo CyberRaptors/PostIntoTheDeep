@@ -8,7 +8,6 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.auton.InteropFields;
 import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
 
 import lib8812.common.actions.InitAndPredicateAction;
@@ -63,7 +62,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         bot.intakeSmall.setPower(inputPwr); // we don't multiply by the ratio since the servo driver only accepts 1 a power value
 
-        bot.intakeLarge.setPower(-inputPwr);
+        bot.intakeLarge.setPower(-inputPwr*bot.INTAKE_SMALL_TO_LARGE_RADIUS_RATIO);
     }
 
     void moveLift() {
@@ -360,20 +359,24 @@ public class RaptorMainRunner extends ITeleOpRunner {
             moveWheels();
         }
 
-        bot.arm.reverse();
-        bot.extensionLift.reverse();
+//        bot.arm.reverse();
+//        bot.extensionLift.reverse();
 
-        bot.arm.setPosition(InteropFields.ARM_END_POS);
-        bot.extensionLift.setPosition(InteropFields.LIFT_END_POS);
 
-        bot.arm.waitForPosition();
-        bot.extensionLift.waitForPosition();
+//        bot.arm.setPosition(InteropFields.ARM_END_POS);
+//        bot.extensionLift.setPosition(InteropFields.LIFT_END_POS);
+
+//        bot.arm.waitForPosition();
+//        bot.extensionLift.waitForPosition();
+//
+//        bot.arm.resetEncoder();
+//        bot.extensionLift.resetEncoder();
+//
+//        bot.arm.reverse();
+//        bot.extensionLift.reverse();
 
         bot.arm.resetEncoder();
         bot.extensionLift.resetEncoder();
-
-        bot.arm.reverse();
-        bot.extensionLift.reverse();
     }
 
     protected void internalRun() {
@@ -520,5 +523,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
             telemetry.update();
         }
+
+        bot.deInit();
     }
 }
