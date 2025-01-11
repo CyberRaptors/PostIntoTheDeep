@@ -142,6 +142,7 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 
 		InteropFields.ARM_END_POS = bot.arm.getPosition();
 		InteropFields.LIFT_END_POS = bot.extensionLift.getPosition();
+		bot.deInit();
 	}
 }
  	

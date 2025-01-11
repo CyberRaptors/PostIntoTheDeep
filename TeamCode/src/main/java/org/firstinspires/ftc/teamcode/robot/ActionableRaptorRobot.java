@@ -145,7 +145,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                     intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
                 }),
                 /* hook the specimen onto the high chamber and wait for at least 0.5 sec */
-                setExtensionLiftPos(700),
+                setExtensionLiftPos(400),
                 new SleepAction(0.3),
                 setArmPos(BACKWARDS_HIGH_CHAMBER_ARM_POS-300),
                 new SleepAction(0.3),
