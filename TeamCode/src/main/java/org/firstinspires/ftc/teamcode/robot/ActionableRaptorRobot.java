@@ -23,7 +23,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
 
     public Action forceSetExtensionLiftMinPos() {
         return new SequentialAction(
-                setExtensionLiftPos(extensionLift.minPos),
+                new MotorSetPositionAction(extensionLift, extensionLift.minPos, 15, "lift", true),
                 new InstantAction(() -> { // force lift to accept it is at zero
                     extensionLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     extensionLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -93,7 +93,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                                 new SleepAction(1),
                                 new InstantAction(() -> {
                                     intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
-                                    intakeLarge.setPower(INTAKE_LARGE_OUT_DIRECTION);
+                                    intakeLarge.setPower(INTAKE_LARGE_OUT_DIRECTION*INTAKE_SMALL_TO_LARGE_RADIUS_RATIO);
                                 })
                         ),
                         setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS)
@@ -129,7 +129,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                     intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
 
                 }),
-                new SleepAction(1),
+                new SleepAction(0.5),
                 new InstantAction(() -> {
                     intakeSmall.setPower(0);
                     intakeLarge.setPower(0);
