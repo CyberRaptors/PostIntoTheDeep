@@ -10,6 +10,6 @@ import org.firstinspires.ftc.teamcode.auton.odom.runners.right.RightSingleSpecim
 public class RightSingleSpecimen extends LinearOpMode {
 	@Override
 	public void runOpMode() {
-		new RightSingleSpecimenRunner()    .run(this);
+		new RightSingleSpecimenRunner().run(this);
 	}
 }
