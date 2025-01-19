@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.robot.ActionableRaptorRobot;
@@ -66,7 +67,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
     }
 
     void moveLift() {
-        bot.extensionLift.setPosition(
+        if (!reduceLiftStressAndRecalibrate()) bot.extensionLift.setPosition(
                 bot.extensionLift.getTargetPosition()-(int) (gamepad2.inner.right_stick_y*50)
         );
     }
@@ -115,7 +116,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
                 ), bot.LIFT_MAX_TICKS
         );
 
-        bot.extensionLift.setPosition(bot.extensionLift.getInternalTargetPosition());
+        if (!reduceLiftStressAndRecalibrate()) bot.extensionLift.setPosition(bot.extensionLift.getInternalTargetPosition());
     }
 
     void applyBrakes(DcMotor wheel) {
@@ -130,6 +131,16 @@ public class RaptorMainRunner extends ITeleOpRunner {
     void applyBrakesBasedOnInput(float input, DcMotor motor) {
         if (input > 0.3) applyBrakes(motor);
         else releaseBrakes(motor);
+    }
+
+    boolean reduceLiftStressAndRecalibrate() {
+        if (bot.extensionLift.maxPos <= 0) {
+            bot.extensionLift.resetEncoder();
+            bot.extensionLift.setPower(0);
+            return true;
+        }
+
+        return false;
     }
 
     /* MACROS */
@@ -150,14 +161,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
     }
 
     Action armIn() {
-        return new SequentialAction(
-                new MotorSetPositionAction(bot.arm, bot.arm.minPos),
-                new InstantAction(() -> {
-                    if (bot.extensionLift.maxPos <= 0) { // recalibrate lift if it has no possible extension
-                        bot.extensionLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                        bot.extensionLift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    }
-                }));
+        return new MotorSetPositionAction(bot.arm, bot.arm.minPos);
     }
 
     Action liftOut() {
@@ -349,6 +353,56 @@ public class RaptorMainRunner extends ITeleOpRunner {
         actions.schedule(macro);
     }
 
+    void macroPickupSpecimenFromBackWall() {
+        if (LOCK_WHEELS || LOCK_INTAKES || LOCK_ARM || LOCK_LIFT || CHANNEL_POWER) return;
+
+        LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = true;
+
+        bot.setRRDrivePose(new Pose2d(0, 0, 0));
+
+        Action backupIntoWallAndStartPickup = new SequentialAction(
+                new InstantAction(() -> {
+                    bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
+                    bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
+                }),
+                bot.drive.actionBuilder(new Pose2d(0, 0, 0)) // move backwards
+                    .setTangent(0)
+                    .lineToX(-5)
+                    .build()
+        );
+
+        Action endPickup = new SequentialAction(
+                new SleepAction(0.2),
+                new InstantAction(() -> {
+                    bot.intakeLarge.setPower(0);
+                    bot.intakeSmall.setPower(0);
+                })
+        );
+
+        Action raiseArmAndBackOut = new SequentialAction(
+                bot.drive.actionBuilder(new Pose2d(-5, 0, 0)) // inch forwards
+                        .setTangent(0)
+                        .lineToX(-7)
+                        .build(),
+                bot.setArmPos(bot.ARM_PICKUP_FROM_BACK_WALL+150),
+                bot.drive.actionBuilder(new Pose2d(-7, 0, 0)) // move out
+                    .setTangent(0)
+                    .lineToX(0)
+                    .build()
+        );
+
+
+        Action macro = new SequentialAction(
+                bot.setArmPos(bot.ARM_PICKUP_FROM_BACK_WALL),
+                backupIntoWallAndStartPickup,
+                endPickup,
+                raiseArmAndBackOut,
+                new InstantAction(() -> LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = false)
+        );
+
+        actions.schedule(macro);
+    }
+
     /* END MACROS */
 
     void tryRecoverFromAuton() {
@@ -392,7 +446,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
             CHANNEL_POWER = true;
 
             bot.extensionLift.setPower(0);
-            bot.extensionLift.close();
+            bot.extensionLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
             bot.clawRotate.getController().pwmDisable();
             bot.clawRotate.close();
@@ -438,6 +492,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
         });
 
         keybinder.bind("a").of(gamepad1).to(this::macroAutoHangSpecimenFromOZ); // on driver one gamepad, automatically hangs specimen and returns to OZ
+        keybinder.bind("dpad_down").of(gamepad1).to(this::macroPickupSpecimenFromBackWall);
 
         tryRecoverFromAuton();
 
@@ -447,8 +502,8 @@ public class RaptorMainRunner extends ITeleOpRunner {
             WheelPowers realWheelInputPowers = getRealWheelInputPowers();
 
             if (!LOCK_ARM) moveArm();
-            limitLiftExtension();
             if (!LOCK_LIFT && !CHANNEL_POWER) moveLift();
+            limitLiftExtension();
             if (!CHANNEL_POWER) moveClawRotate();
             if (!LOCK_INTAKES && !CHANNEL_POWER) moveSpinningIntake();
 

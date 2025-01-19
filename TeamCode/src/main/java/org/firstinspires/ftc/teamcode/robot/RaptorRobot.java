@@ -59,6 +59,7 @@ public class RaptorRobot extends IMecanumRobot {
     public final int FORWARDS_HIGH_BASKET_LIFT_POS = 1538;
     public final int AUTON_ASCENT_ARM_POS = 1000;
     public final int ARM_STRAIGHT_UP = 1856;
+    public final int ARM_PICKUP_FROM_BACK_WALL = 220;
 
 
     /* Hardware Devices */
@@ -118,6 +119,8 @@ public class RaptorRobot extends IMecanumRobot {
     }
 
     public void deInit() {
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        extensionLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         arm.setPower(0); // prevent locking
         extensionLift.setPower(0); // prevent locking
     }
