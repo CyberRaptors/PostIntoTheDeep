@@ -23,8 +23,9 @@ public class LimelightManager implements ICustomHardwareDevice {
 	}
 
 	public void init() {
-		limelight.pipelineSwitch(currentPipeline);
+		limelight.setPollRateHz(50); // 50 polls/sec
 		limelight.start();
+		limelight.pipelineSwitch(currentPipeline);
 	}
 
 	public void pipelineSwitch(int pipeline) {
@@ -37,7 +38,7 @@ public class LimelightManager implements ICustomHardwareDevice {
 		{
 			LLResult res = limelight.getLatestResult();
 
-			if (res != null && res.isValid()) return res;
+			if (res != null && res.isValid() && res.getPipelineIndex() == currentPipeline) return res;
 		}
 	}
 
