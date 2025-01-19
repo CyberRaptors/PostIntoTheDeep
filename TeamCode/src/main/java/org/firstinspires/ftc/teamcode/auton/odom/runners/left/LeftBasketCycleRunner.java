@@ -4,7 +4,6 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 
 import org.firstinspires.ftc.teamcode.auton.InteropFields;
@@ -19,13 +18,15 @@ import lib8812.common.teleop.ITeleOpRunner;
 public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITeleOpRunner because no object detection is needed
 	static final double STANDARD_TANGENT = Math.PI / 2;
 
-	final static Pose2d initialLeftPose = new Pose2d(1.5*FieldConstants.BLOCK_LENGTH_IN, (2.5*FieldConstants.BLOCK_LENGTH_IN+3.5), STANDARD_TANGENT);
+	// NOTE: ADD .4 FROM Y_OFFSET FOR AUTON TO ACCOUNT FOR MEET FIELD SETUP
+
+	final static Pose2d initialLeftPose = new Pose2d(1.5*FieldConstants.BLOCK_LENGTH_IN, (2.5*FieldConstants.BLOCK_LENGTH_IN+3.5+1.5), STANDARD_TANGENT);
 	final static Pose2d posForAscent = new Pose2d(FieldConstants.BLOCK_LENGTH_IN+1,0.5*FieldConstants.BLOCK_LENGTH_IN, 0);
-	final static Pose2d posForHighBasketBackDrop = new Pose2d(2.3*FieldConstants.BLOCK_LENGTH_IN, 2.1*FieldConstants.BLOCK_LENGTH_IN+3, 5*Math.PI/4);
-	final static Pose2d adjustedPosForHighBasketDropFirst = new Pose2d(posForHighBasketBackDrop.position.plus(new Vector2d(0, -1)), posForHighBasketBackDrop.heading);
+	final static Pose2d posForHighBasketBackDrop = new Pose2d(2.3*FieldConstants.BLOCK_LENGTH_IN, 2.1*FieldConstants.BLOCK_LENGTH_IN+3+2, 5*Math.PI/4);
+	final static Pose2d adjustedPosForHighBasketDropFirst = posForHighBasketBackDrop; //new Pose2d(posForHighBasketBackDrop.position.plus(new Vector2d(0, -1)), posForHighBasketBackDrop.heading);
 	final static Pose2d posForFirstPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+3.5, 2*FieldConstants.BLOCK_LENGTH_IN-3.2, 3*Math.PI/2);
 	final static Pose2d posForSecondPickup = new Pose2d(2.6*FieldConstants.BLOCK_LENGTH_IN+0.7, 2*FieldConstants.BLOCK_LENGTH_IN-2.5, 3*Math.PI/2);
-	final static Pose2d posForThirdPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+16, 1*FieldConstants.BLOCK_LENGTH_IN+20.5, (3*Math.PI/2)+Math.toRadians(21 ));
+	final static Pose2d posForThirdPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+18, 1*FieldConstants.BLOCK_LENGTH_IN+20.3, (3*Math.PI/2)+Math.toRadians(21 ));
 
 	Action main;
 

@@ -8,7 +8,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.robot.RaptorRobot;
+import org.firstinspires.ftc.teamcode.robot.ActionableRaptorRobot;
 
 import lib8812.common.actions.InitAndPredicateAction;
 import lib8812.common.actions.MotorSetPositionAction;
@@ -20,7 +20,7 @@ import lib8812.common.teleop.KeybindPattern;
 import lib8812.common.teleop.TeleOpUtils;
 
 public class RaptorMainRunner extends ITeleOpRunner {
-    final RaptorRobot bot = new RaptorRobot();
+    final ActionableRaptorRobot bot = new ActionableRaptorRobot();
     private final WheelPowers wheelWeights = new WheelPowers(0.92, 0.92, 0.92, 0.92);
     boolean showExtraInfo = false;
 
@@ -320,16 +320,17 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = true;
 
-        final Pose2d initialSpecimenPickupPose = new Pose2d(2* FieldConstants.BLOCK_LENGTH_IN, -(2*FieldConstants.BLOCK_LENGTH_IN-5), 3 * Math.PI / 2);
-        final Pose2d posForSpecimenDrop = new Pose2d(0.2*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN), 3 * Math.PI / 2);
+        final Pose2d initialSpecimenPickupPose = new Pose2d(2* FieldConstants.BLOCK_LENGTH_IN, -(2*FieldConstants.BLOCK_LENGTH_IN-6), 3 * Math.PI / 2);
+        final Pose2d posForSpecimenDrop = new Pose2d(0.2*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN-15), 3 * Math.PI / 2);
 
         bot.setRRDrivePose(initialSpecimenPickupPose);
 
         Action prepForHang = new SequentialAction(
-                new MotorSetPositionAction(bot.arm, bot.BACKWARDS_HIGH_CHAMBER_ARM_POS),
+                bot.armMostlyPerpendicular(),
                 bot.drive.actionBuilder(initialSpecimenPickupPose)
                         .strafeToSplineHeading(posForSpecimenDrop.position, posForSpecimenDrop.heading)
-                        .build()
+                        .build(),
+                bot.setArmPos(bot.BACKWARDS_HIGH_CHAMBER_ARM_POS)
         );
 
         Action returnToOZ = new ParallelAction( // keep the arm at bot.BACKWARDS_HIGH_CHAMBER_ARM_POS so that drivers don't waste too much time bringing the arm back out for a frog
@@ -340,7 +341,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         Action macro = new SequentialAction(
                 prepForHang,
-                hangSpecimenBackHighChamberInternal(),
+//                hangSpecimenBackHighChamberInternal(),
                 returnToOZ,
                 new InstantAction(() -> LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = false)
         );
@@ -375,8 +376,8 @@ public class RaptorMainRunner extends ITeleOpRunner {
 //        bot.arm.reverse();
 //        bot.extensionLift.reverse();
 
-        bot.arm.resetEncoder();
-        bot.extensionLift.resetEncoder();
+//        bot.arm.resetEncoder();
+//        bot.extensionLift.resetEncoder();
     }
 
     protected void internalRun() {

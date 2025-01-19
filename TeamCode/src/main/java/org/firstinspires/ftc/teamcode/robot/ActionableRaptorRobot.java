@@ -39,7 +39,9 @@ public class ActionableRaptorRobot extends RaptorRobot {
         return setArmPos(ARM_STRAIGHT_UP-60);
     }
 
-    public Action standardFrog() {
+    public Action standardFrog() { return standardFrog(0); }
+
+    public Action standardFrog(int manualAdjust) {
         // USE ARM MAX POS ONLY FOR STD FROG
 
         double alphaDeg = ARM_MAX_ROTATION_DEG;
@@ -50,7 +52,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
 
         int liftToGroundExtTicksReal = (int) Math.floor(liftToGroundExtIn * LIFT_TICKS_PER_INCHES);
 
-        int liftToGroundExtTicksEnsure = liftToGroundExtTicksReal + 75;
+        int liftToGroundExtTicksEnsure = liftToGroundExtTicksReal + 75 + manualAdjust;
 
         return new SequentialAction(
                 setArmPos(arm.maxPos),
@@ -77,9 +79,9 @@ public class ActionableRaptorRobot extends RaptorRobot {
 
     public Action asyncBackDropEnd() {
         return new SequentialAction(
-                new SleepAction(0.2),
+                new SleepAction(0.1),
+                new InstantAction(() -> intakeLarge.setPower(0)),
                 new InstantAction(() -> {
-                    intakeLarge.setPower(0);
                     intakeSmall.setPower(0);
                 })
         );
@@ -145,10 +147,8 @@ public class ActionableRaptorRobot extends RaptorRobot {
                     intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
                 }),
                 /* hook the specimen onto the high chamber and wait for at least 0.5 sec */
-                setExtensionLiftPos(400),
-                new SleepAction(0.3),
+                setExtensionLiftPos(300),
                 setArmPos(BACKWARDS_HIGH_CHAMBER_ARM_POS-300),
-                new SleepAction(0.3),
                 setExtensionLiftPos(extensionLift.minPos),
                 new InstantAction(() -> {
                     /* once the specimen is secured to the high chamber, forcefully release it and raise the arm */
