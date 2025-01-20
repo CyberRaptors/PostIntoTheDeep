@@ -36,7 +36,7 @@ public class TeleOpUtils {
     public static double powerScaleInput(double input, double power, double linearScale) {
         double sign = Math.signum(input);
 
-        double linearlyScaled = input*linearScale;
+        double linearlyScaled = Math.abs(input*linearScale);
 
         double powerScaled = Math.pow(linearlyScaled, power);
 

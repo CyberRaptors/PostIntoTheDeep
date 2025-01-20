@@ -40,8 +40,8 @@ public class RaptorMainRunner extends ITeleOpRunner {
         double greatestYValue = Math.abs(gamepad1.inner.right_stick_y) > Math.abs(gamepad1.inner.left_stick_y) ? gamepad1.inner.right_stick_y : gamepad1.inner.left_stick_y;
 
         // swap y and x here as the robot's position is technically rotated by PI/2 radians
-        double yPower = -TeleOpUtils.powerScaleInput(greatestXValue, 1.5);
-        double xPower = -TeleOpUtils.powerScaleInput(greatestYValue, 1.5);
+        double yPower = -TeleOpUtils.powerScaleInput(greatestXValue, 2, 1.5);
+        double xPower = -TeleOpUtils.powerScaleInput(greatestYValue, 2, 1.5);
 
         double turnPower = gamepad1.inner.left_trigger-gamepad1.inner.right_trigger;
 
