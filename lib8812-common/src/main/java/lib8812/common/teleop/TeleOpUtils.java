@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TeleOpUtils {
     public static final double DEFAULT_FINE_TUNE_THRESH = 0.2;
+    public static final double DEFAULT_LINEAR_INPUT_SCALE = 2.5;
 
     final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
 
@@ -22,6 +23,20 @@ public class TeleOpUtils {
         if (isBetweenInclusive(input, -1, -1+thresh)) return -1;
 
         return input;
+    }
+
+    public static double quadraticallyScaleInput(double input, double linearScale) {
+        linearScale = Math.abs(linearScale);
+
+        double sign = Math.signum(input);
+
+        double linearlyScaled = input*linearScale;
+
+		return sign*   Math.pow(linearlyScaled, 2);
+    }
+
+    public static double quadraticallyScaleInput(double input) {
+        return quadraticallyScaleInput(input, DEFAULT_LINEAR_INPUT_SCALE);
     }
 
     public static double fineTuneInput(double input) { return fineTuneInput(input, DEFAULT_FINE_TUNE_THRESH); }
