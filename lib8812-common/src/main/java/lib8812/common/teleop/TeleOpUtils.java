@@ -26,17 +26,27 @@ public class TeleOpUtils {
     }
 
     public static double quadraticallyScaleInput(double input, double linearScale) {
-        linearScale = Math.abs(linearScale);
-
-        double sign = Math.signum(input);
-
-        double linearlyScaled = input*linearScale;
-
-		return sign*   Math.pow(linearlyScaled, 2);
+        return powerScaleInput(input, 2, linearScale);
     }
 
     public static double quadraticallyScaleInput(double input) {
         return quadraticallyScaleInput(input, DEFAULT_LINEAR_INPUT_SCALE);
+    }
+
+    public static double powerScaleInput(double input, double power, double linearScale) {
+        double sign = Math.signum(input);
+
+        double linearlyScaled = input*linearScale;
+
+        double powerScaled = Math.pow(linearlyScaled, power);
+
+        if (Math.signum(powerScaled) != sign) return -powerScaled;
+
+        return powerScaled;
+    }
+
+    public static double powerScaleInput(double input, double power) {
+        return powerScaleInput(input, power, DEFAULT_LINEAR_INPUT_SCALE);
     }
 
     public static double fineTuneInput(double input) { return fineTuneInput(input, DEFAULT_FINE_TUNE_THRESH); }

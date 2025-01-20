@@ -36,12 +36,21 @@ public class RaptorMainRunner extends ITeleOpRunner {
     protected IMecanumRobot getBot() { return bot; }
 
     void moveWheels() {
+        double greatestXValue = Math.abs(gamepad1.inner.right_stick_x) > Math.abs(gamepad1.inner.left_stick_x) ? gamepad1.inner.right_stick_x : gamepad1.inner.left_stick_x;
+        double greatestYValue = Math.abs(gamepad1.inner.right_stick_y) > Math.abs(gamepad1.inner.left_stick_y) ? gamepad1.inner.right_stick_y : gamepad1.inner.left_stick_y;
+
+        // swap y and x here as the robot's position is technically rotated by PI/2 radians
+        double yPower = -TeleOpUtils.powerScaleInput(greatestXValue, 1.5);
+        double xPower = -TeleOpUtils.powerScaleInput(greatestYValue, 1.5);
+
+        double turnPower = gamepad1.inner.left_trigger-gamepad1.inner.right_trigger;
+
         bot.drive.setDrivePowers(new PoseVelocity2d(
                 new Vector2d(
-                        -TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.left_stick_y),
-                        -TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.left_stick_x)
+                        xPower,
+                        yPower
                 ),
-                -gamepad1.inner.right_stick_x
+                turnPower
         ));
 //        double correctedRightY = TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.right_stick_y);
 //        double correctedRightX = TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.right_stick_x);
@@ -127,20 +136,6 @@ public class RaptorMainRunner extends ITeleOpRunner {
         );
 
         if (reduceLiftStressAndRecalibrate()) bot.extensionLift.setPosition(bot.extensionLift.getInternalTargetPosition());
-    }
-
-    void applyBrakes(DcMotor wheel) {
-        wheel.setPower(0);
-        wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
-
-    void releaseBrakes(DcMotor wheel) {
-        wheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-    }
-
-    void applyBrakesBasedOnInput(float input, DcMotor motor) {
-        if (input > 0.3) applyBrakes(motor);
-        else releaseBrakes(motor);
     }
 
     /// @return <code>true</code> if the callee should set a position and <code>false</code> otherwise
@@ -489,16 +484,6 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         keybinder.bind("right_bumper").of(gamepad2).to(this::macroFrog);
         keybinder.bind("left_bumper").of(gamepad2).to(this::macroPrepareForReverseHighDrop);
-
-        keybinder.bind("left_trigger").of(gamepad1).to((inp) -> {
-            applyBrakesBasedOnInput(inp, bot.leftFront);
-            applyBrakesBasedOnInput(inp, bot.leftBack);
-        });
-
-        keybinder.bind("right_trigger").of(gamepad1).to((inp) -> {
-            applyBrakesBasedOnInput(inp, bot.rightFront);
-            applyBrakesBasedOnInput(inp, bot.rightBack);
-        });
 
         keybinder.bind("b").of(gamepad1).to(() -> { // driver one any action/macro cancellation
            actions.clear();
