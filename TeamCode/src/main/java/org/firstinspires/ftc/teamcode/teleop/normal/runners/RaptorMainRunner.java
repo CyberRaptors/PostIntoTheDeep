@@ -36,12 +36,15 @@ public class RaptorMainRunner extends ITeleOpRunner {
     protected IMecanumRobot getBot() { return bot; }
 
     void moveWheels() {
-        double greatestXValue = Math.abs(gamepad1.inner.right_stick_x) > Math.abs(gamepad1.inner.left_stick_x) ? gamepad1.inner.right_stick_x : gamepad1.inner.left_stick_x;
-        double greatestYValue = Math.abs(gamepad1.inner.right_stick_y) > Math.abs(gamepad1.inner.left_stick_y) ? gamepad1.inner.right_stick_y : gamepad1.inner.left_stick_y;
+        // Take the average of both gamepads' power
+        double greatestXValue = (gamepad1.inner.right_stick_x+gamepad1.inner.left_stick_x)/2;
+        double greatestYValue = (gamepad1.inner.right_stick_y+gamepad1.inner.left_stick_y)/2;
 
         // swap y and x here as the robot's position is technically rotated by PI/2 radians
-        double yPower = -TeleOpUtils.powerScaleInput(greatestXValue, 2, 1.5);
-        double xPower = -TeleOpUtils.powerScaleInput(greatestYValue, 2, 1.5);
+        double yPower = -TeleOpUtils.fineAndFastControl(greatestXValue);
+        double xPower = -TeleOpUtils.fineAndFastControl(greatestYValue);
+//        double yPower = -TeleOpUtils.powerScaleInput(greatestXValue, 2, 1.5);
+//        double xPower = -TeleOpUtils.powerScaleInput(greatestYValue, 2, 1.5);
 
         double turnPower = gamepad1.inner.left_trigger-gamepad1.inner.right_trigger;
 
@@ -335,17 +338,17 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         bot.setRRDrivePose(initialSpecimenPickupPose);
 
-        Action prepForHang = new SequentialAction(
-                bot.armMostlyPerpendicular(),
+        Action prepForHang = new ParallelAction(
                 bot.drive.actionBuilder(initialSpecimenPickupPose)
                         .strafeToSplineHeading(posForSpecimenDrop.position, posForSpecimenDrop.heading)
                         .build(),
                 bot.setArmPos(bot.BACKWARDS_HIGH_CHAMBER_ARM_POS)
         );
 
-        Action returnToOZ = new ParallelAction( // keep the arm at bot.BACKWARDS_HIGH_CHAMBER_ARM_POS so that drivers don't waste too much time bringing the arm back out for a frog
+        Action returnToOZ = new ParallelAction(
+                bot.setArmPos(bot.BACKWARDS_HIGH_CHAMBER_ARM_POS-200),
                 bot.drive.actionBuilder(posForSpecimenDrop)
-                        .strafeToSplineHeading(initialSpecimenPickupPose.position, posForSpecimenDrop.heading)
+                        .strafeToSplineHeading(initialSpecimenPickupPose.position, initialSpecimenPickupPose.heading)
                         .build()
         );
 
@@ -354,6 +357,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
                 prepForHang,
 //                hangSpecimenBackHighChamberInternal(),
                 returnToOZ,
+                bot.setArmPos(bot.arm.minPos),
                 new InstantAction(() -> LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = false)
         );
 

@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class TeleOpUtils {
     public static final double DEFAULT_FINE_TUNE_THRESH = 0.2;
     public static final double DEFAULT_LINEAR_INPUT_SCALE = 2.5;
+    public static final double DEFAULT_FINE_AND_FAST_CONTROL_THRESH = 0.7;
 
     final static ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(4);
 
@@ -47,6 +48,17 @@ public class TeleOpUtils {
 
     public static double powerScaleInput(double input, double power) {
         return powerScaleInput(input, power, DEFAULT_LINEAR_INPUT_SCALE);
+    }
+
+    public static double fineAndFastControl(double input, double thresh) {
+        if (input > thresh) return input;
+
+        // quadratically scale small inputs
+        return Math.signum(input)*(input*input);
+    }
+
+    public static double fineAndFastControl(double input) {
+        return fineAndFastControl(input, DEFAULT_FINE_AND_FAST_CONTROL_THRESH);
     }
 
     public static double fineTuneInput(double input) { return fineTuneInput(input, DEFAULT_FINE_TUNE_THRESH); }
