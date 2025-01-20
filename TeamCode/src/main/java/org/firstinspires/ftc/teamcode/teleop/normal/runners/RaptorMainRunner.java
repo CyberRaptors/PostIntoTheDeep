@@ -5,8 +5,10 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.robot.ActionableRaptorRobot;
@@ -34,19 +36,27 @@ public class RaptorMainRunner extends ITeleOpRunner {
     protected IMecanumRobot getBot() { return bot; }
 
     void moveWheels() {
-        double correctedRightY = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_y);
-        double correctedRightX = TeleOpUtils.fineTuneInput(gamepad1.inner.right_stick_x);
-        double correctedLeftY = TeleOpUtils.fineTuneInput(gamepad1.inner.left_stick_y);
-        double correctedLeftX = TeleOpUtils.fineTuneInput(gamepad1.inner.left_stick_x);
-
-        WheelPowers correctedWheelPowers = new WheelPowers(
-                (-correctedLeftY+correctedLeftX),
-                (-correctedLeftY-correctedLeftX),
-                (-correctedRightY-correctedRightX),
-                (-correctedRightY+correctedRightX)
-        );
-
-        correctedWheelPowers.applyTo(bot, wheelWeights);
+        bot.drive.setDrivePowers(new PoseVelocity2d(
+                new Vector2d(
+                        -TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.left_stick_y),
+                        -TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.left_stick_x)
+                ),
+                -gamepad1.inner.right_stick_x
+        ));
+//        double correctedRightY = TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.right_stick_y);
+//        double correctedRightX = TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.right_stick_x);
+//        double correctedLeftY = TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.left_stick_y);
+//        double correctedLeftX = TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.left_stick_x);
+//
+//
+//        WheelPowers correctedWheelPowers = new WheelPowers(
+//                (-correctedLeftY+correctedLeftX),
+//                (-correctedLeftY-correctedLeftX),
+//                (-correctedRightY-correctedRightX),
+//                (-correctedRightY+correctedRightX)
+//        );
+//
+//        correctedWheelPowers.applyTo(bot, wheelWeights);
     }
 
     WheelPowers getRealWheelInputPowers() {
@@ -67,7 +77,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
     }
 
     void moveLift() {
-        if (!reduceLiftStressAndRecalibrate()) bot.extensionLift.setPosition(
+        if (reduceLiftStressAndRecalibrate()) bot.extensionLift.setPosition(
                 bot.extensionLift.getTargetPosition()-(int) (gamepad2.inner.right_stick_y*50)
         );
     }
@@ -116,7 +126,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
                 ), bot.LIFT_MAX_TICKS
         );
 
-        if (!reduceLiftStressAndRecalibrate()) bot.extensionLift.setPosition(bot.extensionLift.getInternalTargetPosition());
+        if (reduceLiftStressAndRecalibrate()) bot.extensionLift.setPosition(bot.extensionLift.getInternalTargetPosition());
     }
 
     void applyBrakes(DcMotor wheel) {
@@ -133,14 +143,15 @@ public class RaptorMainRunner extends ITeleOpRunner {
         else releaseBrakes(motor);
     }
 
+    /// @return <code>true</code> if the callee should set a position and <code>false</code> otherwise
     boolean reduceLiftStressAndRecalibrate() {
         if (bot.extensionLift.maxPos <= 0) {
             bot.extensionLift.resetEncoder();
             bot.extensionLift.setPower(0);
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     /* MACROS */
@@ -324,7 +335,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = true;
 
-        final Pose2d initialSpecimenPickupPose = new Pose2d(2* FieldConstants.BLOCK_LENGTH_IN, -(2*FieldConstants.BLOCK_LENGTH_IN-6), 3 * Math.PI / 2);
+        final Pose2d initialSpecimenPickupPose = new Pose2d(2* FieldConstants.BLOCK_LENGTH_IN, -(2*FieldConstants.BLOCK_LENGTH_IN), Math.PI / 2);
         final Pose2d posForSpecimenDrop = new Pose2d(0.2*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN-15), 3 * Math.PI / 2);
 
         bot.setRRDrivePose(initialSpecimenPickupPose);
@@ -344,6 +355,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
         );
 
         Action macro = new SequentialAction(
+                pickupSpecimenFromBackWall(),
                 prepForHang,
 //                hangSpecimenBackHighChamberInternal(),
                 returnToOZ,
@@ -353,21 +365,15 @@ public class RaptorMainRunner extends ITeleOpRunner {
         actions.schedule(macro);
     }
 
-    void macroPickupSpecimenFromBackWall() {
-        if (LOCK_WHEELS || LOCK_INTAKES || LOCK_ARM || LOCK_LIFT || CHANNEL_POWER) return;
-
-        LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = true;
-
-        bot.setRRDrivePose(new Pose2d(0, 0, 0));
-
+    Action pickupSpecimenFromBackWall() {
         Action backupIntoWallAndStartPickup = new SequentialAction(
                 new InstantAction(() -> {
                     bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
                     bot.intakeSmall.setPower(bot.INTAKE_SMALL_IN_DIRECTION);
                 }),
-                bot.drive.actionBuilder(new Pose2d(0, 0, 0)) // move backwards
-                    .setTangent(0)
-                    .lineToX(-5)
+                bot.drive.actionBuilder(bot.drive.pose) // move backwards
+                    .setTangent(Math.PI/2)
+                    .lineToY(bot.drive.pose.position.y-5)
                     .build()
         );
 
@@ -380,27 +386,40 @@ public class RaptorMainRunner extends ITeleOpRunner {
         );
 
         Action raiseArmAndBackOut = new SequentialAction(
-                bot.drive.actionBuilder(new Pose2d(-5, 0, 0)) // inch forwards
-                        .setTangent(0)
-                        .lineToX(-7)
+                bot.drive.actionBuilder(new Pose2d(new Vector2d(bot.drive.pose.position.x, bot.drive.pose.position.y-5), bot.drive.pose.heading)) // inch forwards
+                        .setTangent(Math.PI/2)
+                        .lineToY(bot.drive.pose.position.y-7)
                         .build(),
                 bot.setArmPos(bot.ARM_PICKUP_FROM_BACK_WALL+150),
-                bot.drive.actionBuilder(new Pose2d(-7, 0, 0)) // move out
-                    .setTangent(0)
-                    .lineToX(0)
+                bot.drive.actionBuilder(new Pose2d(new Vector2d(bot.drive.pose.position.x, bot.drive.pose.position.y-7), bot.drive.pose.heading)) // move out
+                    .setTangent(Math.PI/2)
+                    .lineToY(bot.drive.pose.position.y)
                     .build()
         );
-
-
+        
         Action macro = new SequentialAction(
                 bot.setArmPos(bot.ARM_PICKUP_FROM_BACK_WALL),
                 backupIntoWallAndStartPickup,
                 endPickup,
-                raiseArmAndBackOut,
-                new InstantAction(() -> LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = false)
+                raiseArmAndBackOut
         );
+        
+        return macro;
+    }
+    
+    void macroPickupSpecimenFromBackWall() {
+        if (LOCK_WHEELS || LOCK_INTAKES || LOCK_ARM || LOCK_LIFT || CHANNEL_POWER) return;
 
-        actions.schedule(macro);
+        LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = true;
+
+        bot.setRRDrivePose(new Pose2d(0, 0, Math.PI/2)); // ensure the heading is PI/2
+        
+        actions.schedule(
+                new SequentialAction(
+                        pickupSpecimenFromBackWall(),
+                        new InstantAction(() -> LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = false)
+                )
+        );
     }
 
     /* END MACROS */
