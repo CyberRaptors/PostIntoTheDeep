@@ -328,6 +328,42 @@ public class RaptorMainRunner extends ITeleOpRunner {
         );
     }
 
+    void macroAutoHangSpecimenFromOZNoTurn() { // TODO: SEE IF THIS RESULTS IN A SHORTER CYCLE TIME AND IF IT IS STILL MOVEMENT-RELIABLE
+        if (LOCK_WHEELS || LOCK_INTAKES || LOCK_ARM || LOCK_LIFT || CHANNEL_POWER) return;
+
+        LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = true;
+
+        final Pose2d initialSpecimenPickupPose = new Pose2d(2* FieldConstants.BLOCK_LENGTH_IN, -(2*FieldConstants.BLOCK_LENGTH_IN), Math.PI / 2);
+        final Pose2d posForSpecimenDrop = new Pose2d(0.2*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN-10), 3 * Math.PI / 2);
+
+        bot.setRRDrivePose(initialSpecimenPickupPose);
+
+        Action prepForHang = new ParallelAction(
+                bot.drive.actionBuilder(initialSpecimenPickupPose)
+                        .strafeToSplineHeading(posForSpecimenDrop.position, posForSpecimenDrop.heading)
+                        .build(),
+                bot.armMostlyPerpendicular()
+        );
+
+        Action returnToOZ = new ParallelAction(
+                bot.setArmPos(bot.arm.minPos),
+                bot.drive.actionBuilder(posForSpecimenDrop)
+                        .strafeToSplineHeading(initialSpecimenPickupPose.position, initialSpecimenPickupPose.heading)
+                        .build()
+        );
+
+        Action macro = new SequentialAction(
+                pickupSpecimenFromBackWall(),
+                prepForHang,
+                bot.setArmPos(bot.PAST_FORWARDS_HIGH_CHAMBER_ARM_POS),
+                bot.armMostlyPerpendicular(),
+                returnToOZ,
+                new InstantAction(() -> LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = false)
+        );
+
+        actions.schedule(macro);
+    }
+
     void macroAutoHangSpecimenFromOZ() {
         if (LOCK_WHEELS || LOCK_INTAKES || LOCK_ARM || LOCK_LIFT || CHANNEL_POWER) return;
 

@@ -52,9 +52,12 @@ public class RaptorRobot extends IMecanumRobot {
 
     /* MACRO CONSTANTS [specified here to allow use in auton] */
 
+    // TODO: WHEN REPLACING LIFT MOTOR, THE CONSTANTS HERE MUST BE CHANGED AS WELL AS LIFT_MAX_TICKS AND ALSO ActionableRaptorRobot's actions which use lift tick constants
+
     public final int REVERSE_DROP_MACRO_ARM_POS = 1562;
     public final int REVERSE_DROP_MACRO_LIFT_POS = 1585;
     public final int BACKWARDS_HIGH_CHAMBER_ARM_POS = 1258;
+    public final int PAST_FORWARDS_HIGH_CHAMBER_ARM_POS = (int) ((160d/ARM_MAX_ROTATION_DEG)*ARM_MAX_TICKS); // TODO: fix
     public final int FORWARDS_HIGH_BASKET_ARM_POS = 2215;
     public final int FORWARDS_HIGH_BASKET_LIFT_POS = 1538;
     public final int AUTON_ASCENT_ARM_POS = 1000;
