@@ -152,6 +152,16 @@ public class RaptorMainRunner extends ITeleOpRunner {
         return true;
     }
 
+
+    void toggleAuxClawRotate() {
+        if (bot.auxClawRotate.getPositionLabel().equals("up")) {
+            bot.auxClawRotate.setLabeledPosition("down");
+        } else {
+
+            bot.auxClawRotate.setLabeledPosition("up");
+        }
+    }
+
     /* MACROS */
 
 
@@ -328,7 +338,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
         );
     }
 
-    void macroAutoHangSpecimenFromOZNoTurn() { // TODO: SEE IF THIS RESULTS IN A SHORTER CYCLE TIME AND IF IT IS STILL MOVEMENT-RELIABLE
+    void macroAutoHangSpecimenFromOZNoTurn() { // TODO: SEE IF THIS RESULTS IN A SHORTER CYCLE TIME AND IF IT IS STILL MOVEMENT-RELIABLE -- IF IT WORKS AND IS SHORTER, BIND BOTH MACROS AND MAKE A "SAFE" and "UNSAFE" VERSION OF THE AUTON, USING THE TURN AND NO TURN HANGS RESPECTIVELY
         if (LOCK_WHEELS || LOCK_INTAKES || LOCK_ARM || LOCK_LIFT || CHANNEL_POWER) return;
 
         LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = true;
@@ -519,8 +529,8 @@ public class RaptorMainRunner extends ITeleOpRunner {
         keybinder.bind("left_stick_button").of(gamepad2).to(this::macroArmXXXToggle);
         keybinder.bind("right_stick_button").of(gamepad2).to(this::macroLiftFullXXXToggle);
 
-        keybinder.bind("dpad_up").of(gamepad2).to(this::macroPrepareForForwardHighDrop);
-        keybinder.bind("a").of(gamepad2).to(this::macroHangSpecimenBackHighChamber);
+//        keybinder.bind("dpad_up").of(gamepad2).to(this::macroPrepareForForwardHighDrop);
+//        keybinder.bind("a").of(gamepad2).to(this::macroHangSpecimenBackHighChamber);
 
         keybinder.bind("right_bumper").of(gamepad2).to(this::macroFrog);
         keybinder.bind("left_bumper").of(gamepad2).to(this::macroPrepareForReverseHighDrop);
@@ -537,6 +547,9 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         keybinder.bind("a").of(gamepad1).to(this::macroAutoHangSpecimenFromOZ); // on driver one gamepad, automatically hangs specimen and returns to OZ
         keybinder.bind("dpad_down").of(gamepad1).to(this::macroPickupSpecimenFromBackWall);
+
+        keybinder.bind("dpad_up").of(gamepad2).to(this::toggleAuxClawRotate);
+        keybinder.bind("dpad_down").of(gamepad2).to(bot.auxClaw::toggle);
 
         tryRecoverFromAuton();
 
@@ -587,6 +600,14 @@ public class RaptorMainRunner extends ITeleOpRunner {
                     bot.ARM_MAX_ROTATION_DEG*bot.arm.getPosition()/bot.arm.maxPos, // approx. alpha
                     bot.ARM_MAX_ROTATION_DEG, // max alpha
                     (LOCK_ARM ? " locked" : "")
+            );
+
+            telemetry.addData(
+              "aux claw", bot.auxClaw.inner.getPositionLabel()
+            );
+
+            telemetry.addData(
+                    "aux claw rotate", bot.auxClawRotate.getPositionLabel()
             );
 
             if (showExtraInfo) {

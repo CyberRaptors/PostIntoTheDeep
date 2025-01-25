@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import lib8812.common.robot.IMecanumRobot;
+import lib8812.common.robot.hardwarewrappers.BinaryClaw;
+import lib8812.common.robot.hardwarewrappers.LabeledPositionServo;
 import lib8812.common.robot.hardwarewrappers.ServoLikeMotor;
 import lib8812.common.rr.SparkFunOTOSDrive;
 
@@ -19,8 +21,10 @@ public class RaptorRobot extends IMecanumRobot {
     public final double ARM_APPROX_LEN_IN = 14;
     public final double ARM_JOINT_MOUNT_HEIGHT_IN = 16;
 
+    protected double NEW_LIFT_TICK_RATIO = 537.7/384.5;
+
     static final int ARM_MIN_TICKS = 0;
-    public final int LIFT_MAX_TICKS = 2000;
+    public final int LIFT_MAX_TICKS = (int) (2000*NEW_LIFT_TICK_RATIO);
     public final int LIFT_MIN_TICKS = 0;
     static final double LIFT_MAX_INCHES = 25.7;
     static final double LIFT_MIN_INCHES = 0;
@@ -55,11 +59,11 @@ public class RaptorRobot extends IMecanumRobot {
     // TODO: WHEN REPLACING LIFT MOTOR, THE CONSTANTS HERE MUST BE CHANGED AS WELL AS LIFT_MAX_TICKS AND ALSO ActionableRaptorRobot's actions which use lift tick constants
 
     public final int REVERSE_DROP_MACRO_ARM_POS = 1562;
-    public final int REVERSE_DROP_MACRO_LIFT_POS = 1585;
+    public final int REVERSE_DROP_MACRO_LIFT_POS = (int) (1585*NEW_LIFT_TICK_RATIO);
     public final int BACKWARDS_HIGH_CHAMBER_ARM_POS = 1258;
     public final int PAST_FORWARDS_HIGH_CHAMBER_ARM_POS = (int) ((160d/ARM_MAX_ROTATION_DEG)*ARM_MAX_TICKS); // TODO: fix
     public final int FORWARDS_HIGH_BASKET_ARM_POS = 2215;
-    public final int FORWARDS_HIGH_BASKET_LIFT_POS = 1538;
+    public final int FORWARDS_HIGH_BASKET_LIFT_POS = (int) (1538*NEW_LIFT_TICK_RATIO);
     public final int AUTON_ASCENT_ARM_POS = 1000;
     public final int ARM_STRAIGHT_UP = 1856;
     public final int ARM_PICKUP_FROM_BACK_WALL = 220;
@@ -74,6 +78,9 @@ public class RaptorRobot extends IMecanumRobot {
     public CRServo intakeSmall;
     public CRServo intakeLarge;
     public Servo lilRaptor;
+
+    public LabeledPositionServo auxClawRotate;
+    public BinaryClaw auxClaw;
 
     public SparkFunOTOSDrive drive;
 
@@ -115,8 +122,29 @@ public class RaptorRobot extends IMecanumRobot {
         lilRaptor = loadDevice(hardwareMap, Servo.class, "lilRaptor");
         lilRaptor.resetDeviceConfigurationForOpMode();
 
+        auxClawRotate = new LabeledPositionServo(
+                loadDevice(hardwareMap, Servo.class, "auxClawRotate"),
+                new String[] { "up", "down" },
+                new Double[] { 0.743, 0.252 }
+        );
+
+        auxClawRotate.setDirection(Servo.Direction.REVERSE);
+
+        auxClaw = new BinaryClaw(
+                loadDevice(hardwareMap, Servo.class, "auxClaw"),
+                0.0,
+                0.0
+        );
+
+        auxClaw.inner.setDirection(Servo.Direction.REVERSE);
+
+
+
         clawRotate.setPosition(CLAW_ROTATE_MAX_POS);
         lilRaptor.setPosition(LIL_RAPTOR_REST_POS);
+
+        auxClawRotate.setLabeledPosition("up");
+        auxClaw.close();
 
         drive = new SparkFunOTOSDrive(hardwareMap, new Pose2d(0, 0, 0));
     }

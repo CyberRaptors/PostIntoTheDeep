@@ -52,7 +52,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
 
         int liftToGroundExtTicksReal = (int) Math.floor(liftToGroundExtIn * LIFT_TICKS_PER_INCHES);
 
-        int liftToGroundExtTicksEnsure = liftToGroundExtTicksReal + 75 + manualAdjust;
+        int liftToGroundExtTicksEnsure = liftToGroundExtTicksReal + (int) (75*NEW_LIFT_TICK_RATIO) + (int) (manualAdjust*NEW_LIFT_TICK_RATIO);
 
         return new SequentialAction(
                 setArmPos(arm.maxPos),
@@ -147,7 +147,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                     intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
                 }),
                 /* hook the specimen onto the high chamber and wait for at least 0.5 sec */
-                setExtensionLiftPos(300),
+                setExtensionLiftPos((int) (300*NEW_LIFT_TICK_RATIO)),
                 setArmPos(BACKWARDS_HIGH_CHAMBER_ARM_POS-300),
                 setExtensionLiftPos(extensionLift.minPos),
                 new InstantAction(() -> {
