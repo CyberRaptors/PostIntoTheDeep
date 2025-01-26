@@ -125,10 +125,8 @@ public class RaptorRobot extends IMecanumRobot {
         auxClawRotate = new LabeledPositionServo(
                 loadDevice(hardwareMap, Servo.class, "auxClawRotate"),
                 new String[] { "up", "down" },
-                new Double[] { 0.532, 0.0 }
+                new Double[] { 0.0, 0.380 }
         );
-
-        auxClawRotate.setDirection(Servo.Direction.REVERSE);
 
         auxClaw = new BinaryClaw(
                 loadDevice(hardwareMap, Servo.class, "auxClaw"),
