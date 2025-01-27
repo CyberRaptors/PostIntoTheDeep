@@ -152,13 +152,20 @@ public class RaptorMainRunner extends ITeleOpRunner {
         return true;
     }
 
+    void performAuxSystemState(int state) {
+        switch (state)
+        {
+            case 0:
+                bot.auxClaw.close();
+                bot.auxClawRotate.setLabeledPosition("up");
+                break;
 
-    void toggleAuxClawRotate() {
-        if (bot.auxClawRotate.getPositionLabel().equals("up")) {
-            bot.auxClawRotate.setLabeledPosition("down");
-        } else {
+            case 1:
+                bot.auxClaw.open();
+                bot.auxClawRotate.setLabeledPosition("down");
+                break;
 
-            bot.auxClawRotate.setLabeledPosition("up");
+            default: throw new RuntimeException("Invalid aux system state");
         }
     }
 
@@ -548,9 +555,6 @@ public class RaptorMainRunner extends ITeleOpRunner {
         keybinder.bind("a").of(gamepad1).to(this::macroAutoHangSpecimenFromOZ); // on driver one gamepad, automatically hangs specimen and returns to OZ
         keybinder.bind("dpad_down").of(gamepad1).to(this::macroPickupSpecimenFromBackWall);
 
-        keybinder.bind("dpad_up").of(gamepad2).to(this::toggleAuxClawRotate);
-        keybinder.bind("dpad_down").of(gamepad2).to(bot.auxClaw::toggle);
-
         tryRecoverFromAuton();
 
         while (opModeIsActive()) {
@@ -563,6 +567,9 @@ public class RaptorMainRunner extends ITeleOpRunner {
             limitLiftExtension();
             if (!CHANNEL_POWER) moveClawRotate();
             if (!LOCK_INTAKES && !CHANNEL_POWER) moveSpinningIntake();
+
+            int auxState = (int) gamepad2.getValue("dpad_down");
+            performAuxSystemState(auxState);
 
             keybinder.executeActions();
             actions.execute();
@@ -603,11 +610,11 @@ public class RaptorMainRunner extends ITeleOpRunner {
             );
 
             telemetry.addData(
-              "aux claw", bot.auxClaw.inner.getPositionLabel()
-            );
-
-            telemetry.addData(
-                    "aux claw rotate", bot.auxClawRotate.getPositionLabel()
+                    "aux system",
+                    "state (%d) claw (%s) rotate (%s)",
+                    auxState,
+                    bot.auxClaw.inner.getPositionLabel(),
+                    bot.auxClawRotate.getPositionLabel()
             );
 
             if (showExtraInfo) {
