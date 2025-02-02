@@ -33,12 +33,14 @@ public class RaptorMainRunner extends ITeleOpRunner {
     boolean LOCK_WHEELS = false;
     boolean CHANNEL_POWER = false;
 
+    long msAtAuxClose;
+
     protected IMecanumRobot getBot() { return bot; }
 
     void moveWheels() {
         // Take the average of both gamepads' power
-        double greatestXValue = (gamepad1.inner.right_stick_x+gamepad1.inner.left_stick_x)/2;
-        double greatestYValue = (gamepad1.inner.right_stick_y+gamepad1.inner.left_stick_y)/2;
+        double greatestXValue = (gamepad1.inner.right_stick_x+gamepad1.inner.left_stick_x)/1.5;
+        double greatestYValue = (gamepad1.inner.right_stick_y+gamepad1.inner.left_stick_y)/1.5;
 
         // swap y and x here as the robot's position is technically rotated by PI/2 radians
         double yPower = -TeleOpUtils.fineAndFastControl(greatestXValue);
@@ -46,7 +48,13 @@ public class RaptorMainRunner extends ITeleOpRunner {
 //        double yPower = -TeleOpUtils.powerScaleInput(greatestXValue, 2, 1.5);
 //        double xPower = -TeleOpUtils.powerScaleInput(greatestYValue, 2, 1.5);
 
-        double turnPower = gamepad1.inner.left_trigger-gamepad1.inner.right_trigger;
+        double turnPower = 0;
+
+        if (Math.signum(gamepad1.inner.right_stick_y) == -Math.signum(gamepad1.inner.left_stick_y)) {
+            turnPower = gamepad1.inner.right_stick_y-gamepad1.inner.left_stick_y;
+        }
+
+//        double turnPower = gamepad1.inner.left_trigger-gamepad1.inner.right_trigger;
 
         bot.drive.setDrivePowers(new PoseVelocity2d(
                 new Vector2d(
@@ -156,8 +164,12 @@ public class RaptorMainRunner extends ITeleOpRunner {
         switch (state)
         {
             case 0:
-                bot.auxClaw.close();
-                bot.auxClawRotate.setLabeledPosition("up");
+                if (bot.auxClaw.isClosed()) {
+                    if ((System.currentTimeMillis()-msAtAuxClose) > 400 ) bot.auxClawRotate.setLabeledPosition("up");
+                } else {
+                    bot.auxClaw.close();
+                    msAtAuxClose = System.currentTimeMillis();
+                }
                 break;
 
             case 1:
@@ -474,6 +486,19 @@ public class RaptorMainRunner extends ITeleOpRunner {
         );
     }
 
+    void macroAutoSampleAlign() {
+        if (LOCK_WHEELS) return;
+
+        LOCK_WHEELS = true;
+
+        actions.schedule(
+                new SequentialAction(
+                        bot.limelightAlgorithms.faceTarget(),
+                        new InstantAction(() -> LOCK_WHEELS = false)
+                )
+        );
+    }
+
     /* END MACROS */
 
     void tryRecoverFromAuton() {
@@ -506,6 +531,8 @@ public class RaptorMainRunner extends ITeleOpRunner {
     }
 
     protected void internalRun() {
+        bot.limelightMgr.init(); // apparently the Limelight should only be started *after* waitForStart()
+
         KeybindPattern.GamepadBinder x = keybinder.bind("x");
 
         x.of(gamepad1).to(() -> showExtraInfo = !showExtraInfo);
@@ -555,6 +582,10 @@ public class RaptorMainRunner extends ITeleOpRunner {
         keybinder.bind("a").of(gamepad1).to(this::macroAutoHangSpecimenFromOZ); // on driver one gamepad, automatically hangs specimen and returns to OZ
         keybinder.bind("dpad_down").of(gamepad1).to(this::macroPickupSpecimenFromBackWall);
 
+        keybinder.bind("right_bumper").of(gamepad1).to(this::macroAutoSampleAlign);
+
+        keybinder.bind("dpad_up").of(gamepad2).to(() -> bot.auxClaw.inner.setLabeledPosition("power saving mode"));
+
         tryRecoverFromAuton();
 
         while (opModeIsActive()) {
@@ -568,8 +599,10 @@ public class RaptorMainRunner extends ITeleOpRunner {
             if (!CHANNEL_POWER) moveClawRotate();
             if (!LOCK_INTAKES && !CHANNEL_POWER) moveSpinningIntake();
 
-            int auxState = (int) gamepad2.getValue("dpad_down");
-            performAuxSystemState(auxState);
+            if (!(bot.auxClaw.inner.getPositionLabel().equals("power saving mode") && !gamepad2.inner.dpad_down)) {
+                int auxState = (int) gamepad2.getValue("dpad_down");
+                performAuxSystemState(auxState);
+            }
 
             keybinder.executeActions();
             actions.execute();
@@ -611,8 +644,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
             telemetry.addData(
                     "aux system",
-                    "state (%d) claw (%s) rotate (%s)",
-                    auxState,
+                    "claw (%s) rotate (%s)",
                     bot.auxClaw.inner.getPositionLabel(),
                     bot.auxClawRotate.getPositionLabel()
             );
@@ -635,6 +667,12 @@ public class RaptorMainRunner extends ITeleOpRunner {
                         bot.rightBack.getPower(), realWheelInputPowers.rightBack - bot.rightBack.getPower()
                 );
             }
+
+            boolean limelightConn = bot.limelightMgr.inner.isConnected();
+            boolean limelightRun = bot.limelightMgr.inner.isRunning();
+
+
+            telemetry.addData("Limelight", "connected (%b) running (%b)", limelightConn, limelightRun);
 
             telemetry.addData("Actions", "length (%d)", actions.count());
             telemetry.addData("Verbosity Level", "%s", showExtraInfo ? "high" : "low");

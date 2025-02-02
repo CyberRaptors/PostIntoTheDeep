@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.robot;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -9,9 +10,12 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import lib8812.common.robot.IMecanumRobot;
+import lib8812.common.robot.MecanumLimelightAlgorithms;
 import lib8812.common.robot.hardwarewrappers.BinaryClaw;
 import lib8812.common.robot.hardwarewrappers.LabeledPositionServo;
+import lib8812.common.robot.hardwarewrappers.LimelightManager;
 import lib8812.common.robot.hardwarewrappers.ServoLikeMotor;
+import lib8812.common.robot.poses.SimpleRadianPose;
 import lib8812.common.rr.SparkFunOTOSDrive;
 
 public class RaptorRobot extends IMecanumRobot {
@@ -33,7 +37,7 @@ public class RaptorRobot extends IMecanumRobot {
 
     public final double CLAW_ROTATE_MIN_POS = 0.3;
     public final double CLAW_ROTATE_MAX_POS = 1;
-    public final double CLAW_ROTATE_FORWARDS = (CLAW_ROTATE_MIN_POS+CLAW_ROTATE_MAX_POS)/2;
+    public final double CLAW_ROTATE_FORWARDS = (CLAW_ROTATE_MIN_POS+CLAW_ROTATE_MAX_POS)/2 + /* custom offset */ 0.03;
 
     public final double LIL_RAPTOR_REST_POS = 0;
     public final double LIL_RAPTOR_OUT_POS = 0.3;
@@ -69,6 +73,8 @@ public class RaptorRobot extends IMecanumRobot {
     public final int ARM_PICKUP_FROM_BACK_WALL = 220;
 
 
+    final static double LIMELIGHT_ALIGN_TARGET_SAMPLE_SIZE = 0;
+
     /* Hardware Devices */
 
     public ServoLikeMotor arm;
@@ -83,6 +89,10 @@ public class RaptorRobot extends IMecanumRobot {
     public BinaryClaw auxClaw;
 
     public SparkFunOTOSDrive drive;
+
+    public LimelightManager limelightMgr;
+    public MecanumLimelightAlgorithms limelightAlgorithms;
+
 
     public void init(HardwareMap hardwareMap) {
         rightFront = loadDevice(hardwareMap, DcMotor.class, "rightFront");
@@ -125,14 +135,16 @@ public class RaptorRobot extends IMecanumRobot {
         auxClawRotate = new LabeledPositionServo(
                 loadDevice(hardwareMap, Servo.class, "auxClawRotate"),
                 new String[] { "up", "down" },
-                new Double[] { 0.0, 0.380 }
+                new Double[] { 0.0, 0.3 }
         );
 
         auxClaw = new BinaryClaw(
                 loadDevice(hardwareMap, Servo.class, "auxClaw"),
-                0.137,
-                0.0
+                0.35,
+                0.15
         );
+
+        auxClaw.inner.addPositionLabel("power saving mode", 0.550);
 
         auxClaw.inner.setDirection(Servo.Direction.REVERSE);
 
@@ -141,9 +153,20 @@ public class RaptorRobot extends IMecanumRobot {
         lilRaptor.setPosition(LIL_RAPTOR_REST_POS);
 
         auxClawRotate.setLabeledPosition("up");
-        auxClaw.close();
+        auxClaw.inner.setLabeledPosition("power saving mode");
+
 
         drive = new SparkFunOTOSDrive(hardwareMap, new Pose2d(0, 0, 0));
+
+
+        limelightMgr = new LimelightManager(
+                hardwareMap.get(Limelight3A.class, "limelight"),
+                new SimpleRadianPose(0, 0, 0)
+        );
+
+        limelightMgr.pipelineSwitch(1);
+
+        limelightAlgorithms = new MecanumLimelightAlgorithms(drive, limelightMgr, LIMELIGHT_ALIGN_TARGET_SAMPLE_SIZE);
     }
 
     public void deInit() {

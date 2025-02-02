@@ -3,13 +3,13 @@ package lib8812.common.robot.hardwarewrappers;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ServoController;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class LabeledPositionServo implements Servo, ICustomHardwareDevice {
     final Servo inner;
-    List<String> labels;
-    List<Double> positions;
+    ArrayList<String> labels;
+    ArrayList<Double> positions;
 
     public boolean isVirtualDevice() { return false; }
 
@@ -18,8 +18,8 @@ public class LabeledPositionServo implements Servo, ICustomHardwareDevice {
 
         assert labels.length == positions.length;
 
-        this.labels = Arrays.asList(labels);
-        this.positions = Arrays.asList(positions);
+        this.labels = new ArrayList<>(Arrays.asList(labels));
+        this.positions = new ArrayList<>(Arrays.asList(positions));
 
     }
 
@@ -49,6 +49,11 @@ public class LabeledPositionServo implements Servo, ICustomHardwareDevice {
 
             return labels.get(leastDiffIdx);
         }
+    }
+
+    public void addPositionLabel(String label, double pos) {
+        labels.add(label);
+        positions.add(pos);
     }
 
     @Override

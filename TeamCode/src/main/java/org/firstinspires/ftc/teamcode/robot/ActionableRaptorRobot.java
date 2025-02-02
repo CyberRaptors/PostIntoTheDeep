@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import lib8812.common.actions.MotorSetPositionAction;
@@ -132,6 +133,33 @@ public class ActionableRaptorRobot extends RaptorRobot {
 
                 }),
                 new SleepAction(0.5),
+                new InstantAction(() -> {
+                    intakeSmall.setPower(0);
+                    intakeLarge.setPower(0);
+                })
+        );
+    }
+
+    public Action fastHangSpecimenBegin() {
+        return new SequentialAction(
+                new InstantAction(() -> {
+                    intakeSmall.setPower(INTAKE_SMALL_IN_DIRECTION);
+                    intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
+                }),
+                setArmPos(BACKWARDS_HIGH_CHAMBER_ARM_POS-125)
+        );
+    }
+
+    public Action fastHangSpecimenWrap(TrajectoryActionBuilder backupActionBuilder) {
+        return backupActionBuilder.afterDisp(3, new InstantAction(() -> {
+            intakeSmall.setPower(0);
+            intakeLarge.setPower(0);
+        })).build();
+    }
+
+    public Action fastHangSpecimenEnd() {
+        return new ParallelAction(
+                retractArm(),
                 new InstantAction(() -> {
                     intakeSmall.setPower(0);
                     intakeLarge.setPower(0);

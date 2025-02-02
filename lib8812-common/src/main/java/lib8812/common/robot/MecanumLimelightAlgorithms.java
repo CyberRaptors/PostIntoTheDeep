@@ -9,19 +9,20 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import lib8812.common.robot.hardwarewrappers.LimelightManager;
+import lib8812.common.rr.MecanumDrive;
 
 public class MecanumLimelightAlgorithms { // NOTE: THEN USE TY IN THE SAME WAY TO DETERMINE IF ROBOT IS CORRECT DISTANCE AWAY
 	final LimelightManager limelight;
-	final IMecanumRobot bot;
+	final MecanumDrive drive;
 	final double targetSize;
 	double centeringKp = 0.001;
 	double acceptableError = 10;
 	double acceptableSizeError = 5;
 
-	public MecanumLimelightAlgorithms(IMecanumRobot bot, LimelightManager limelightMgr, double targetSize) {
+	public MecanumLimelightAlgorithms(MecanumDrive drive, LimelightManager limelightMgr, double targetSize) {
 		  limelight = limelightMgr;
 		  this.targetSize = targetSize;
-		  this.bot = bot;
+		  this.drive = drive;
 	}
 
 	public void setCenteringKp(double kP) {
@@ -39,20 +40,20 @@ public class MecanumLimelightAlgorithms { // NOTE: THEN USE TY IN THE SAME WAY T
 
 	public Action faceTarget() { // TODO: add timeout to all
 		return new Action() {
-			final DcMotor.ZeroPowerBehavior leftFrontBehavior = bot.leftFront.getZeroPowerBehavior();
-			final DcMotor.ZeroPowerBehavior leftBackBehavior = bot.leftBack.getZeroPowerBehavior();
-			final DcMotor.ZeroPowerBehavior rightFrontBehavior = bot.rightFront.getZeroPowerBehavior();
-			final DcMotor.ZeroPowerBehavior rightBackBehavior = bot.rightBack.getZeroPowerBehavior();
+			final DcMotor.ZeroPowerBehavior leftFrontBehavior = drive.leftFront.getZeroPowerBehavior();
+			final DcMotor.ZeroPowerBehavior leftBackBehavior = drive.leftBack.getZeroPowerBehavior();
+			final DcMotor.ZeroPowerBehavior rightFrontBehavior = drive.rightFront.getZeroPowerBehavior();
+			final DcMotor.ZeroPowerBehavior rightBackBehavior = drive.rightBack.getZeroPowerBehavior();
 			boolean started;
 
 
 			@Override
 			public boolean run(@NonNull TelemetryPacket telemetryPacket) {
 				if (!started) {
-					bot.leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-					bot.leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-					bot.rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-					bot.rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+					drive.leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+					drive.leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+					drive.rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+					drive.rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 					started = true;
 				}
@@ -61,15 +62,15 @@ public class MecanumLimelightAlgorithms { // NOTE: THEN USE TY IN THE SAME WAY T
 				double err = res.getTx();
 
 				if (Math.abs(err) < acceptableError) {
-					bot.leftFront.setPower(0);
-					bot.leftBack.setPower(0);
-					bot.rightFront.setPower(0);
-					bot.rightBack.setPower(0);
+					drive.leftFront.setPower(0);
+					drive.leftBack.setPower(0);
+					drive.rightFront.setPower(0);
+					drive.rightBack.setPower(0);
 
-					bot.leftFront.setZeroPowerBehavior(leftFrontBehavior);
-					bot.leftBack.setZeroPowerBehavior(leftBackBehavior);
-					bot.rightFront.setZeroPowerBehavior(rightFrontBehavior);
-					bot.rightBack.setZeroPowerBehavior(rightBackBehavior);
+					drive.leftFront.setZeroPowerBehavior(leftFrontBehavior);
+					drive.leftBack.setZeroPowerBehavior(leftBackBehavior);
+					drive.rightFront.setZeroPowerBehavior(rightFrontBehavior);
+					drive.rightBack.setZeroPowerBehavior(rightBackBehavior);
 
 					return false;
 				}
@@ -77,11 +78,11 @@ public class MecanumLimelightAlgorithms { // NOTE: THEN USE TY IN THE SAME WAY T
 				double leftFeedback = centeringKp*err;
 				double rightFeedback = -leftFeedback;
 
-				bot.leftFront.setPower(leftFeedback);
-				bot.leftBack.setPower(leftFeedback);
+				drive.leftFront.setPower(leftFeedback);
+				drive.leftBack.setPower(leftFeedback);
 
-				bot.rightFront.setPower(rightFeedback);
-				bot.rightBack.setPower(rightFeedback);
+				drive.rightFront.setPower(rightFeedback);
+				drive.rightBack.setPower(rightFeedback);
 
 				return true;
 			}
@@ -90,20 +91,20 @@ public class MecanumLimelightAlgorithms { // NOTE: THEN USE TY IN THE SAME WAY T
 
 	public Action alignDistanceFromTarget() {
 		return new Action() {
-			final DcMotor.ZeroPowerBehavior leftFrontBehavior = bot.leftFront.getZeroPowerBehavior();
-			final DcMotor.ZeroPowerBehavior leftBackBehavior = bot.leftBack.getZeroPowerBehavior();
-			final DcMotor.ZeroPowerBehavior rightFrontBehavior = bot.rightFront.getZeroPowerBehavior();
-			final DcMotor.ZeroPowerBehavior rightBackBehavior = bot.rightBack.getZeroPowerBehavior();
+			final DcMotor.ZeroPowerBehavior leftFrontBehavior = drive.leftFront.getZeroPowerBehavior();
+			final DcMotor.ZeroPowerBehavior leftBackBehavior = drive.leftBack.getZeroPowerBehavior();
+			final DcMotor.ZeroPowerBehavior rightFrontBehavior = drive.rightFront.getZeroPowerBehavior();
+			final DcMotor.ZeroPowerBehavior rightBackBehavior = drive.rightBack.getZeroPowerBehavior();
 			boolean started;
 
 
 			@Override
 			public boolean run(@NonNull TelemetryPacket telemetryPacket) {
 				if (!started) {
-					bot.leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-					bot.leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-					bot.rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-					bot.rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+					drive.leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+					drive.leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+					drive.rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+					drive.rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 					started = true;
 				}
@@ -112,25 +113,25 @@ public class MecanumLimelightAlgorithms { // NOTE: THEN USE TY IN THE SAME WAY T
 				double err = targetSize-res.getTa();
 
 				if (Math.abs(err) < acceptableSizeError) {
-					bot.leftFront.setPower(0);
-					bot.leftBack.setPower(0);
-					bot.rightFront.setPower(0);
-					bot.rightBack.setPower(0);
+					drive.leftFront.setPower(0);
+					drive.leftBack.setPower(0);
+					drive.rightFront.setPower(0);
+					drive.rightBack.setPower(0);
 
-					bot.leftFront.setZeroPowerBehavior(leftFrontBehavior);
-					bot.leftBack.setZeroPowerBehavior(leftBackBehavior);
-					bot.rightFront.setZeroPowerBehavior(rightFrontBehavior);
-					bot.rightBack.setZeroPowerBehavior(rightBackBehavior);
+					drive.leftFront.setZeroPowerBehavior(leftFrontBehavior);
+					drive.leftBack.setZeroPowerBehavior(leftBackBehavior);
+					drive.rightFront.setZeroPowerBehavior(rightFrontBehavior);
+					drive.rightBack.setZeroPowerBehavior(rightBackBehavior);
 
 					return false;
 				}
 
 				double feedback = centeringKp*err;
 
-				bot.leftFront.setPower(feedback);
-				bot.leftBack.setPower(feedback);
-				bot.rightFront.setPower(feedback);
-				bot.rightBack.setPower(feedback);
+				drive.leftFront.setPower(feedback);
+				drive.leftBack.setPower(feedback);
+				drive.rightFront.setPower(feedback);
+				drive.rightBack.setPower(feedback);
 
 				return true;
 			}
