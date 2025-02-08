@@ -26,7 +26,7 @@ public class RightSpecimenCycleRunner extends ITeleOpRunner { // this can impl I
 
 	final static Pose2d initialRightPose = new Pose2d(0.45 * FieldConstants.BLOCK_LENGTH_IN, -(2.5*FieldConstants.BLOCK_LENGTH_IN+3.5+0.4), STANDARD_TANGENT);
 	final static Pose2d posForSpecimenDropSpliner = new Pose2d(0.45*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN+5), STANDARD_TANGENT);
-	final static Pose2d posForSpecimenDrop = new Pose2d(0.45*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN-5), STANDARD_TANGENT);
+	final static Pose2d posForSpecimenDrop = new Pose2d(0.45*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN-7), STANDARD_TANGENT);
 	final static Pose2d posForSpecimenDropBackup = new Pose2d(0.45*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN+5), STANDARD_TANGENT);
 	final static Pose2d posForInitialSpecimenDrop = new Pose2d(0.2*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN-8), STANDARD_TANGENT);
 	final static Pose2d posForInitialSpecimenDropBackup = new Pose2d(0.2*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN-2), STANDARD_TANGENT);
@@ -34,7 +34,7 @@ public class RightSpecimenCycleRunner extends ITeleOpRunner { // this can impl I
 	final static Pose2d specimenPickupPosStart = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+4.5, -(2*FieldConstants.BLOCK_LENGTH_IN+7), Math.PI / 2);
 	final static Pose2d specimenPickupPosEnd = new Pose2d(specimenPickupPosStart.position.minus(new Vector2d(0, 7)), specimenPickupPosStart.heading);
 	final static Vector2d posForPark = new Vector2d(2*FieldConstants.BLOCK_LENGTH_IN+4.5, -(2*FieldConstants.BLOCK_LENGTH_IN+10));
-	final static Pose2d startPushingFirstSampleFrom = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+6, -0.4*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
+	final static Pose2d startPushingFirstSampleFrom = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+3.5, -0.4*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
 	final static Vector2d pushHungSpecimenUntil = new Vector2d(posForSpecimenDrop.position.x-6, posForSpecimenDrop.position.y+4);
 	final static double startPushingSecondSampleXPos = 2.7*FieldConstants.BLOCK_LENGTH_IN;
 	final static double pushSamplesUntil = -2.3*FieldConstants.BLOCK_LENGTH_IN;
@@ -47,50 +47,8 @@ public class RightSpecimenCycleRunner extends ITeleOpRunner { // this can impl I
 
 	protected IMecanumRobot getBot() { return bot; }
 
-	protected void customInit() {
-		drive = new SparkFunOTOSDrive(hardwareMap, initialRightPose);
-		util = new MecanumUtil(drive);
-
-		Action prepForPreloadHang = new ParallelAction(
-				bot.setExtensionLiftPos(150),
-				new SequentialAction(
-						bot.prepareArmForSpecimenHang(),
-						bot.forceSetExtensionLiftMinPos()
-				),
-				drive.actionBuilder(initialRightPose)
-						.setTangent(STANDARD_TANGENT)
-						.strafeToSplineHeading(posForInitialSpecimenDrop.position, posForInitialSpecimenDrop.heading)
-						.build()
-		);
-
-		Action netFirst = new SequentialAction(
-				bot.idleIntakes(),
-				new ParallelAction(
-						new SequentialAction(
-								new SleepAction(0.5),
-								bot.runIntakesOut(),
-								new SleepAction(1),
-								bot.fastHangSpecimenEnd()
-						),
-						drive.actionBuilder(posForInitialSpecimenDrop)
-								.splineToSplineHeading(startPushingFirstSampleFrom, 0)
-								.setTangent(STANDARD_TANGENT)
-								.lineToY(pushSamplesUntil)
-								.strafeToSplineHeading(specimenPickupPosStart.position, specimenPickupPosStart.heading)
-								.build()
-				)
-		);
-
-		Action netThird = drive.actionBuilder(posForSpecimenDrop)
-				.lineToY(-1.7*FieldConstants.BLOCK_LENGTH_IN)
-				.splineToSplineHeading(startPushingFirstSampleFrom, startPushingFirstSampleFrom.heading)
-				.setTangent(STANDARD_TANGENT)
-				.lineToY(pushSamplesUntil)
-				.strafeToSplineHeading(specimenPickupPosStart.position, specimenPickupPosStart.heading)
-				.build();
-
-
-		Action prepForHang = new SequentialAction(
+	Action prepForHang() {
+		return new SequentialAction(
 				drive.actionBuilder(specimenPickupPosEnd)
 						.strafeToSplineHeading(posForSpecimenDropSpliner.position, posForSpecimenDropSpliner.heading)
 						.build(),
@@ -100,7 +58,22 @@ public class RightSpecimenCycleRunner extends ITeleOpRunner { // this can impl I
 						.lineToY(posForSpecimenDrop.position.y)
 						.build()
 		);
+	}
 
+	Action pickupAndHang() {
+		return new SequentialAction(
+				pickupSpecimenFromFieldWall(),
+				prepForHang(),
+				bot.fastHangSpecimenBegin(),
+				bot.fastHangSpecimenWrap(
+						drive.actionBuilder(posForSpecimenDrop)
+								.setTangent(Math.PI / 2)
+								.lineToY(posForSpecimenDropBackup.position.y)
+				)
+		);
+	}
+
+	Action pickupSpecimenFromFieldWall() {
 		Action backupIntoWallAndStartPickup = new SequentialAction(
 				new InstantAction(() -> {
 					bot.intakeLarge.setPower(bot.INTAKE_LARGE_IN_DIRECTION);
@@ -128,51 +101,86 @@ public class RightSpecimenCycleRunner extends ITeleOpRunner { // this can impl I
 				bot.setArmPos(bot.ARM_PICKUP_FROM_BACK_WALL+150)
 		);
 
-		Action pickupSpecimenFromFieldWall = new SequentialAction(
+		return new SequentialAction(
 				bot.setArmPos(bot.ARM_PICKUP_FROM_BACK_WALL),
 				backupIntoWallAndStartPickup,
 				endPickup,
 				inchForwardAndRaiseArm
 		);
+	}
 
-		Action shiftItOver = drive.actionBuilder(posForSpecimenDrop)
-				.setTangent(Math.PI/2)
-				.lineToY(pushHungSpecimenUntil.y)
-				.setTangent(0)
-				.lineToX(pushHungSpecimenUntil.x)
-				.strafeTo(posForSpecimenDrop.position)
-				.build();
-
-		Action returnToOZAndHangFast = new SequentialAction(
+	Action returnToOZ() {
+		return new SequentialAction(
 				drive.actionBuilder(posForSpecimenDropBackup)
 						.afterDisp(1.5, bot.fastHangSpecimenEnd())
-						.afterDisp(5, new SequentialAction(
+						.strafeToSplineHeading(specimenPickupPosStart.position, specimenPickupPosStart.heading)
+						.build()
+		);
+	}
+
+	Action fastReturnToOZAndHang() {
+		return new SequentialAction(
+				drive.actionBuilder(posForSpecimenDropBackup)
+						.afterDisp(1.5, bot.fastHangSpecimenEnd())
+						.afterDisp(3, new SequentialAction(
 								bot.setArmPos(bot.ARM_PICKUP_FROM_BACK_WALL),
 								bot.runIntakesIn()
 						))
 						.strafeToSplineHeading(specimenPickupPosEnd.position, specimenPickupPosEnd.heading)
 						.build(),
-				bot.idleIntakes(),
 				bot.setArmPos(bot.ARM_PICKUP_FROM_BACK_WALL+150),
-				prepForHang,
+				prepForHang(),
 				bot.fastHangSpecimenBegin(),
 				bot.fastHangSpecimenWrap(
 						drive.actionBuilder(posForSpecimenDrop)
 								.setTangent(Math.PI / 2)
 								.lineToY(posForSpecimenDropBackup.position.y)
+				)
+		);
+	}
+
+	protected void customInit() {
+		drive = new SparkFunOTOSDrive(hardwareMap, initialRightPose);
+		util = new MecanumUtil(drive);
+
+		Action prepForPreloadHang = new ParallelAction(
+				bot.setExtensionLiftPos(150),
+				new SequentialAction(
+						bot.prepareArmForSpecimenHang(),
+						bot.forceSetExtensionLiftMinPos()
+				),
+				drive.actionBuilder(initialRightPose)
+						.setTangent(STANDARD_TANGENT)
+						.strafeToSplineHeading(posForInitialSpecimenDrop.position, posForInitialSpecimenDrop.heading)
+						.build()
+		);
+
+		Action netFirst = new SequentialAction(
+				bot.idleIntakes(),
+				new ParallelAction(
+						new SequentialAction(
+								new SleepAction(0.6),
+								bot.runIntakesOut(),
+								new SleepAction(1),
+								bot.fastHangSpecimenEnd()
+						),
+						drive.actionBuilder(posForInitialSpecimenDrop)
+								.splineToSplineHeading(startPushingFirstSampleFrom, 0)
+								.setTangent(STANDARD_TANGENT)
+								.lineToY(pushSamplesUntil)
+								.strafeToSplineHeading(specimenPickupPosStart.position, specimenPickupPosStart.heading)
+								.build()
 				)
 		);
 
-		Action pickupAndHang = new SequentialAction(
-				pickupSpecimenFromFieldWall,
-				prepForHang,
-				bot.fastHangSpecimenBegin(),
-				bot.fastHangSpecimenWrap(
-						drive.actionBuilder(posForSpecimenDrop)
-								.setTangent(Math.PI / 2)
-								.lineToY(posForSpecimenDropBackup.position.y)
-				)
-		);
+		Action netThird = drive.actionBuilder(posForSpecimenDrop)
+				.lineToY(-1.7*FieldConstants.BLOCK_LENGTH_IN)
+				.splineToSplineHeading(startPushingFirstSampleFrom, startPushingFirstSampleFrom.heading)
+				.setTangent(STANDARD_TANGENT)
+				.lineToY(pushSamplesUntil)
+				.strafeToSplineHeading(specimenPickupPosStart.position, specimenPickupPosStart.heading)
+				.build();
+
 
 		Action park = new ParallelAction(
 				bot.retractArm(),
@@ -185,19 +193,9 @@ public class RightSpecimenCycleRunner extends ITeleOpRunner { // this can impl I
 				bot.clutchPreload(),
 				prepForPreloadHang,
 				bot.fastHangSpecimenBegin(),
-//				shiftItOver,
 				netFirst,
-				pickupAndHang,
-				returnToOZAndHangFast,
-//				shiftItOver,
-//				returnToOZ,
-//				netThird, // -> replace this with a returnToOZ (above) if not going for third
-//				pickupAndHang,
-//				returnToOZ,
-//				pickupAndHang,
-//				returnToOZ,
-//				pickupAndHang, // could do a last one, but need teammate to allow use to use their specimen for this
-//				returnToOZ,
+				pickupAndHang(),
+				fastReturnToOZAndHang(),
 				park
 		);
 	}
