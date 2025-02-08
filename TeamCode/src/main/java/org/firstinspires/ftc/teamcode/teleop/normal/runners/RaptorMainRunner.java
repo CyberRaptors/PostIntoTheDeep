@@ -46,10 +46,10 @@ public class RaptorMainRunner extends ITeleOpRunner {
         double yPower = -TeleOpUtils.fineAndFastControl(greatestXValue);
         double xPower = -TeleOpUtils.fineAndFastControl(greatestYValue);
 
-        double turnPower = 0;
+        double turnPower = (gamepad1.inner.left_trigger-gamepad1.inner.right_trigger)*0.8;
 
-        if (Math.signum(gamepad1.inner.right_stick_y) == -Math.signum(gamepad1.inner.left_stick_y)) {
-            turnPower = gamepad1.inner.right_stick_y-gamepad1.inner.left_stick_y;
+        if (Math.signum(gamepad1.inner.right_stick_y) == -Math.signum(gamepad1.inner.left_stick_y) && Math.signum(gamepad1.inner.right_stick_y) != 0) {
+            turnPower = (gamepad1.inner.right_stick_y-gamepad1.inner.left_stick_y)*0.5;
         }
 
         bot.drive.setDrivePowers(new PoseVelocity2d(
@@ -241,7 +241,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         int liftToGroundExtTicksReal = (int) Math.floor(liftToGroundExtIn*bot.LIFT_TICKS_PER_INCHES);
 
-        int liftToGroundExtTicksEnsure = liftToGroundExtTicksReal+75; // ensure we hit the ground (but don't waste too much time) by adding a small amount of ticks
+        int liftToGroundExtTicksEnsure = liftToGroundExtTicksReal+100; // ensure we hit the ground (but don't waste too much time) by adding a small amount of ticks
 
         actions.schedule(
                 new InstantAction(() -> {

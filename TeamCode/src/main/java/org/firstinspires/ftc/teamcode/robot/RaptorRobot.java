@@ -15,6 +15,7 @@ import lib8812.common.robot.hardwarewrappers.BinaryClaw;
 import lib8812.common.robot.hardwarewrappers.LabeledPositionServo;
 import lib8812.common.robot.hardwarewrappers.LimelightManager;
 import lib8812.common.robot.hardwarewrappers.ServoLikeMotor;
+import lib8812.common.robot.hardwarewrappers.VirtualServo;
 import lib8812.common.robot.poses.SimpleRadianPose;
 import lib8812.common.rr.SparkFunOTOSDrive;
 
@@ -133,13 +134,13 @@ public class RaptorRobot extends IMecanumRobot {
         lilRaptor.resetDeviceConfigurationForOpMode();
 
         auxClawRotate = new LabeledPositionServo(
-                loadDevice(hardwareMap, Servo.class, "auxClawRotate"),
+                loadDevice(hardwareMap, VirtualServo.class, "auxClawRotate"),
                 new String[] { "up", "down" },
                 new Double[] { 0.025, 0.3 }
         );
 
         auxClaw = new BinaryClaw(
-                loadDevice(hardwareMap, Servo.class, "auxClaw"),
+                loadDevice(hardwareMap, VirtualServo.class, "auxClaw"),
                 0.35,
                 0.1
         );
