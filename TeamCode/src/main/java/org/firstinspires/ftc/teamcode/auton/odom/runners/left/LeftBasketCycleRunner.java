@@ -24,9 +24,9 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 	final static Pose2d posForAscent = new Pose2d(FieldConstants.BLOCK_LENGTH_IN+1,0.5*FieldConstants.BLOCK_LENGTH_IN, 0);
 	final static Pose2d posForHighBasketBackDrop = new Pose2d(2.3*FieldConstants.BLOCK_LENGTH_IN, 2.1*FieldConstants.BLOCK_LENGTH_IN+3+2, 5*Math.PI/4);
 	final static Pose2d adjustedPosForHighBasketDropFirst = posForHighBasketBackDrop; //new Pose2d(posForHighBasketBackDrop.position.plus(new Vector2d(0, -1)), posForHighBasketBackDrop.heading);
-	final static Pose2d posForFirstPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+3.5, 2*FieldConstants.BLOCK_LENGTH_IN-3.2, 3*Math.PI/2);
-	final static Pose2d posForSecondPickup = new Pose2d(2.6*FieldConstants.BLOCK_LENGTH_IN+0.7, 2*FieldConstants.BLOCK_LENGTH_IN-2.5, 3*Math.PI/2);
-	final static Pose2d posForThirdPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+18, 1*FieldConstants.BLOCK_LENGTH_IN+22.3, (3*Math.PI/2)+Math.toRadians(21 ));
+	final static Pose2d posForFirstPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+3.5, 2*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
+	final static Pose2d posForSecondPickup = new Pose2d(2.6*FieldConstants.BLOCK_LENGTH_IN-0.3, 2*FieldConstants.BLOCK_LENGTH_IN, 3*Math.PI/2);
+	final static Pose2d posForThirdPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+16, 1*FieldConstants.BLOCK_LENGTH_IN+25.3, (3*Math.PI/2)+Math.toRadians(18));
 
 	Action main;
 
@@ -46,9 +46,10 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 								.setTangent(4*Math.PI/5)
 								.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
 								.build(),
-						bot.prepareArmForBackDrop()
+						bot.clutchPreload(),
+						bot.asyncBackDropBeginCustom()
 				),
-				bot.spitSample(),
+				bot.asyncBackDropEnd(),
 				new ParallelAction(
 						bot.forceSetExtensionLiftMinPos(),
 						drive.actionBuilder(posForHighBasketBackDrop)
@@ -110,7 +111,8 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 				new ParallelAction(
 						bot.armMostlyPerpendicular(),
 						bot.clutchPreload()
-				),				util.relocalize(),
+				),
+				util.relocalize(),
 				new ParallelAction(
 						drive.actionBuilder(posForThirdPickup)
 								.setTangent(4*Math.PI/5)
@@ -119,8 +121,8 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 						bot.asyncBackDropBegin()
 				),
 				bot.asyncBackDropEnd(),
-				bot.forceSetExtensionLiftMinPos(),
 				new ParallelAction(
+						bot.forceSetExtensionLiftMinPos(),
 						drive.actionBuilder(posForHighBasketBackDrop) /*.plus(new Vector2d(-1, 0)), posForHighBasketBackDrop.heading)*/
 								.splineToSplineHeading(posForAscent, 3*Math.PI/4) // must use a spline here to avoid hitting side of submersible
 								.build(),

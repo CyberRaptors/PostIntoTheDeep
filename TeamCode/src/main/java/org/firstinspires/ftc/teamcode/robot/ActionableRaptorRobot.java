@@ -85,9 +85,28 @@ public class ActionableRaptorRobot extends RaptorRobot {
         );
     }
 
+    public Action asyncBackDropBeginCustom() {
+        return new SequentialAction(
+                setArmPos(REVERSE_DROP_MACRO_ARM_POS),
+                new ParallelAction(
+                        new OnceAction(
+                                () -> extensionLift.getPosition() >= REVERSE_DROP_MACRO_ARM_POS-200,
+                                new InstantAction(() -> {
+                                    intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
+                                    intakeLarge.setPower(INTAKE_LARGE_OUT_DIRECTION*INTAKE_SMALL_TO_LARGE_RADIUS_RATIO);
+                                })
+                        ),
+                        new OnceAction(
+                                () -> extensionLift.getPosition() >= 150,
+                                setClawRotatePos(CLAW_ROTATE_FORWARDS)
+                        ),
+                        setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS)
+                )
+        );
+    }
+
     public Action asyncBackDropEnd() {
         return new SequentialAction(
-                new SleepAction(0.1),
                 new InstantAction(() -> intakeLarge.setPower(0)),
                 new InstantAction(() -> {
                     intakeSmall.setPower(0);
@@ -99,8 +118,8 @@ public class ActionableRaptorRobot extends RaptorRobot {
         return new SequentialAction(
                 setArmPos(REVERSE_DROP_MACRO_ARM_POS),
                 new ParallelAction(
-                        new SequentialAction(
-                                new SleepAction(1),
+                        new OnceAction(
+                                () -> extensionLift.getPosition() >= REVERSE_DROP_MACRO_ARM_POS-125,
                                 new InstantAction(() -> {
                                     intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
                                     intakeLarge.setPower(INTAKE_LARGE_OUT_DIRECTION*INTAKE_SMALL_TO_LARGE_RADIUS_RATIO);
@@ -125,7 +144,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
         );
     }
 
-    public Action spitSample() { return spitSample(1.3); }
+    public Action spitSample() { return spitSample(1.1); }
 
     public Action runIntakesIn() {
         return new InstantAction(() -> {
