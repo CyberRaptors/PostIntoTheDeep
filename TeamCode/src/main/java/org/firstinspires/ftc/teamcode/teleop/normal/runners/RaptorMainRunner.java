@@ -45,8 +45,6 @@ public class RaptorMainRunner extends ITeleOpRunner {
         // swap y and x here as the robot's position is technically rotated by PI/2 radians
         double yPower = -TeleOpUtils.fineAndFastControl(greatestXValue);
         double xPower = -TeleOpUtils.fineAndFastControl(greatestYValue);
-//        double yPower = -TeleOpUtils.powerScaleInput(greatestXValue, 2, 1.5);
-//        double xPower = -TeleOpUtils.powerScaleInput(greatestYValue, 2, 1.5);
 
         double turnPower = 0;
 
@@ -54,29 +52,14 @@ public class RaptorMainRunner extends ITeleOpRunner {
             turnPower = gamepad1.inner.right_stick_y-gamepad1.inner.left_stick_y;
         }
 
-//        double turnPower = gamepad1.inner.left_trigger-gamepad1.inner.right_trigger;
-
         bot.drive.setDrivePowers(new PoseVelocity2d(
                 new Vector2d(
-                        xPower,
-                        yPower
+                        xPower*0.9,
+                        yPower*0.9
                 ),
-                turnPower
+                turnPower*0.9
         ));
-//        double correctedRightY = TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.right_stick_y);
-//        double correctedRightX = TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.right_stick_x);
-//        double correctedLeftY = TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.left_stick_y);
-//        double correctedLeftX = TeleOpUtils.quadraticallyScaleInput(gamepad1.inner.left_stick_x);
-//
-//
-//        WheelPowers correctedWheelPowers = new WheelPowers(
-//                (-correctedLeftY+correctedLeftX),
-//                (-correctedLeftY-correctedLeftX),
-//                (-correctedRightY-correctedRightX),
-//                (-correctedRightY+correctedRightX)
-//        );
-//
-//        correctedWheelPowers.applyTo(bot, wheelWeights);
+
     }
 
     WheelPowers getRealWheelInputPowers() {
@@ -98,7 +81,8 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
     void moveLift() {
         if (reduceLiftStressAndRecalibrate()) bot.extensionLift.setPosition(
-                bot.extensionLift.getTargetPosition()-(int) (gamepad2.inner.right_stick_y*50)
+                bot.extensionLift.getTargetPosition()-(int) (gamepad2.inner.right_stick_y*50),
+                0.7
         );
     }
 

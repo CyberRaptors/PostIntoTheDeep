@@ -64,7 +64,7 @@ public class ServoLikeMotor implements DcMotor, ICustomHardwareDevice {
         else inner.setDirection(Direction.FORWARD);
     }
 
-    public void setPosition(int pos, boolean startAutoAntiStress) {
+    public void setPosition(int pos, boolean startAutoAntiStress, double power) {
         targetPosition = Math.min(Math.max(pos, minPos), maxPos); // cap positions
 
         if (inner.getMode() == RunMode.RUN_WITHOUT_ENCODER) {
@@ -75,15 +75,19 @@ public class ServoLikeMotor implements DcMotor, ICustomHardwareDevice {
 
         inner.setTargetPosition(targetPosition);
 
-        inner.setPower(1);
+        inner.setPower(power);
 
         if (startAutoAntiStress) {
             currentAntiStressWatcher = CompletableFuture.supplyAsync(this::relieveStress);
         }
     }
 
+    public void setPosition(int pos, double power) {
+        setPosition(pos, antiStressAutomatic && (currentAntiStressWatcher == null || currentAntiStressWatcher.isDone()) && (Math.abs(inner.getCurrentPosition()- targetPosition) > 15), power); // the Math.abs... bit makes sure that the anti-stress only runs when a gap between desired and real position accumulates
+    }
+
     public void setPosition(int pos) {
-        setPosition(pos, antiStressAutomatic && (currentAntiStressWatcher == null || currentAntiStressWatcher.isDone()) && (Math.abs(inner.getCurrentPosition()- targetPosition) > 15)); // the Math.abs... bit makes sure that the anti-stress only runs when a gap between desired and real position accumulates
+        setPosition(pos, 1);
     }
 
     public int getPosition() {
@@ -99,7 +103,7 @@ public class ServoLikeMotor implements DcMotor, ICustomHardwareDevice {
         while (inner.isBusy()) {
             int ticks = inner.getCurrentPosition();
             if ((ticks > 200) && (Math.abs(inner.getVelocity()) < 12) && (Math.abs(targetPosition -ticks) > 1)) { // low speed and more than 5 ticks away from target (when target is greater than current pos)
-                setPosition(targetPosition -20, false);
+                setPosition(targetPosition -20, false, 1);
                 relieved = true;
             }
         }

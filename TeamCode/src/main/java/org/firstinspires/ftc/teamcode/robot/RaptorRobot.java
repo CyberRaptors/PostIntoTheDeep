@@ -135,13 +135,13 @@ public class RaptorRobot extends IMecanumRobot {
         auxClawRotate = new LabeledPositionServo(
                 loadDevice(hardwareMap, Servo.class, "auxClawRotate"),
                 new String[] { "up", "down" },
-                new Double[] { 0.0, 0.3 }
+                new Double[] { 0.025, 0.3 }
         );
 
         auxClaw = new BinaryClaw(
                 loadDevice(hardwareMap, Servo.class, "auxClaw"),
                 0.35,
-                0.15
+                0.1
         );
 
         auxClaw.inner.addPositionLabel("power saving mode", 0.550);
