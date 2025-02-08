@@ -26,7 +26,7 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 	final static Pose2d adjustedPosForHighBasketDropFirst = posForHighBasketBackDrop; //new Pose2d(posForHighBasketBackDrop.position.plus(new Vector2d(0, -1)), posForHighBasketBackDrop.heading);
 	final static Pose2d posForFirstPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+3.5, 2*FieldConstants.BLOCK_LENGTH_IN-3.2, 3*Math.PI/2);
 	final static Pose2d posForSecondPickup = new Pose2d(2.6*FieldConstants.BLOCK_LENGTH_IN+0.7, 2*FieldConstants.BLOCK_LENGTH_IN-2.5, 3*Math.PI/2);
-	final static Pose2d posForThirdPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+18, 1*FieldConstants.BLOCK_LENGTH_IN+20.3, (3*Math.PI/2)+Math.toRadians(21 ));
+	final static Pose2d posForThirdPickup = new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+18, 1*FieldConstants.BLOCK_LENGTH_IN+22.3, (3*Math.PI/2)+Math.toRadians(21 ));
 
 	Action main;
 
@@ -46,8 +46,6 @@ public class LeftBasketCycleRunner extends ITeleOpRunner { // this can impl ITel
 								.setTangent(4*Math.PI/5)
 								.strafeToSplineHeading(posForHighBasketBackDrop.position, posForHighBasketBackDrop.heading)
 								.build(),
-						bot.clutchPreload(),
-						bot.setClawRotatePos(bot.CLAW_ROTATE_FORWARDS),
 						bot.prepareArmForBackDrop()
 				),
 				bot.spitSample(),
