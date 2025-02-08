@@ -241,7 +241,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         int liftToGroundExtTicksReal = (int) Math.floor(liftToGroundExtIn*bot.LIFT_TICKS_PER_INCHES);
 
-        int liftToGroundExtTicksEnsure = liftToGroundExtTicksReal+25; // ensure we hit the ground (but don't waste too much time) by adding a small amount of ticks
+        int liftToGroundExtTicksEnsure = liftToGroundExtTicksReal+75; // ensure we hit the ground (but don't waste too much time) by adding a small amount of ticks
 
         actions.schedule(
                 new InstantAction(() -> {

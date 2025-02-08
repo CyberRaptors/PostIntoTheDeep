@@ -9,6 +9,7 @@ import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import lib8812.common.actions.MotorSetPositionAction;
+import lib8812.common.actions.OnceAction;
 import lib8812.common.actions.ServoSetPositionAction;
 
 public class ActionableRaptorRobot extends RaptorRobot {
@@ -74,7 +75,13 @@ public class ActionableRaptorRobot extends RaptorRobot {
     public Action prepareArmForBackDrop() {
         return new SequentialAction(
                 setArmPos(REVERSE_DROP_MACRO_ARM_POS),
-                setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS)
+                new ParallelAction(
+                        setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS),
+                        new OnceAction(
+                                () -> extensionLift.getPosition() >= 150,
+                                setClawRotatePos(CLAW_ROTATE_FORWARDS)
+                        )
+                )
         );
     }
 
@@ -120,6 +127,27 @@ public class ActionableRaptorRobot extends RaptorRobot {
 
     public Action spitSample() { return spitSample(1.3); }
 
+    public Action runIntakesIn() {
+        return new InstantAction(() -> {
+            intakeSmall.setPower(INTAKE_SMALL_IN_DIRECTION);
+            intakeLarge.setPower(INTAKE_LARGE_IN_DIRECTION);
+        });
+    }
+
+    public Action runIntakesOut() {
+        return new InstantAction(() -> {
+            intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
+            intakeLarge.setPower(INTAKE_LARGE_OUT_DIRECTION);
+        });
+    }
+
+    public Action idleIntakes() {
+        return new InstantAction(() -> {
+            intakeSmall.setPower(0);
+            intakeLarge.setPower(0);
+        });
+    }
+
 
     public Action ascend() {
         return setArmPos(AUTON_ASCENT_ARM_POS);
@@ -151,10 +179,16 @@ public class ActionableRaptorRobot extends RaptorRobot {
     }
 
     public Action fastHangSpecimenWrap(TrajectoryActionBuilder backupActionBuilder) {
-        return backupActionBuilder.afterDisp(3, new InstantAction(() -> {
-            intakeSmall.setPower(0);
-            intakeLarge.setPower(0);
-        })).build();
+        return new SequentialAction(
+                idleIntakes(),
+                new ParallelAction(
+                        new SequentialAction(
+                                new SleepAction(0.7),
+                                runIntakesOut()
+                        ),
+                        backupActionBuilder.build()
+                )
+        );
     }
 
     public Action fastHangSpecimenEnd() {
