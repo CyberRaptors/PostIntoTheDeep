@@ -24,7 +24,7 @@ public class RightSpecimenCycleRunner extends ITeleOpRunner { // this can impl I
 
 	// NOTE: ADD .4 FROM Y_OFFSET FOR AUTON TO ACCOUNT FOR MEET FIELD SETUP
 
-	final static Pose2d initialRightPose = new Pose2d(0.45 * FieldConstants.BLOCK_LENGTH_IN, -(2.5*FieldConstants.BLOCK_LENGTH_IN+3.5+0.4), STANDARD_TANGENT);
+	final static Pose2d initialRightPose = new Pose2d(0.45 * FieldConstants.BLOCK_LENGTH_IN, -(2.5*FieldConstants.BLOCK_LENGTH_IN+3.5+2.9), STANDARD_TANGENT); // IF LEFT AUTON WORKS, ADD 1.5 inside     y-value expression
 	final static Pose2d posForSpecimenDropSpliner = new Pose2d(0.45*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN+5), STANDARD_TANGENT);
 	final static Pose2d posForSpecimenDrop = new Pose2d(0.45*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN-7), STANDARD_TANGENT);
 	final static Pose2d posForSpecimenDropBackup = new Pose2d(0.45*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN+5), STANDARD_TANGENT);
@@ -165,6 +165,8 @@ public class RightSpecimenCycleRunner extends ITeleOpRunner { // this can impl I
 								bot.fastHangSpecimenEnd()
 						),
 						drive.actionBuilder(posForInitialSpecimenDrop)
+								.setTangent(Math.PI/2)
+								.lineToY(posForInitialSpecimenDropBackup.position.y)
 								.splineToSplineHeading(startPushingFirstSampleFrom, 0)
 								.setTangent(STANDARD_TANGENT)
 								.lineToY(pushSamplesUntil)

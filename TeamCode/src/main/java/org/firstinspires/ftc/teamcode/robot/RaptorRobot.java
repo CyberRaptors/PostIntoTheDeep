@@ -135,13 +135,13 @@ public class RaptorRobot extends IMecanumRobot {
         lilRaptor.resetDeviceConfigurationForOpMode();
 
         auxClawRotate = new LabeledPositionServo(
-                loadDevice(hardwareMap, VirtualServo.class, "auxClawRotate"),
+                loadDevice(hardwareMap, Servo.class, "auxClawRotate"), // NOTE: CHANGED FROM VirtualServo TO Servo & below loader as well
                 new String[] { "up", "down" },
                 new Double[] { 0.025, 0.3 }
         );
 
         auxClaw = new BinaryClaw(
-                loadDevice(hardwareMap, VirtualServo.class, "auxClaw"),
+                loadDevice(hardwareMap, Servo.class, "auxClaw"),
                 0.35,
                 0.1
         );

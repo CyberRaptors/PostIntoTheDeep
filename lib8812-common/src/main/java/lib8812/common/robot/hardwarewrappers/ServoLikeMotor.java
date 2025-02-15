@@ -48,6 +48,10 @@ public class ServoLikeMotor implements DcMotor, ICustomHardwareDevice {
         else throw new IllegalArgumentException(String.format("Algorithm '%s' unknown.", name));
     }
 
+    public void unsafe_setInternalTarget(int target) {
+        targetPosition = target;
+    }
+
     public void resetEncoder() {
         if (inner.getMode() == RunMode.RUN_WITHOUT_ENCODER) {
             inner.setMode(RunMode.RUN_USING_ENCODER);

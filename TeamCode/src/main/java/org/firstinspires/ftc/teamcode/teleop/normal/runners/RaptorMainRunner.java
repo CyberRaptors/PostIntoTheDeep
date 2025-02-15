@@ -33,6 +33,8 @@ public class RaptorMainRunner extends ITeleOpRunner {
     boolean LOCK_WHEELS = false;
     boolean CHANNEL_POWER = false;
 
+    boolean attemptedLiftRecalOnThisCycle = false;
+
     long msAtAuxClose;
 
     protected IMecanumRobot getBot() { return bot; }
@@ -114,7 +116,7 @@ public class RaptorMainRunner extends ITeleOpRunner {
         if (alphaDeg < 90) {
             bot.extensionLift.maxPos = Math.min(
                     (int) Math.floor(
-                            ((11/Math.cos(Math.toRadians(alphaDeg)))-bot.ARM_APPROX_LEN_IN)*bot.LIFT_TICKS_PER_INCHES
+                            ((7/Math.cos(Math.toRadians(alphaDeg)))-bot.ARM_APPROX_LEN_IN)*bot.LIFT_TICKS_PER_INCHES
                     ),
                     bot.LIFT_MAX_TICKS
             );
@@ -126,20 +128,27 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         bot.extensionLift.maxPos = Math.min(
                 (int) Math.floor(
-                        ((19.5/Math.abs(Math.cos(theta)))-bot.ARM_APPROX_LEN_IN)*bot.LIFT_TICKS_PER_INCHES
+                        ((18/Math.abs(Math.cos(theta)))-bot.ARM_APPROX_LEN_IN)*bot.LIFT_TICKS_PER_INCHES
                 ), bot.LIFT_MAX_TICKS
         );
 
-        if (reduceLiftStressAndRecalibrate()) bot.extensionLift.setPosition(bot.extensionLift.getInternalTargetPosition());
+        if (reduceLiftStressAndRecalibrate()) bot.extensionLift.setPosition(bot.extensionLift.getInternalTargetPosition(), 0.9);
     }
 
     /// @return <code>true</code> if the callee should set a position and <code>false</code> otherwise
     boolean reduceLiftStressAndRecalibrate() {
         if (bot.extensionLift.maxPos <= 0) {
-            bot.extensionLift.resetEncoder();
-            bot.extensionLift.setPower(0);
+            if (!attemptedLiftRecalOnThisCycle) {
+                attemptLiftRecalibrate();
+                attemptedLiftRecalOnThisCycle = true;
+            } else {
+                bot.extensionLift.resetEncoder();
+                bot.extensionLift.setPower(0);
+            }
             return false;
         }
+
+        attemptedLiftRecalOnThisCycle = false;
 
         return true;
     }
@@ -500,8 +509,8 @@ public class RaptorMainRunner extends ITeleOpRunner {
         LOCK_WHEELS = true;
 
         Pose2d start = new Pose2d(0, 0, 0);
-        Pose2d end = new Pose2d(0, 0, Math.toRadians(15));
-        Pose2d secondEnd = new Pose2d(0, 0, Math.toRadians(-15));
+        Pose2d end = new Pose2d(0, 0, Math.toRadians(25));
+        Pose2d secondEnd = new Pose2d(0, 0, Math.toRadians(-25));
 
         if (clockWise) {
             Pose2d temp = end;
@@ -520,11 +529,32 @@ public class RaptorMainRunner extends ITeleOpRunner {
                         .turnTo(end.heading)
                         .waitSeconds(0.2)
                         .turnTo(secondEnd.heading)
-                        .build()
+                        .build(),
+                new InstantAction(() -> {
+                    LOCK_WHEELS = false;
+                })
         );
     }
 
     /* END MACROS */
+
+    /* FAIL-SAFES */
+
+    void attemptLiftRecalibrate() {
+        if (LOCK_LIFT) return;
+
+        LOCK_LIFT = true;
+
+        actions.schedule(
+                new InstantAction(() -> bot.extensionLift.setPower(-0.7)),
+                new SleepAction(0.7),
+                new InstantAction(() -> {
+                    bot.extensionLift.setPower(0);
+                    bot.extensionLift.resetEncoder();
+                }),
+                new InstantAction(() -> LOCK_LIFT = false)
+        );
+    }
 
     void tryRecoverFromAuton() {
         telemetry.addData("RAPTOR RECOVERY MODE", "enabled");
@@ -584,12 +614,11 @@ public class RaptorMainRunner extends ITeleOpRunner {
             telemetry.addData("note", "to recover, bring arm back to resting position and restart opmode");
             telemetry.update();
         });
-        
+
         keybinder.bind("left_stick_button").of(gamepad2).to(this::macroArmXXXToggle);
         keybinder.bind("right_stick_button").of(gamepad2).to(this::macroLiftFullXXXToggle);
 
 //        keybinder.bind("dpad_up").of(gamepad2).to(this::macroPrepareForForwardHighDrop);
-//        keybinder.bind("a").of(gamepad2).to(this::macroHangSpecimenBackHighChamber);
 
         keybinder.bind("right_bumper").of(gamepad2).to(this::macroFrog);
         keybinder.bind("left_bumper").of(gamepad2).to(this::macroPrepareForReverseHighDrop);
@@ -631,6 +660,10 @@ public class RaptorMainRunner extends ITeleOpRunner {
             if (!(bot.auxClaw.inner.getPositionLabel().equals("power saving mode") && !gamepad2.inner.dpad_down)) {
                 int auxState = (int) gamepad2.getValue("dpad_down");
                 performAuxSystemState(auxState);
+            }
+
+            if (gamepad2.inner.a) {
+                attemptLiftRecalibrate();
             }
 
             keybinder.executeActions();

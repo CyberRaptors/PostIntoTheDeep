@@ -90,7 +90,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                 setArmPos(REVERSE_DROP_MACRO_ARM_POS),
                 new ParallelAction(
                         new OnceAction(
-                                () -> extensionLift.getPosition() >= REVERSE_DROP_MACRO_LIFT_POS-200,
+                                () -> extensionLift.getPosition() >= REVERSE_DROP_MACRO_LIFT_POS-125,
                                 new InstantAction(() -> {
                                     intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
                                     intakeLarge.setPower(INTAKE_LARGE_OUT_DIRECTION*INTAKE_SMALL_TO_LARGE_RADIUS_RATIO);
