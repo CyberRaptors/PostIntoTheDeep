@@ -26,7 +26,8 @@ public class RaptorRobot extends IMecanumRobot {
     public final double ARM_APPROX_LEN_IN = 14;
     public final double ARM_JOINT_MOUNT_HEIGHT_IN = 16;
 
-    protected double NEW_LIFT_TICK_RATIO = 537.7/384.5;
+    // 5202 435 to 5202 312
+    protected double NEW_LIFT_TICK_RATIO = 751.8/384.5; /* OLD RES FOR 312: 537.7/384.5 */
 
     static final int ARM_MIN_TICKS = 0;
     public final int LIFT_MAX_TICKS = (int) (2000*NEW_LIFT_TICK_RATIO);
@@ -130,7 +131,7 @@ public class RaptorRobot extends IMecanumRobot {
         intakeLarge = loadDevice(hardwareMap, CRServo.class, "intake1");
         intakeLarge.resetDeviceConfigurationForOpMode();
 
-        lilRaptor = loadDevice(hardwareMap, Servo.class, "lilRaptor");
+        lilRaptor = loadDevice(hardwareMap, VirtualServo.class, "lilRaptor");
         lilRaptor.resetDeviceConfigurationForOpMode();
 
         auxClawRotate = new LabeledPositionServo(
@@ -175,6 +176,9 @@ public class RaptorRobot extends IMecanumRobot {
         extensionLift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         arm.setPower(0); // prevent locking
         extensionLift.setPower(0); // prevent locking
+
+        arm.close();
+        extensionLift.close();
     }
 
     public void setRRDrivePose(Pose2d pose) {

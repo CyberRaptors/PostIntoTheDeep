@@ -382,21 +382,27 @@ public class RaptorMainRunner extends ITeleOpRunner {
 
         LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = true;
 
-        final Pose2d initialSpecimenPickupPose = new Pose2d(2* FieldConstants.BLOCK_LENGTH_IN, -(2*FieldConstants.BLOCK_LENGTH_IN), Math.PI / 2);
-        final Pose2d posForSpecimenDrop = new Pose2d(0.2*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN-15), 3 * Math.PI / 2);
+        final Pose2d initialSpecimenPickupPose =new Pose2d(2*FieldConstants.BLOCK_LENGTH_IN+4.5, -(2*FieldConstants.BLOCK_LENGTH_IN+7), Math.PI / 2);
+        final Pose2d posForSpecimenDrop = new Pose2d(0.45*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN-7),  3 * Math.PI / 2);
+        final Pose2d posForSpecimenDropBackup = new Pose2d(0.45*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN+5),  3 * Math.PI / 2);
+        final  Pose2d posForSpecimenDropSpliner = new Pose2d(0.45*FieldConstants.BLOCK_LENGTH_IN, -(1.5*FieldConstants.BLOCK_LENGTH_IN+5),  3 * Math.PI / 2);
 
         bot.setRRDrivePose(initialSpecimenPickupPose);
 
-        Action prepForHang = new ParallelAction(
-                bot.drive.actionBuilder(initialSpecimenPickupPose)
-                        .strafeToSplineHeading(posForSpecimenDrop.position, posForSpecimenDrop.heading)
+        Action prepForHang = new SequentialAction(
+               bot.drive.actionBuilder(initialSpecimenPickupPose)
+                        .strafeToSplineHeading(posForSpecimenDropSpliner.position, posForSpecimenDropSpliner.heading)
                         .build(),
-                bot.setArmPos(bot.BACKWARDS_HIGH_CHAMBER_ARM_POS)
+                bot.prepareArmForSpecimenHang(),
+                bot.drive.actionBuilder(posForSpecimenDropSpliner)
+                    .setTangent(Math.PI / 2)
+                    .lineToY(posForSpecimenDrop.position.y)
+                    .build()
         );
 
         Action returnToOZ = new ParallelAction(
                 bot.setArmPos(bot.BACKWARDS_HIGH_CHAMBER_ARM_POS-200),
-                bot.drive.actionBuilder(posForSpecimenDrop)
+                bot.drive.actionBuilder(posForSpecimenDropBackup)
                         .strafeToSplineHeading(initialSpecimenPickupPose.position, initialSpecimenPickupPose.heading)
                         .build()
         );
@@ -404,7 +410,12 @@ public class RaptorMainRunner extends ITeleOpRunner {
         Action macro = new SequentialAction(
                 pickupSpecimenFromBackWall(),
                 prepForHang,
-//                hangSpecimenBackHighChamberInternal(),
+                bot.fastHangSpecimenBegin(),
+                bot.fastHangSpecimenWrap(
+                        bot.drive.actionBuilder(posForSpecimenDrop)
+                                .setTangent(Math.PI / 2)
+                                .lineToY(posForSpecimenDropBackup.position.y)
+                ),
                 returnToOZ,
                 bot.setArmPos(bot.arm.minPos),
                 new InstantAction(() -> LOCK_WHEELS = LOCK_INTAKES = LOCK_ARM = LOCK_LIFT = false)
@@ -480,6 +491,36 @@ public class RaptorMainRunner extends ITeleOpRunner {
                         bot.limelightAlgorithms.faceTarget(),
                         new InstantAction(() -> LOCK_WHEELS = false)
                 )
+        );
+    }
+
+    void macroBeginLLAlignCompat(boolean clockWise) {
+        if (LOCK_WHEELS) return;
+
+        LOCK_WHEELS = true;
+
+        Pose2d start = new Pose2d(0, 0, 0);
+        Pose2d end = new Pose2d(0, 0, Math.toRadians(15));
+        Pose2d secondEnd = new Pose2d(0, 0, Math.toRadians(-15));
+
+        if (clockWise) {
+            Pose2d temp = end;
+            end = secondEnd;
+            secondEnd = temp;
+        }
+
+        bot.setRRDrivePose(start);
+
+        actions.schedule(
+                bot.drive.actionBuilder(start)
+                        .turnTo(end.heading)
+                        .waitSeconds(0.2)
+                        .turnTo(secondEnd.heading)
+                        .waitSeconds(0.2)
+                        .turnTo(end.heading)
+                        .waitSeconds(0.2)
+                        .turnTo(secondEnd.heading)
+                        .build()
         );
     }
 
@@ -569,6 +610,10 @@ public class RaptorMainRunner extends ITeleOpRunner {
         keybinder.bind("right_bumper").of(gamepad1).to(this::macroAutoSampleAlign);
 
         keybinder.bind("dpad_up").of(gamepad2).to(() -> bot.auxClaw.inner.setLabeledPosition("power saving mode"));
+
+        // llAlignCompat
+        keybinder.bind("dpad_left").of(gamepad1).to(() -> macroBeginLLAlignCompat(false));
+        keybinder.bind("dpad_right").of(gamepad1).to(() -> macroBeginLLAlignCompat(true));
 
         tryRecoverFromAuton();
 
