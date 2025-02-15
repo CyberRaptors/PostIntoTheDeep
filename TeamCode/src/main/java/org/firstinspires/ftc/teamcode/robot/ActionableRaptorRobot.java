@@ -78,7 +78,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                 new ParallelAction(
                         setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS),
                         new OnceAction(
-                                () -> extensionLift.getPosition() >= 150,
+                                () -> extensionLift.getPosition() >= 150*NEW_LIFT_TICK_RATIO,
                                 setClawRotatePos(CLAW_ROTATE_FORWARDS)
                         )
                 )
@@ -90,14 +90,14 @@ public class ActionableRaptorRobot extends RaptorRobot {
                 setArmPos(REVERSE_DROP_MACRO_ARM_POS),
                 new ParallelAction(
                         new OnceAction(
-                                () -> extensionLift.getPosition() >= REVERSE_DROP_MACRO_ARM_POS-200,
+                                () -> extensionLift.getPosition() >= REVERSE_DROP_MACRO_LIFT_POS-200,
                                 new InstantAction(() -> {
                                     intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
                                     intakeLarge.setPower(INTAKE_LARGE_OUT_DIRECTION*INTAKE_SMALL_TO_LARGE_RADIUS_RATIO);
                                 })
                         ),
                         new OnceAction(
-                                () -> extensionLift.getPosition() >= 150,
+                                () -> extensionLift.getPosition() >= 150*NEW_LIFT_TICK_RATIO,
                                 setClawRotatePos(CLAW_ROTATE_FORWARDS)
                         ),
                         setExtensionLiftPos(REVERSE_DROP_MACRO_LIFT_POS)
@@ -119,7 +119,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                 setArmPos(REVERSE_DROP_MACRO_ARM_POS),
                 new ParallelAction(
                         new OnceAction(
-                                () -> extensionLift.getPosition() >= REVERSE_DROP_MACRO_ARM_POS-125,
+                                () -> extensionLift.getPosition() >= REVERSE_DROP_MACRO_LIFT_POS-300,
                                 new InstantAction(() -> {
                                     intakeSmall.setPower(INTAKE_SMALL_OUT_DIRECTION);
                                     intakeLarge.setPower(INTAKE_LARGE_OUT_DIRECTION*INTAKE_SMALL_TO_LARGE_RADIUS_RATIO);
@@ -202,7 +202,7 @@ public class ActionableRaptorRobot extends RaptorRobot {
                 idleIntakes(),
                 new ParallelAction(
                         new SequentialAction(
-                                new SleepAction(0.7),
+                                new SleepAction(0.5),
                                 runIntakesOut()
                         ),
                         backupActionBuilder.build()
