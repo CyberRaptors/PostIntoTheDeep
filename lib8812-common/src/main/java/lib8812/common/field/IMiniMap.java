@@ -1,4 +1,4 @@
-package lib8812.common.telemetrymap;
+package lib8812.common.field;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
